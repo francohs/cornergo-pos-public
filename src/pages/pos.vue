@@ -1,0 +1,261 @@
+<template>
+  <LayoutPage>
+    <div class="fit row">
+      <div class="col">
+        <div class="fit column">
+          <div class="row q-pr-md q-pb-sm">
+            <q-card class="fit row q-pa-md">
+              <SelectSearchProduct
+                @next="focus(inputPay)"
+                class="fit"
+                :loading="loading"
+                autofocus
+                ref="selectSearchProduct"
+              />
+            </q-card>
+          </div>
+          <div class="row col q-pr-md q-pb-sm">
+            <q-card class="fit row q-px-md">
+              <q-list bordered separator class="fit q-pa-sm">
+                <ItemPos
+                  v-for="item of pos.items"
+                  :item="item"
+                  :key="item._id"
+                />
+              </q-list>
+            </q-card>
+          </div>
+          <div class="row items-center q-pr-md q-pt-sm" style="height: 95px">
+            <q-card class="fit row justify-between q-pa-lg">
+              <div>
+                <q-btn
+                  label="BORRAR TODO"
+                  icon="delete"
+                  class="text-grey-8"
+                  @click="pos.resetAll()"
+                />
+                <q-btn
+                  label="GUARDAR COMPRA"
+                  icon="save"
+                  class="q-ml-sm text-grey-8"
+                  @click="pos.saveItems()"
+                  v-if="pos.savedItems.length == 0"
+                />
+                <q-btn
+                  label="CARGAR COMPRA"
+                  icon="publish"
+                  color="primary"
+                  class="q-ml-sm"
+                  @click="loadItems"
+                  v-else
+                />
+              </div>
+              <div class="text-bold text-grey-9" style="font-size: 24px">
+                <span class="q-mr-md">TOTAL</span>
+                <span>{{ formatter.currency(pos.total) }}</span>
+              </div>
+            </q-card>
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 340px">
+        <div class="fit column">
+          <div class="row col q-pb-sm">
+            <q-card class="full-width column q-pa-md">
+              <Select
+                label="Tipo de Documento"
+                v-model="pos.dteType"
+                :options="dteTypes"
+                icon="receipt"
+                class="q-mb-md"
+              />
+
+              <Select
+                label="Tipo de Pago"
+                :modelValue="pos.payType"
+                @update:modelValue="setPayType"
+                :options="payTypes"
+                icon="account_balance_wallet"
+                class="select-text-lg q-mb-md"
+                v-show="!pos.isTotalReach"
+              />
+
+              <Input
+                label="Monto de Pago"
+                v-model="payAmount"
+                @keyup.enter="enterInputPay"
+                icon="paid"
+                stack-label
+                onlynumbers
+                input-style="font-size: 20px;"
+                ref="inputPay"
+                v-show="!pos.isTotalReach && pos.payType != 'Crédito Cliente'"
+              />
+
+              <SelectInputFetch
+                label="Cliente"
+                autofocus
+                fetchAll
+                :storeId="clients.$id"
+                v-model="client"
+                @update:modelValue="setClient"
+                field="name"
+                icon="person"
+                class="q-mb-md"
+                v-show="pos.payType == 'Crédito Cliente'"
+              />
+              <InputRead
+                v-if="pos.client"
+                format="currency"
+                class="full-width"
+                label="Saldo"
+                icon="paid"
+                :modelValue="pos.client.balance"
+              />
+
+              <div v-show="pos.pays.length > 0">
+                <q-item-label header class="q-pb-none q-pl-sm"
+                  >Pagos</q-item-label
+                >
+                <q-list class="full-width">
+                  <ItemPay
+                    v-for="pay of pos.pays"
+                    :pay="pay"
+                    :key="pay.payType"
+                    @remove="focus(inputPay)"
+                  />
+                </q-list>
+
+                <div
+                  class="text-bold text-grey-9 text-right q-mt-sm q-pr-sm"
+                  style="font-size: 18px"
+                >
+                  <span class="q-mr-md">TOTAL PAGADO</span>
+                  <span>{{ formatter.currency(pos.totalPay) }}</span>
+                </div>
+              </div>
+
+              <q-space />
+
+              <div
+                class="text-bold text-grey-8 text-right q-pr-sm"
+                style="font-size: 24px"
+              >
+                <span class="q-mr-md">VUELTO</span>
+                <span>{{ formatter.currency(pos.backPay) }}</span>
+              </div>
+            </q-card>
+          </div>
+
+          <div class="row q-pt-sm" style="height: 95px">
+            <q-card class="fit row q-pa-lg">
+              <q-btn
+                label="IMPRIMIR"
+                icon="print"
+                class="fit"
+                color="primary"
+                ref="btnPrint"
+                :disable="!pos.isTotalReach || pos.total == 0"
+                @click="printDte"
+              />
+            </q-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </LayoutPage>
+</template>
+
+<script setup>
+import { usePos } from "stores/pos";
+import { useClients } from "stores/clients";
+import { ref, nextTick, provide, watchEffect } from "vue";
+import formatter from "tools/formatter";
+
+const pos = usePos();
+provide(pos.$id, pos);
+const clients = useClients();
+provide(clients.$id, clients);
+
+const dteTypes = ref(["Boleta"]);
+const payTypes = ref([
+  "Efectivo",
+  "Tarjeta de Débito",
+  "Tarjeta de Crédito",
+  "Crédito Cliente",
+  "Cheque",
+]);
+const payAmount = ref("");
+
+const loading = ref(false);
+const searchProduct = ref(null);
+const searchInput = ref("");
+const client = ref(null);
+
+const inputPay = ref(null);
+const btnPrint = ref(null);
+const selectSearchProduct = ref(null);
+
+const focus = async (compRef) => {
+  await nextTick();
+  if (compRef.value) {
+    compRef.value.$el.focus();
+  } else {
+    compRef.$el.focus();
+  }
+};
+
+const setPayType = (payType) => {
+  pos.setPayType(payType);
+
+  if (payType != "Crédito Cliente") {
+    focus(inputPay);
+
+    if (payType != "Efectivo" || pos.totalPay > 0) {
+      payAmount.value = pos.total - pos.totalPay;
+    }
+  }
+};
+
+const enterInputPay = () => {
+  if (payAmount.value == "") {
+    payAmount.value = pos.total - pos.totalPay;
+  } else if (parseInt(payAmount.value) <= 20) {
+    payAmount.value = payAmount.value + "000";
+  }
+
+  pos.addPay(parseInt(payAmount.value));
+  payAmount.value = "";
+
+  if (pos.isTotalReach) focus(btnPrint);
+};
+
+const setClient = async (name) => {
+  if (!name) {
+    pos.client = null;
+    pos.pays = [];
+    return;
+  }
+  await clients.findDoc({ name });
+  pos.client = clients.doc;
+  pos.addPay(pos.total);
+  focus(btnPrint);
+};
+
+const loadItems = () => {
+  pos.loadItems();
+  focus(selectSearchProduct);
+};
+
+const printDte = () => {
+  pos.createDte();
+
+  // pos.resetAll()
+  // focusRef('selectSearchProduct')
+};
+
+watchEffect(() => {
+  if (pos.total == 0) focus(selectSearchProduct);
+});
+</script>

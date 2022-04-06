@@ -1,0 +1,91 @@
+// TABLE
+.q-table__container {
+  .q-table__top {
+    color: $grey-8;
+  }
+  .q-table {
+    th {
+      font-size: 14px;
+    }
+    tbody td {
+      font-size: 15px;
+    }
+    // .q-table__sort-icon {
+    //   position: absolute;
+    //   margin-top: 2px;
+    // }
+  }
+  .q-table__bottom {
+    font-size: 15px;
+    justify-content: center;
+    color: $grey-7;
+
+    i {
+      font-size: 18px;
+    }
+  }
+  .q-table__bottom i {
+    font-size: 26px;
+  }
+}
+
+// NOTIFICATION
+.q-notification {
+  .q-notification__message {
+    font-size: 16px;
+  }
+}
+
+// INPUT
+.q-field__bottom {
+  padding-top: 3px;
+}
+// .q-field--outlined {
+//   .q-field__control:before {
+//     border-color: $primary;
+//   }
+//   .q-field__control:hover:before {
+//     border-color: $primary;
+//   }
+// }
+// .readonly.q-field--outlined.q-field--readonly .q-field__control:before {
+//   border-style: solid;
+//   border-color: rgba(0, 0, 0, 0.24);
+// }
+
+// LIST
+.expansion-item .q-item__section--side {
+  padding: 0;
+}
+.expansion-item .q-item__section--avatar {
+  min-width: 38px;
+}
+.expansion-item.transparent .q-item__section--avatar {
+  display: none;
+}
+
+// CHECKBOX
+.q-checkbox__bg {
+  background: white;
+}
+
+// TOOLTIP
+.q-tooltip {
+  font-size: 14px;
+}
+
+// CALENDAR
+.q-date--landscape {
+  min-width: 200px;
+}
+
+// SELECT
+.hide-select-input.q-select .q-field__input {
+  display: none;
+}
+
+// TOGGLE
+.q-toggle__label {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.87);
+}
