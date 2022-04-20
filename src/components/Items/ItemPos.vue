@@ -18,7 +18,10 @@
         />
       </div>
       <div class="col q-pr-md text-left" style="font-size: 18px">
-        {{ item.name }}
+        <q-item-label caption>Código: {{ item.code }}</q-item-label>
+        <q-item-label>
+          {{ item.name }}
+        </q-item-label>
       </div>
       <div class="" style="font-size: 18px; width: 100px">
         <q-item-label caption>Precio</q-item-label>

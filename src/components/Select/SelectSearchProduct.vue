@@ -102,7 +102,8 @@ const onEnter = () => {
         code,
         name: 'PRODUCTO SIN CODIGO',
         price: parseInt(inputValue.value),
-        quantity: 1
+        quantity: 1,
+        isExempt: false
       })
     } else {
       notify.negative('Código sin resultados')

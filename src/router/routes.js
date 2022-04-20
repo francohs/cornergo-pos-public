@@ -16,8 +16,11 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'home',
-        component: () => import('pages/_home.vue')
+        name: 'pos',
+        component: () => import('pages/_pos.vue'),
+        meta: {
+          requiresAuth: true
+        }
       },
       ...pages
     ]

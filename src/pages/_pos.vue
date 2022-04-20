@@ -90,6 +90,7 @@
                 onlynumbers
                 input-style="font-size: 20px;"
                 ref="inputPay"
+                class="full-width"
                 v-show="!pos.isTotalReach && pos.payType != 'Crédito Cliente'"
               />
 
@@ -143,7 +144,7 @@
                 style="font-size: 24px"
               >
                 <span class="q-mr-md">VUELTO</span>
-                <span>{{ formatter.currency(pos.backPay) }}</span>
+                <span>{{ formatter.currency(pos.changeAmount) }}</span>
               </div>
             </q-card>
           </div>
@@ -156,9 +157,10 @@
                 class="fit"
                 color="primary"
                 ref="btnPrint"
-                :disable="!pos.isTotalReach || pos.total == 0"
                 @click="printDte"
+                :loading="emittedDtes.saving"
               />
+              <!-- :disable="!pos.isTotalReach || pos.total == 0" -->
             </q-card>
           </div>
         </div>
@@ -168,94 +170,142 @@
 </template>
 
 <script setup>
-import { usePos } from "stores/pos";
-import { useClients } from "stores/clients";
-import { ref, nextTick, provide, watchEffect } from "vue";
-import formatter from "tools/formatter";
+import { useAuth } from 'stores/auth'
+import { usePos } from 'stores/pos'
+import { useClients } from 'stores/clients'
+import { useEmittedDtes } from 'stores/emitteddtes'
+import { ref, nextTick, provide, watchEffect } from 'vue'
+import formatter from 'tools/formatter'
+import generateBarcode from 'pdf417'
 
-const pos = usePos();
-provide(pos.$id, pos);
-const clients = useClients();
-provide(clients.$id, clients);
+const pos = usePos()
+provide(pos.$id, pos)
+const clients = useClients()
+provide(clients.$id, clients)
+const emittedDtes = useEmittedDtes()
+const auth = useAuth()
 
-const dteTypes = ref(["Boleta"]);
+const dteTypes = ref(['Boleta'])
 const payTypes = ref([
-  "Efectivo",
-  "Tarjeta de Débito",
-  "Tarjeta de Crédito",
-  "Crédito Cliente",
-  "Cheque",
-]);
-const payAmount = ref("");
+  'Efectivo',
+  'Tarjeta de Debito',
+  'Tarjeta de Credito',
+  'Credito Cliente',
+  'Cheque'
+])
+const payAmount = ref('')
 
-const loading = ref(false);
-const searchProduct = ref(null);
-const searchInput = ref("");
-const client = ref(null);
+const loading = ref(false)
+const searchProduct = ref(null)
+const searchInput = ref('')
+const client = ref(null)
 
-const inputPay = ref(null);
-const btnPrint = ref(null);
-const selectSearchProduct = ref(null);
+const inputPay = ref(null)
+const btnPrint = ref(null)
+const selectSearchProduct = ref(null)
 
-const focus = async (compRef) => {
-  await nextTick();
+const focus = async compRef => {
+  await nextTick()
   if (compRef.value) {
-    compRef.value.$el.focus();
+    compRef.value.$el.focus()
   } else {
-    compRef.$el.focus();
+    compRef.$el.focus()
   }
-};
+}
 
-const setPayType = (payType) => {
-  pos.setPayType(payType);
+const setPayType = payType => {
+  pos.setPayType(payType)
 
-  if (payType != "Crédito Cliente") {
-    focus(inputPay);
+  if (payType != 'Crédito Cliente') {
+    focus(inputPay)
 
-    if (payType != "Efectivo" || pos.totalPay > 0) {
-      payAmount.value = pos.total - pos.totalPay;
+    if (payType != 'Efectivo' || pos.totalPay > 0) {
+      payAmount.value = pos.total - pos.totalPay
     }
   }
-};
+}
 
 const enterInputPay = () => {
-  if (payAmount.value == "") {
-    payAmount.value = pos.total - pos.totalPay;
+  if (payAmount.value == '') {
+    payAmount.value = pos.total - pos.totalPay
   } else if (parseInt(payAmount.value) <= 20) {
-    payAmount.value = payAmount.value + "000";
+    payAmount.value = payAmount.value + '000'
   }
 
-  pos.addPay(parseInt(payAmount.value));
-  payAmount.value = "";
+  pos.addPay(parseInt(payAmount.value))
+  payAmount.value = ''
 
-  if (pos.isTotalReach) focus(btnPrint);
-};
+  if (pos.isTotalReach) focus(btnPrint)
+}
 
-const setClient = async (name) => {
+const setClient = async name => {
   if (!name) {
-    pos.client = null;
-    pos.pays = [];
-    return;
+    pos.client = null
+    pos.pays = []
+    return
   }
-  await clients.findDoc({ name });
-  pos.client = clients.doc;
-  pos.addPay(pos.total);
-  focus(btnPrint);
-};
+  await clients.findDoc({ name })
+  pos.client = clients.doc
+  pos.addPay(pos.total)
+  focus(btnPrint)
+}
 
 const loadItems = () => {
-  pos.loadItems();
-  focus(selectSearchProduct);
-};
+  pos.loadItems()
+  focus(selectSearchProduct)
+}
 
-const printDte = () => {
-  pos.createDte();
-
+const printDte = async () => {
+  // pos.createDte();
   // pos.resetAll()
   // focusRef('selectSearchProduct')
-};
+
+  const dte = await emittedDtes.create({
+    dteType: pos.dteType,
+    payType: pos.payType,
+    client: pos.client,
+    sellerName: `${auth.user.name} ${auth.user.lastName}`,
+    items: pos.items.map(item => ({
+      ...item,
+      subtotal: Math.round(item.price * item.quantity)
+    })),
+    pays: pos.pays,
+    totalPay: pos.totalPay,
+    changeAmount: pos.changeAmount
+  })
+
+  // const dte = {
+  //   number: 438531,
+  //   dteType: 39,
+  //   dteTypeName: 'Boleta',
+  //   emissionDate: '2022-04-13T02:41:11.476Z',
+  //   sellerName: 'Franco Hormazábal',
+  //   items: [
+  //     {
+  //       code: '7802215303937',
+  //       name: 'CHOCMAN BLACK',
+  //       quantity: 1,
+  //       price: 1200,
+  //       subtotal: 1200
+  //     }
+  //   ],
+  //   netAmount: 168,
+  //   taxAmount: 32,
+  //   exemptAmount: 0,
+  //   totalAmount: 2000,
+  //   pays: [{ payType: 'Efectivo', payAmount: 200 }],
+  //   totalPay: 400,
+  //   changeAmount: 50,
+  //   ted: '<TED version="1.0"><DD><RE>76260131-1</RE><TD>39</TD><F>438531</F><FE>2022-04-13</FE><RR>66666666-6</RR><RSR>sin cliente</RSR><MNT>200</MNT><IT1>CHOCMAN BLACK</IT1><CAF version="1.0"><DA><RE>76260131-1</RE><RS>SERVICIOS DE INGENIERIA BIGVISION SPA</RS><TD>39</TD><RNG><D>400001</D><H>500000</H></RNG><FA>2021-12-24</FA><RSAPK><M>xYXAtfLMacMS5iugzBZDnUvo6hSez8tvtC4+AtAw7/Gz/yt7sBCy2H4iX/fEiedz3G+0VeOIVRiGG42FmIL+nw==</M><E>Aw==</E></RSAPK><IDK>300</IDK></DA><FRMA algoritmo="SHA1withRSA">IS/G1rlcF3n/2nCEVBx7a8pGtxXV5gEYfBAVK4O24WX8wXt09BXCphzPImMFH86UtEbjHUnSKyvHJX/tjueKPQ==</FRMA></CAF><TSTED>2022-04-12T22:41:13</TSTED></DD><FRMT algoritmo="SHA1withRSA">wbmddhePGAHoV02PRbObJSMVQwy4HMoE17cVOqm/9zO+N3I7YA1dKfEoyDU+2RQulzMklJ1cN5EPWFZCZQYa9Q==</FRMT></TED>',
+  //   bsaleId: 457759,
+  //   pdfUrl: 'https://app2.bsale.cl/view/12271/29e7853a0051.pdf?sfd=99',
+  //   xmlUrl: 'https://api.bsale.cl/v1/12271/files/29e7853a0051.xml'
+  // }
+
+  window.printer.printDte(dte, generateBarcode(dte.ted, 1, 0.5))
+}
 
 watchEffect(() => {
-  if (pos.total == 0) focus(selectSearchProduct);
-});
+  if (pos.total == 0) focus(selectSearchProduct)
+})
 </script>

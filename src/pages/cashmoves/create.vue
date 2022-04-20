@@ -98,6 +98,7 @@
               v-model="cashMove.amount"
               format="currency"
               ref="inputAmount"
+              class="full-width"
               @keyup.enter="btnOpenBox.$el.focus()"
               required
             />
@@ -118,77 +119,77 @@
 </template>
 
 <script setup>
-import { reactive, provide, ref, onMounted, nextTick } from "vue";
-import { useRouter } from "vue-router";
-import { useQuasar } from "quasar";
-import { useCashMoves } from "stores/cashmoves";
-import { useProviders } from "stores/providers";
-import { useAuth } from "stores/auth";
-import formatter from "tools/formatter";
+import { reactive, provide, ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { useCashMoves } from 'stores/cashmoves'
+import { useProviders } from 'stores/providers'
+import { useAuth } from 'stores/auth'
+import formatter from 'tools/formatter'
 
-const router = useRouter();
-const cashMoves = useCashMoves();
-provide(cashMoves.$id, cashMoves);
-const providers = useProviders();
-provide(providers.$id, providers);
-const quasar = useQuasar();
+const router = useRouter()
+const cashMoves = useCashMoves()
+provide(cashMoves.$id, cashMoves)
+const providers = useProviders()
+provide(providers.$id, providers)
+const quasar = useQuasar()
 
 const cashMove = reactive({
   user: null,
   moveType: null,
-  amount: "",
-  description: "",
-});
+  amount: '',
+  description: ''
+})
 
 const moveTypes = ref([
-  { icon: "local_shipping", moveType: "Pago a Proveedor" },
-  { icon: "arrow_forward", moveType: "Otro Ingreso" },
-  { icon: "arrow_back", moveType: "Otro Egreso" },
-]);
+  { icon: 'local_shipping', moveType: 'Pago a Proveedor' },
+  { icon: 'arrow_forward', moveType: 'Otro Ingreso' },
+  { icon: 'arrow_back', moveType: 'Otro Egreso' }
+])
 
-const auth = useAuth();
-const provider = ref(null);
-const dteNumber = ref("");
+const auth = useAuth()
+const provider = ref(null)
+const dteNumber = ref('')
 
-const selectProvider = ref(null);
-const inputDteNumber = ref(null);
-const inputDescription = ref(null);
-const inputAmount = ref(null);
-const btnCreateMove = ref(null);
-const btnOpenBox = ref(null);
+const selectProvider = ref(null)
+const inputDteNumber = ref(null)
+const inputDescription = ref(null)
+const inputAmount = ref(null)
+const btnCreateMove = ref(null)
+const btnOpenBox = ref(null)
 
 onMounted(async () => {
-  await cashMoves.getDocs();
+  await cashMoves.getDocs()
   if (!cashMoves.isOpen) {
-    cashMove.amount = cashMoves.docs[0].amount;
+    cashMove.amount = cashMoves.docs[0].amount
   }
-});
+})
 
 const createCashMove = async () => {
   if (provider.value) {
-    cashMove.description = `Pago ${provider.value} (${dteNumber.value})`;
+    cashMove.description = `Pago ${provider.value} (${dteNumber.value})`
   }
 
-  cashMove.user = auth.user._id;
+  cashMove.user = auth.user._id
 
-  await cashMoves.create(cashMove);
-  router.go(-1);
-};
+  await cashMoves.create(cashMove)
+  router.go(-1)
+}
 
 const openCashBox = async () => {
   quasar
     .dialog({
-      title: "Inicio de Caja",
+      title: 'Inicio de Caja',
       message: `¿Estas seguro de Inicia Caja como ${auth.user.name} ${
         auth.user.lastName
       } por ${formatter.currency(cashMove.amount)}?`,
-      cancel: true,
+      cancel: true
     })
     .onOk(async () => {
-      cashMove.moveType = "Inicio de Caja";
-      cashMove.description = "Inicio de Caja";
+      cashMove.moveType = 'Inicio de Caja'
+      cashMove.description = 'Inicio de Caja'
 
-      await createCashMove();
-    });
-};
+      await createCashMove()
+    })
+}
 </script>

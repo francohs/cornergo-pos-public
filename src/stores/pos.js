@@ -24,9 +24,9 @@ export const usePos = defineStore({
     totalPay() {
       return this.pays.reduce((prev, curr) => prev + curr.payAmount, 0)
     },
-    backPay() {
-      let backPay = this.totalPay - this.total
-      return backPay < 0 ? 0 : backPay
+    changeAmount() {
+      let changeAmount = this.totalPay - this.total
+      return changeAmount < 0 ? 0 : changeAmount
     },
     isTotalReach() {
       return this.totalPay >= this.total
@@ -123,7 +123,7 @@ export const usePos = defineStore({
           total: this.total,
           pays: this.pays
         })
-        console.log({ backPay: this.backPay })
+        console.log({ changeAmount: this.changeAmount })
         console.log('print dte!')
         this.resetAll()
         // const response = await api.post(this.$id, { doc })

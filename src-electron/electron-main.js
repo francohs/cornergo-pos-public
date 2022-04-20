@@ -7,20 +7,22 @@ const platform = process.platform || os.platform()
 
 try {
   if (platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
-    require('fs').unlinkSync(path.join(app.getPath('userData'), 'DevTools Extensions'))
+    require('fs').unlinkSync(
+      path.join(app.getPath('userData'), 'DevTools Extensions')
+    )
   }
-} catch (_) { }
+} catch (_) {}
 
 let mainWindow
 
-function createWindow () {
+function createWindow() {
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
-    width: 1000,
-    height: 600,
+    width: 1400,
+    height: 800,
     useContentSize: true,
     webPreferences: {
       contextIsolation: true,

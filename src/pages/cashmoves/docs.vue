@@ -17,8 +17,8 @@
               class="full-width row justify-between text-h5 text-bold q-my-lg"
             >
               <div>
-                {{ cashMoves.isOpen ? "" : "Último " }}Arqueo
-                {{ cashMoves.isOpen ? "(Abierto)" : "(Cerrado)" }}
+                {{ cashMoves.isOpen ? '' : 'Último ' }}Arqueo
+                {{ cashMoves.isOpen ? '(Abierto)' : '(Cerrado)' }}
               </div>
               <div v-if="cashMoves.docs.length > 0">
                 {{ formatter.date(cashMoves.docs[0].createdAt) }}
@@ -71,51 +71,51 @@
 </template>
 
 <script setup>
-import { useCashMoves } from "stores/cashmoves";
-import { useAuth } from "stores/auth";
-import { provide, onMounted } from "vue";
-import formatter from "tools/formatter";
-import { useQuasar } from "quasar";
+import { useCashMoves } from 'stores/cashmoves'
+import { useAuth } from 'stores/auth'
+import { provide, onMounted } from 'vue'
+import formatter from 'tools/formatter'
+import { useQuasar } from 'quasar'
 
-const cashMoves = useCashMoves();
-provide(cashMoves.$id, cashMoves);
-const auth = useAuth();
-provide(auth.$id, auth);
-const quasar = useQuasar();
-provide("quasar", quasar);
+const cashMoves = useCashMoves()
+provide(cashMoves.$id, cashMoves)
+const auth = useAuth()
+provide(auth.$id, auth)
+const quasar = useQuasar()
+provide('quasar', quasar)
 
-onMounted(async () => await cashMoves.getDocs());
+onMounted(async () => await cashMoves.getDocs())
 
 const closeCashBox = () => {
   quasar
     .dialog({
-      title: "Cierre de Caja",
-      message: "¿Estas seguro de realizar el cierre de caja?",
-      cancel: true,
+      title: 'Cierre de Caja',
+      message: '¿Estas seguro de realizar el cierre de caja?',
+      cancel: true
     })
     .onOk(async () => {
       const cashMove = {
         user: auth.user._id,
-        moveType: "Cierre de Caja",
+        moveType: 'Cierre de Caja',
         amount: 0,
-        description: "Cierre de Caja",
-      };
+        description: 'Cierre de Caja'
+      }
 
       cashMove.amount = cashMoves.docs.reduce((acc, cashMove) => {
         if (
-          cashMove.moveType == "Inicio de Caja" ||
-          cashMove.moveType == "Otro Ingreso"
+          cashMove.moveType == 'Inicio de Caja' ||
+          cashMove.moveType == 'Otro Ingreso'
         ) {
-          return acc + parseInt(cashMove.amount);
+          return acc + parseInt(cashMove.amount)
         } else if (
-          cashMove.moveType == "Pago a Proveedor" ||
-          cashMove.moveType == "Otro Egreso"
+          cashMove.moveType == 'Pago a Proveedor' ||
+          cashMove.moveType == 'Otro Egreso'
         ) {
-          return acc - parseInt(cashMove.amount);
+          return acc - parseInt(cashMove.amount)
         }
-      }, 0);
+      }, 0)
 
-      await cashMoves.create(cashMove);
-    });
-};
+      await cashMoves.create(cashMove)
+    })
+}
 </script>
