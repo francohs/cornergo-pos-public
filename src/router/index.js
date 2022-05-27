@@ -33,6 +33,7 @@ export default route(function (/* { store, ssrContext } */) {
       if (auth.isLogged) {
         if (to.name == 'pos') {
           await cashMoves.getDocs()
+
           if (!cashMoves.isOpen) {
             Notify.info('Primero debes iniciar nueva caja')
             next('/cashmoves')

@@ -53,6 +53,9 @@
               <div class="text-bold text-grey-9" style="font-size: 24px">
                 <span class="q-mr-md">TOTAL</span>
                 <span>{{ formatter.currency(pos.total) }}</span>
+                <div class="text-grey-9" style="font-size: 18px">
+                  {{ formatter.currency(pos.roundedTotal) }}
+                </div>
               </div>
             </q-card>
           </div>
@@ -256,10 +259,6 @@ const loadItems = () => {
 }
 
 const printDte = async () => {
-  // pos.createDte();
-  // pos.resetAll()
-  // focusRef('selectSearchProduct')
-
   const dte = await emittedDtes.create({
     dteType: pos.dteType,
     payType: pos.payType,
@@ -274,35 +273,10 @@ const printDte = async () => {
     changeAmount: pos.changeAmount
   })
 
-  // const dte = {
-  //   number: 438531,
-  //   dteType: 39,
-  //   dteTypeName: 'Boleta',
-  //   emissionDate: '2022-04-13T02:41:11.476Z',
-  //   sellerName: 'Franco Hormazábal',
-  //   items: [
-  //     {
-  //       code: '7802215303937',
-  //       name: 'CHOCMAN BLACK',
-  //       quantity: 1,
-  //       price: 1200,
-  //       subtotal: 1200
-  //     }
-  //   ],
-  //   netAmount: 168,
-  //   taxAmount: 32,
-  //   exemptAmount: 0,
-  //   totalAmount: 2000,
-  //   pays: [{ payType: 'Efectivo', payAmount: 200 }],
-  //   totalPay: 400,
-  //   changeAmount: 50,
-  //   ted: '<TED version="1.0"><DD><RE>76260131-1</RE><TD>39</TD><F>438531</F><FE>2022-04-13</FE><RR>66666666-6</RR><RSR>sin cliente</RSR><MNT>200</MNT><IT1>CHOCMAN BLACK</IT1><CAF version="1.0"><DA><RE>76260131-1</RE><RS>SERVICIOS DE INGENIERIA BIGVISION SPA</RS><TD>39</TD><RNG><D>400001</D><H>500000</H></RNG><FA>2021-12-24</FA><RSAPK><M>xYXAtfLMacMS5iugzBZDnUvo6hSez8tvtC4+AtAw7/Gz/yt7sBCy2H4iX/fEiedz3G+0VeOIVRiGG42FmIL+nw==</M><E>Aw==</E></RSAPK><IDK>300</IDK></DA><FRMA algoritmo="SHA1withRSA">IS/G1rlcF3n/2nCEVBx7a8pGtxXV5gEYfBAVK4O24WX8wXt09BXCphzPImMFH86UtEbjHUnSKyvHJX/tjueKPQ==</FRMA></CAF><TSTED>2022-04-12T22:41:13</TSTED></DD><FRMT algoritmo="SHA1withRSA">wbmddhePGAHoV02PRbObJSMVQwy4HMoE17cVOqm/9zO+N3I7YA1dKfEoyDU+2RQulzMklJ1cN5EPWFZCZQYa9Q==</FRMT></TED>',
-  //   bsaleId: 457759,
-  //   pdfUrl: 'https://app2.bsale.cl/view/12271/29e7853a0051.pdf?sfd=99',
-  //   xmlUrl: 'https://api.bsale.cl/v1/12271/files/29e7853a0051.xml'
-  // }
-
   window.printer.printDte(dte, generateBarcode(dte.ted, 1, 0.5))
+
+  pos.resetAll()
+  focus(selectSearchProduct)
 }
 
 watchEffect(() => {

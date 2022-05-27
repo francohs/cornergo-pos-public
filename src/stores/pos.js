@@ -21,6 +21,18 @@ export const usePos = defineStore({
         0
       )
     },
+    roundedTotal() {
+      const lastDigit = parseInt(total.toString().slice(-1))
+
+      let roundedTotal = this.total
+      if (lastDigit >= 0 && lastDigit <= 5) {
+        roundedTotal = Math.floor(roundedTotal / 10) * 10
+      } else if (lastDigit >= 6 && lastDigit <= 9) {
+        roundedTotal = Math.ceil(roundedTotal / 10) * 10
+      }
+
+      return roundedTotal
+    },
     totalPay() {
       return this.pays.reduce((prev, curr) => prev + curr.payAmount, 0)
     },

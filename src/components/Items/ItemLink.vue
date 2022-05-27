@@ -1,7 +1,7 @@
 <template>
+    <!-- v-ripple -->
   <q-item
     clickable
-    v-ripple
     @click="goto"
     :active="isActive"
     active-class="active-link"

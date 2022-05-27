@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable v-ripple @click="logout">
+  <q-item clickable @click="logout">
     <q-item-section avatar>
       <q-icon name="logout" />
     </q-item-section>
