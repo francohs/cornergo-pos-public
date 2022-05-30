@@ -1,5 +1,121 @@
+<script setup>
+import { useAuth } from 'stores/auth'
+import { usePos } from 'stores/pos'
+import { useClients } from 'stores/clients'
+import { useEmittedDtes } from 'stores/emitteddtes'
+import { ref, nextTick, provide, watchEffect } from 'vue'
+import formatter from 'tools/formatter'
+import generateBarcode from 'pdf417'
+
+const pos = usePos()
+provide(pos.$id, pos)
+const clients = useClients()
+provide(clients.$id, clients)
+const emittedDtes = useEmittedDtes()
+const auth = useAuth()
+
+const dteTypes = ref(['Boleta'])
+const payTypes = ref([
+  'Efectivo',
+  'Tarjeta de Debito',
+  'Tarjeta de Credito',
+  'Trasferencia',
+  'Credito Cliente',
+  'Cheque'
+])
+const payAmount = ref('')
+
+const loading = ref(false)
+const searchProduct = ref(null)
+const searchInput = ref('')
+const client = ref(null)
+
+const inputPay = ref(null)
+const btnPrint = ref(null)
+const selectSearchProduct = ref(null)
+
+const focus = async compRef => {
+  await nextTick()
+  if (compRef.value) {
+    compRef.value.$el.focus()
+  } else {
+    compRef.$el.focus()
+  }
+}
+
+const setPayType = payType => {
+  pos.setPayType(payType)
+
+  if (payType != 'Crédito Cliente') {
+    focus(inputPay)
+
+    if (payType != 'Efectivo' || pos.totalPay > 0) {
+      payAmount.value = pos.total - pos.totalPay
+    }
+  }
+}
+
+const enterInputPay = () => {
+  if (payAmount.value == '') {
+    payAmount.value = pos.total - pos.totalPay
+  } else if (parseInt(payAmount.value) <= 20) {
+    payAmount.value = payAmount.value + '000'
+  }
+
+  pos.addPay(parseInt(payAmount.value))
+  payAmount.value = ''
+
+  if (pos.isTotalReach) focus(btnPrint)
+}
+
+const setClient = async name => {
+  if (!name) {
+    pos.client = null
+    pos.pays = []
+    return
+  }
+  await clients.findDoc({ name })
+  pos.client = clients.doc
+  pos.addPay(pos.total)
+  focus(btnPrint)
+}
+
+const loadItems = () => {
+  pos.loadItems()
+  focus(selectSearchProduct)
+}
+
+const printDte = async () => {
+  const dte = await emittedDtes.create({
+    dteType: pos.dteType,
+    payType: pos.payType,
+    client: pos.client,
+    sellerName: `${auth.user.name} ${auth.user.lastName}`,
+    items: pos.items.map(item => ({
+      ...item,
+      subtotal: Math.round(item.price * item.quantity)
+    })),
+    pays: pos.pays,
+    totalPay: pos.totalPay,
+    changeAmount: pos.changeAmount
+  })
+
+  // window.printer.printDte(
+  //   { ...dte, roundedTotal: pos.roundedTotal },
+  //   generateBarcode(dte.ted, 1, 0.5)
+  // )
+
+  pos.resetAll()
+  focus(selectSearchProduct)
+}
+
+watchEffect(() => {
+  if (pos.total == 0) focus(selectSearchProduct)
+})
+</script>
+
 <template>
-  <LayoutPage>
+  <LayoutPage class="bg-grey-2">
     <div class="fit row">
       <div class="col">
         <div class="fit column">
@@ -52,10 +168,11 @@
               </div>
               <div class="text-bold text-grey-9" style="font-size: 24px">
                 <span class="q-mr-md">TOTAL</span>
-                <span>{{ formatter.currency(pos.total) }}</span>
-                <div class="text-grey-9" style="font-size: 18px">
-                  {{ formatter.currency(pos.roundedTotal) }}
-                </div>
+                <span>{{
+                  formatter.currency(
+                    pos.payType == 'Efectivo' ? pos.roundedTotal : pos.total
+                  )
+                }}</span>
               </div>
             </q-card>
           </div>
@@ -162,8 +279,8 @@
                 ref="btnPrint"
                 @click="printDte"
                 :loading="emittedDtes.saving"
+                :disable="!pos.isTotalReach || pos.total == 0"
               />
-              <!-- :disable="!pos.isTotalReach || pos.total == 0" -->
             </q-card>
           </div>
         </div>
@@ -171,115 +288,3 @@
     </div>
   </LayoutPage>
 </template>
-
-<script setup>
-import { useAuth } from 'stores/auth'
-import { usePos } from 'stores/pos'
-import { useClients } from 'stores/clients'
-import { useEmittedDtes } from 'stores/emitteddtes'
-import { ref, nextTick, provide, watchEffect } from 'vue'
-import formatter from 'tools/formatter'
-import generateBarcode from 'pdf417'
-
-const pos = usePos()
-provide(pos.$id, pos)
-const clients = useClients()
-provide(clients.$id, clients)
-const emittedDtes = useEmittedDtes()
-const auth = useAuth()
-
-const dteTypes = ref(['Boleta'])
-const payTypes = ref([
-  'Efectivo',
-  'Tarjeta de Debito',
-  'Tarjeta de Credito',
-  'Credito Cliente',
-  'Cheque'
-])
-const payAmount = ref('')
-
-const loading = ref(false)
-const searchProduct = ref(null)
-const searchInput = ref('')
-const client = ref(null)
-
-const inputPay = ref(null)
-const btnPrint = ref(null)
-const selectSearchProduct = ref(null)
-
-const focus = async compRef => {
-  await nextTick()
-  if (compRef.value) {
-    compRef.value.$el.focus()
-  } else {
-    compRef.$el.focus()
-  }
-}
-
-const setPayType = payType => {
-  pos.setPayType(payType)
-
-  if (payType != 'Crédito Cliente') {
-    focus(inputPay)
-
-    if (payType != 'Efectivo' || pos.totalPay > 0) {
-      payAmount.value = pos.total - pos.totalPay
-    }
-  }
-}
-
-const enterInputPay = () => {
-  if (payAmount.value == '') {
-    payAmount.value = pos.total - pos.totalPay
-  } else if (parseInt(payAmount.value) <= 20) {
-    payAmount.value = payAmount.value + '000'
-  }
-
-  pos.addPay(parseInt(payAmount.value))
-  payAmount.value = ''
-
-  if (pos.isTotalReach) focus(btnPrint)
-}
-
-const setClient = async name => {
-  if (!name) {
-    pos.client = null
-    pos.pays = []
-    return
-  }
-  await clients.findDoc({ name })
-  pos.client = clients.doc
-  pos.addPay(pos.total)
-  focus(btnPrint)
-}
-
-const loadItems = () => {
-  pos.loadItems()
-  focus(selectSearchProduct)
-}
-
-const printDte = async () => {
-  const dte = await emittedDtes.create({
-    dteType: pos.dteType,
-    payType: pos.payType,
-    client: pos.client,
-    sellerName: `${auth.user.name} ${auth.user.lastName}`,
-    items: pos.items.map(item => ({
-      ...item,
-      subtotal: Math.round(item.price * item.quantity)
-    })),
-    pays: pos.pays,
-    totalPay: pos.totalPay,
-    changeAmount: pos.changeAmount
-  })
-
-  window.printer.printDte(dte, generateBarcode(dte.ted, 1, 0.5))
-
-  pos.resetAll()
-  focus(selectSearchProduct)
-}
-
-watchEffect(() => {
-  if (pos.total == 0) focus(selectSearchProduct)
-})
-</script>

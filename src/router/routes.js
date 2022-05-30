@@ -22,6 +22,14 @@ const routes = [
           requiresAuth: true
         }
       },
+      {
+        path: '/clients/:id/payment',
+        name: 'clientPayment',
+        component: () => import('pages/clients/_payment.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
       ...pages
     ]
   },

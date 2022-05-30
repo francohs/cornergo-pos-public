@@ -1,123 +1,3 @@
-<template>
-  <PageResponsive :loading="cashMoves.loading">
-    <Form @submit="createCashMove" class="q-pa-lg">
-      <div class="row cashMoves-center justify-between q-pb-lg">
-        <div class="row">
-          <ButtonBack />
-          <div v-if="cashMoves.isOpen" class="text-h5">
-            Ingresar Nuevo Movimiento
-          </div>
-          <div v-else class="text-h5">Inicio de Caja</div>
-        </div>
-      </div>
-
-      <div class="fit row justify-center q-px-lg q-py-xl">
-        <div class="col-8 row q-gutter-y-md justify-center">
-          <div v-if="cashMoves.isOpen" class="fit column">
-            <Select
-              label="Tipo de Movimiento"
-              required
-              v-model="cashMove.moveType"
-              :options="moveTypes"
-              option-label="moveType"
-              option-value="moveType"
-              emit-value
-              @update:modelValue="
-                cashMove.moveType == 'Pago a Proveedor'
-                  ? selectProvider.$el.focus()
-                  : inputDescription.$el.focus()
-              "
-            >
-              <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps">
-                  <q-item-section avatar>
-                    <q-icon :name="scope.opt.icon" />
-                  </q-item-section>
-                  <q-item-section>
-                    {{ scope.opt.moveType }}
-                  </q-item-section>
-                </q-item>
-              </template>
-            </Select>
-
-            <div v-if="cashMove.moveType == 'Pago a Proveedor'">
-              <SelectInputFetch
-                label="Proveedor"
-                fetchAll
-                :store="providers.$id"
-                v-model="provider"
-                @update:modelValue="inputDteNumber.$el.focus()"
-                field="alias"
-                ref="selectProvider"
-                required
-              />
-
-              <Input
-                label="Folio Factura"
-                v-model="dteNumber"
-                @keyup.enter="dteNumber && inputAmount.$el.focus()"
-                ref="inputDteNumber"
-                required
-              />
-            </div>
-
-            <Input
-              label="Descripción"
-              ref="inputDescription"
-              v-model="cashMove.description"
-              @keyup.enter="inputAmount.$el.focus()"
-              required
-              v-else
-            />
-            <Input
-              label="Monto"
-              v-model="cashMove.amount"
-              format="currency"
-              @keyup.enter="btnCreateMove.$el.focus()"
-              ref="inputAmount"
-              class="full-width q-mb-lg"
-            />
-
-            <q-btn
-              label="INGRESAR MOVIMIENTO"
-              color="positive"
-              ref="btnCreateMove"
-              :disable="
-                !cashMove.moveType ||
-                cashMove.amount <= 0 ||
-                (!cashMove.description && (!provider || !dteNumber))
-              "
-              type="submit"
-              :loading="cashMoves.saving"
-            />
-          </div>
-
-          <div v-else class="column" style="width: 300px">
-            <Input
-              label="Monto"
-              v-model="cashMove.amount"
-              format="currency"
-              ref="inputAmount"
-              class="full-width"
-              @keyup.enter="btnOpenBox.$el.focus()"
-              required
-            />
-            <q-btn
-              color="positive"
-              label="INICIO DE CAJA"
-              :disable="cashMove.amount <= 0"
-              @click="openCashBox"
-              :loading="cashMoves.saving"
-              ref="btnOpenBox"
-              class="q-mt-md"
-            />
-          </div>
-        </div>
-      </div>
-    </Form>
-  </PageResponsive>
-</template>
-
 <script setup>
 import { reactive, provide, ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
@@ -193,3 +73,123 @@ const openCashBox = async () => {
     })
 }
 </script>
+<template>
+  <PageResponsive>
+    <Form @submit="createCashMove" class="q-pa-lg">
+      <div class="row items-center justify-between q-pb-lg">
+        <div class="row">
+          <ButtonBack />
+          <div v-if="cashMoves.isOpen" class="text-h5">
+            Ingresar Nuevo Movimiento
+          </div>
+          <div v-else class="text-h5">Inicio de Caja</div>
+        </div>
+      </div>
+
+      <div class="fit row justify-center q-px-lg q-py-xl">
+        <div class="col-8 row q-gutter-y-md justify-center">
+          <div v-if="cashMoves.isOpen" class="fit column">
+            <Select
+              label="Tipo de Movimiento"
+              required
+              v-model="cashMove.moveType"
+              :options="moveTypes"
+              option-label="moveType"
+              option-value="moveType"
+              emit-value
+              @update:modelValue="
+                cashMove.moveType == 'Pago a Proveedor'
+                  ? selectProvider.$el.focus()
+                  : inputDescription.$el.focus()
+              "
+            >
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section avatar>
+                    <q-icon :name="scope.opt.icon" />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ scope.opt.moveType }}
+                  </q-item-section>
+                </q-item>
+              </template>
+            </Select>
+
+            <div v-if="cashMove.moveType == 'Pago a Proveedor'">
+              <SelectInputFetch
+                label="Proveedor"
+                fetchAll
+                :store="providers.$id"
+                v-model="provider"
+                @update:modelValue="inputDteNumber.$el.focus()"
+                field="alias"
+                ref="selectProvider"
+                required
+              />
+
+              <Input
+                label="Folio Factura"
+                v-model="dteNumber"
+                @keyup.enter="dteNumber && inputAmount.$el.focus()"
+                ref="inputDteNumber"
+                required
+              />
+            </div>
+
+            <Input
+              label="Descripción"
+              ref="inputDescription"
+              v-model="cashMove.description"
+              @keyup.enter="inputAmount.$el.focus()"
+              class="full-width"
+              required
+              v-else
+            />
+            <Input
+              label="Monto"
+              v-model="cashMove.amount"
+              format="currency"
+              @keyup.enter="btnCreateMove.$el.focus()"
+              ref="inputAmount"
+              class="full-width q-mb-lg"
+            />
+
+            <q-btn
+              label="INGRESAR MOVIMIENTO"
+              color="positive"
+              ref="btnCreateMove"
+              :disable="
+                !cashMove.moveType ||
+                cashMove.amount <= 0 ||
+                (!cashMove.description && (!provider || !dteNumber))
+              "
+              type="submit"
+              :loading="cashMoves.saving"
+            />
+          </div>
+
+          <div v-else class="column" style="width: 300px">
+            <Input
+              label="Monto"
+              v-model="cashMove.amount"
+              format="currency"
+              ref="inputAmount"
+              class="full-width"
+              @keyup.enter="btnOpenBox.$el.focus()"
+              required
+            />
+            <q-btn
+              color="positive"
+              label="INICIO DE CAJA"
+              :disable="cashMove.amount <= 0"
+              @click="openCashBox"
+              :loading="cashMoves.saving"
+              ref="btnOpenBox"
+              class="q-mt-md"
+            />
+          </div>
+        </div>
+      </div>
+    </Form>
+  </PageResponsive>
+</template>

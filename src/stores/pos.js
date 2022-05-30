@@ -22,7 +22,7 @@ export const usePos = defineStore({
       )
     },
     roundedTotal() {
-      const lastDigit = parseInt(total.toString().slice(-1))
+      const lastDigit = parseInt(this.total.toString().slice(-1))
 
       let roundedTotal = this.total
       if (lastDigit >= 0 && lastDigit <= 5) {
