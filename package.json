@@ -19,16 +19,16 @@
     "moment": "^2.29.3",
     "pdf417": "^0.1.5",
     "pinia": "^2.0.14",
-    "quasar": "^2.7.0",
-    "usb": "2.4.1",
+    "quasar": "^2.7.1",
+    "usb": "2.4.2",
     "vue": "^3.2.33",
     "vue-router": "^4.0.15"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.0.0",
+    "@quasar/app-vite": "^1.0.1",
     "@vue/devtools": "^6.1.4",
     "autoprefixer": "^10.4.7",
-    "electron": "^18.2.3"
+    "electron": "^19.0.1"
   },
   "resolutions": {
     "escpos-usb/usb": "1.9.2"

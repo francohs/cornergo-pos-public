@@ -26,13 +26,11 @@ const payTypes = ref([
 const payAmount = ref('')
 
 const loading = ref(false)
-const searchProduct = ref(null)
-const searchInput = ref('')
-const client = ref(null)
 
 const inputPay = ref(null)
 const btnPrint = ref(null)
 const selectSearchProduct = ref(null)
+const selectClient = ref(null)
 
 const focus = async compRef => {
   await nextTick()
@@ -46,7 +44,7 @@ const focus = async compRef => {
 const setPayType = payType => {
   pos.setPayType(payType)
 
-  if (payType != 'Crédito Cliente') {
+  if (payType != 'Credito Cliente') {
     focus(inputPay)
 
     if (payType != 'Efectivo' || pos.totalPay > 0) {
@@ -83,6 +81,13 @@ const setClient = async name => {
 const loadItems = () => {
   pos.loadItems()
   focus(selectSearchProduct)
+}
+
+const removePay = () => {
+  if (pos.payType == 'Credito Cliente') {
+    pos.client = null
+  }
+  focus(inputPay)
 }
 
 const printDte = async () => {
@@ -198,7 +203,7 @@ watchEffect(() => {
                 :options="payTypes"
                 icon="account_balance_wallet"
                 class="select-text-lg q-mb-md"
-                v-show="!pos.isTotalReach"
+                v-show="!pos.isTotalReach || pos.payType == 'Credito Cliente'"
               />
 
               <Input
@@ -211,7 +216,7 @@ watchEffect(() => {
                 input-style="font-size: 20px;"
                 ref="inputPay"
                 class="full-width"
-                v-show="!pos.isTotalReach && pos.payType != 'Crédito Cliente'"
+                v-show="!pos.isTotalReach && pos.payType != 'Credito Cliente'"
               />
 
               <SelectInputFetch
@@ -219,12 +224,13 @@ watchEffect(() => {
                 autofocus
                 fetchAll
                 :storeId="clients.$id"
-                v-model="client"
+                :modelValue="pos.client ? pos.client.name : null"
                 @update:modelValue="setClient"
                 field="name"
                 icon="person"
                 class="q-mb-md"
-                v-show="pos.payType == 'Crédito Cliente'"
+                ref="selectClient"
+                v-show="pos.payType == 'Credito Cliente'"
               />
               <InputRead
                 v-if="pos.client"
@@ -244,7 +250,7 @@ watchEffect(() => {
                     v-for="pay of pos.pays"
                     :pay="pay"
                     :key="pay.payType"
-                    @remove="focus(inputPay)"
+                    @remove="removePay"
                   />
                 </q-list>
 

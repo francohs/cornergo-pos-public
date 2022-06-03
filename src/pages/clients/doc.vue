@@ -40,14 +40,25 @@ async function updatePasswornd() {
             v-model="client.isCredit"
             color="green"
             label="Usa Crédito"
+            disable
           />
-          <q-toggle v-model="client.active" color="green" label="Activo" />
+          <q-toggle
+            v-model="client.active"
+            color="green"
+            label="Activo"
+            disable
+          />
         </div>
       </div>
 
       <RowMultiCols>
-        <Input required v-model="client.name" label="Nombre" class="col" />
-        <Input
+        <InputRead
+          required
+          v-model="client.name"
+          label="Nombre y Apellido"
+          class="col"
+        />
+        <InputRead
           required
           onlynumbers
           rut
@@ -57,62 +68,56 @@ async function updatePasswornd() {
         />
       </RowMultiCols>
 
-      <Input required email label="Correo" v-model="client.email" class="fit" />
-      <Input label="Dirección" v-model="client.address" class="fit" />
+      <InputRead label="Dirección" v-model="client.address" class="fit" />
 
       <RowMultiCols>
-        <Input
+        <InputRead
+          required
+          email
+          label="Correo"
+          v-model="client.email"
+          class="col"
+        /><InputRead
           onlynumbers
           label="Teléfono"
           v-model="client.phone"
           class="col"
         />
+      </RowMultiCols>
+
+      <RowMultiCols>
         <InputRead
           label="Saldo"
           v-model="client.balance"
           format="currency"
           class="col"
         />
+        <InputRead
+          label="Crédito Máximo"
+          v-model="client.maxCredit"
+          format="currency"
+          class="col"
+        />
       </RowMultiCols>
 
-      <RowTimestamps v-if="client._id" :doc="client" />
-
       <div class="row justify-between q-mt-md">
-        <q-btn
-          label="ABONAR"
-          color="positive"
-          @click="router.push({ name: 'clientPayment' })"
-        />
+        <div>
+          <q-btn
+            label="ABONAR"
+            color="positive"
+            @click="router.push({ name: 'clientPayment' })"
+          />
+          <q-btn
+            label="HISTORIAL ABONOS"
+            class="q-ml-sm"
+            @click="router.push({ name: 'clientPayments' })"
+          />
+        </div>
 
         <div>
-          <q-btn label="HISTORIAL ABONOS" />
           <q-btn label="HISTORIAL COMPRAS" />
         </div>
       </div>
     </FormSave>
-
-    <Dialog
-      title="Cambiar Contraseña"
-      v-model="dialogPassword"
-      @confirm="updatePasswornd"
-      :loading="clients.saving"
-    >
-      <form>
-        <Input
-          required
-          password
-          autofocus
-          v-model="password1"
-          label="Nueva contraseña"
-        />
-        <Input
-          required
-          password
-          v-model="password2"
-          :passwordConfirm="password1"
-          label="Confirmar nueva contraseña"
-        />
-      </form>
-    </Dialog>
   </PageResponsive>
 </template>

@@ -1,22 +1,12 @@
-<script>
+<script setup>
 import { useClients } from 'stores/clients'
 import { onMounted, provide } from 'vue'
 import formatter from 'tools/formatter'
 
-export default {
-  name: 'ItemsDocs',
-  setup() {
-    const clients = useClients()
-    provide(clients.$id, clients)
+const clients = useClients()
+provide(clients.$id, clients)
 
-    onMounted(async () => await clients.getDocs())
-
-    return {
-      clients,
-      formatter
-    }
-  }
-}
+onMounted(async () => await clients.getDocs())
 </script>
 
 <template>

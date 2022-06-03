@@ -56,7 +56,7 @@ const formatter = {
 
   time: value => date.formatDate(new Date(value), 'HH:mm:ss'),
 
-  datetime: value => date.formatDate(new Date(value), 'DD-MM-YYYY HH:mm:ss'),
+  datetime: value => date.formatDate(new Date(value), 'DD/MM/YYYY HH:mm:ss'),
 
   boolean: value => {
     return value ? 'SI' : 'NO'

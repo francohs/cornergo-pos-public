@@ -97,7 +97,7 @@ export const usePos = defineStore({
         this.pays = [...this.pays, { payType: this.payType, payAmount }]
       }
 
-      if (this.payType != 'Crédito Cliente') {
+      if (this.payType != 'Credito Cliente') {
         this.payType = 'Efectivo'
       }
     },
@@ -109,7 +109,7 @@ export const usePos = defineStore({
     },
 
     setPayType(payType) {
-      if (payType == 'Crédito Cliente') {
+      if (payType == 'Credito Cliente') {
         this.pays = []
       }
       this.payType = payType

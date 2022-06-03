@@ -8,11 +8,12 @@ export const baseActions = () => {
         this.loading = true
         const { data } = await api.post(`${this.$id}/query`, request)
 
-        if (request.pagination && request.pagination.page > 1) {
-          this.docs = [...this.docs, ...data.docs]
-        } else {
-          this.docs = data.docs
-        }
+        // if (request.pagination && request.pagination.page > 1) {
+        //   this.docs = [...this.docs, ...data.docs]
+        // } else {
+        //   this.docs = data.docs
+        // }
+        this.docs = data.docs
 
         this.count = data.count
       } catch (error) {
@@ -66,13 +67,13 @@ export const baseActions = () => {
         this.loading = false
       }
     },
-    async create(doc) {
+    async create(doc, message = 'Datos creados con éxito') {
       try {
         this.saving = true
         const { data } = await api.post(this.$id, { doc })
         this.doc = data.doc
         this.docs.push(data.doc)
-        notify.positive('Datos creados con éxito')
+        notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -121,3 +122,21 @@ export const baseActions = () => {
     }
   }
 }
+
+// reques arg explanation
+// await store.getQueryDocs({
+//   query: {
+//     contains: {
+//       fields: Array,
+//       value: Any
+//     },
+//     equal: Object,
+//     date: String
+//   },
+//   select: Array,
+//   sort: Object,
+//   pagination: {
+//     page: Number,
+//     rowsPerPage: Number
+//   }
+// })

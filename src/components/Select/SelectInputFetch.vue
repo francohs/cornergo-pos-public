@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { onMounted, inject, ref } from "vue";
+import { onMounted, inject, ref } from 'vue'
 
 const props = defineProps({
   storeId: String,
@@ -28,61 +28,60 @@ const props = defineProps({
   lazy: Boolean,
   descending: Boolean,
   fetchAll: Boolean,
-  minInput: { type: Number, default: 0 },
-});
+  minInput: { type: Number, default: 0 }
+})
 
-const store = inject(props.storeId);
-const model = ref(null);
-const options = ref([]);
-const fetchedOptions = ref([]);
+const store = inject(props.storeId)
+const options = ref([])
+const fetchedOptions = ref([])
 
 onMounted(async () => {
   if (!props.lazy && props.fetchAll) {
-    await fetchOptions(props.field);
+    await fetchOptions(props.field)
   }
-});
+})
 
 const filterFn = async (value, update) => {
   if (fetchedOptions.value.length > 0 || !props.fetchAll) {
     if (value.length > props.minInput) {
       if (props.fetchAll) {
         options.value = fetchedOptions.value.filter(
-          (v) => v.toUpperCase().indexOf(value.toUpperCase()) > -1
-        );
+          v => v.toUpperCase().indexOf(value.toUpperCase()) > -1
+        )
       } else {
-        await fetchOptions(props.field, value);
-        options.value = fetchedOptions.value;
+        await fetchOptions(props.field, value)
+        options.value = fetchedOptions.value
       }
     } else {
       if (props.fetchAll) {
-        options.value = fetchedOptions.value;
+        options.value = fetchedOptions.value
       } else {
-        options.value = [];
+        options.value = []
       }
     }
-    update();
+    update()
   } else {
-    if (props.lazy && props.fetchAll) await fetchOptions(props.field);
-    options.value = fetchedOptions.value;
-    update();
+    if (props.lazy && props.fetchAll) await fetchOptions(props.field)
+    options.value = fetchedOptions.value
+    update()
   }
-};
+}
 
 const fetchOptions = async (field, input) => {
-  const query = {};
+  const query = {}
   if (input) {
     query.contains = {
       fields: [field],
-      value: input,
-    };
+      value: input
+    }
   }
   await store.getQueryOptions({
     query,
     select: [field],
     sort: {
-      [field]: props.descending ? -1 : 1,
-    },
-  });
-  fetchedOptions.value = store.options.map((doc) => doc[field]);
-};
+      [field]: props.descending ? -1 : 1
+    }
+  })
+  fetchedOptions.value = store.options.map(doc => doc[field])
+}
 </script>

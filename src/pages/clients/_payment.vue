@@ -1,12 +1,18 @@
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { usePayments } from 'stores/payments'
+
 const router = useRouter()
+const route = useRoute()
+
+const payments = usePayments()
 
 const inputPayAmount = ref(null)
 const btnCreatePayment = ref(null)
 
 const payment = reactive({
+  client: route.params.id,
   payType: 'Efectivo',
   amount: ''
 })
@@ -18,6 +24,11 @@ const payTypes = ref([
   'Trasferencia',
   'Cheque'
 ])
+
+const createPayment = () => {
+  payments.create(payment, 'Abono ingresado con éxito')
+  router.go(-1)
+}
 </script>
 
 <template>
@@ -57,6 +68,8 @@ const payTypes = ref([
             :disable="!payment.payType || payment.amount <= 0"
             type="submit"
             class="full-width"
+            @click="createPayment"
+            :loading="payments.saving"
           />
         </div>
       </div>
