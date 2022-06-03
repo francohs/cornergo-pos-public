@@ -94,7 +94,7 @@ const printDte = async () => {
   const dte = await emittedDtes.create({
     dteType: pos.dteType,
     payType: pos.payType,
-    client: pos.client,
+    client: pos.client._id,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
     items: pos.items.map(item => ({
       ...item,
