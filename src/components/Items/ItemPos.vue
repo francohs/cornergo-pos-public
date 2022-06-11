@@ -1,7 +1,7 @@
 <template>
   <q-item class="q-px-none">
     <div class="full-width row items-center q-py-sm">
-      <div class="q-mr-sm">
+      <div v-if="!readonly" class="q-mr-sm">
         <q-btn
           dense
           flat
@@ -11,7 +11,11 @@
         />
       </div>
       <div class="row justify-start q-mr-md">
+        <div v-if="readonly" class="text-h5 q-mx-md">
+          {{ item.quantity }}
+        </div>
         <InputQuantity
+          v-else
           :modelValue="item.quantity"
           @add="pos.incrementQuantity(item)"
           @subtract="pos.decrementQuantity(item)"
@@ -43,7 +47,10 @@
 import { inject } from 'vue'
 import formatter from 'tools/formatter'
 
-const props = defineProps(['item'])
+const props = defineProps({
+  item: Object,
+  readonly: Boolean
+})
 
-const pos = inject('pos')
+const pos = props.readonly ? null : inject('pos')
 </script>

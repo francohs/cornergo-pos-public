@@ -2,17 +2,21 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePayments } from 'stores/payments'
+import { useClients } from 'stores/clients'
 
 const router = useRouter()
 const route = useRoute()
 
+const clientId = route.params.id
+
 const payments = usePayments()
+const clients = useClients()
 
 const inputPayAmount = ref(null)
 const btnCreatePayment = ref(null)
 
 const payment = reactive({
-  client: route.params.id,
+  client: clientId,
   payType: 'Efectivo',
   amount: ''
 })
@@ -27,6 +31,7 @@ const payTypes = ref([
 
 const createPayment = () => {
   payments.create(payment, 'Abono ingresado con éxito')
+  clients.getDoc(clientId)
   router.go(-1)
 }
 </script>

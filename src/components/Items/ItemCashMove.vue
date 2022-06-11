@@ -1,3 +1,30 @@
+<script setup>
+import { inject, ref } from 'vue'
+import formatter from 'tools/formatter'
+
+const props = defineProps(['cashMove'])
+
+const cashMoves = inject('cashMoves')
+const quasar = inject('quasar')
+const loading = ref(false)
+
+const remove = async id => {
+  loading.value = true
+  quasar
+    .dialog({
+      title: 'Remover Movimiento',
+      message: `¿Estas seguro de remover "${
+        props.cashMove.description
+      }" ${formatter.currency(props.cashMove.amount)}?`,
+      cancel: true
+    })
+    .onOk(async () => {
+      await cashMoves.delete(id)
+    })
+  loading.value = false
+}
+</script>
+
 <template>
   <q-item
     class="q-pl-none q-pr-sm"
@@ -19,6 +46,10 @@
       <q-icon
         v-else-if="cashMove.moveType == 'Otro Egreso'"
         name="arrow_back"
+      />
+      <q-icon
+        v-else-if="cashMove.moveType == 'Abono Cliente'"
+        name="payments"
       />
       <q-icon
         v-else-if="cashMove.moveType == 'Inicio de Caja'"
@@ -55,30 +86,3 @@
     </q-item-section>
   </q-item>
 </template>
-
-<script setup>
-import { inject, ref } from 'vue'
-import formatter from 'tools/formatter'
-
-const props = defineProps(['cashMove'])
-
-const cashMoves = inject('cashMoves')
-const quasar = inject('quasar')
-const loading = ref(false)
-
-const remove = async id => {
-  loading.value = true
-  quasar
-    .dialog({
-      title: 'Remover Movimiento',
-      message: `¿Estas seguro de remover "${
-        props.cashMove.description
-      }" ${formatter.currency(props.cashMove.amount)}?`,
-      cancel: true
-    })
-    .onOk(async () => {
-      await cashMoves.delete(id)
-    })
-  loading.value = false
-}
-</script>

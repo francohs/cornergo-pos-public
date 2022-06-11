@@ -23,6 +23,14 @@ const routes = [
         }
       },
       {
+        path: '/clients/:id/payments',
+        name: 'clientPayments',
+        component: () => import('pages/clients/_payments.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: '/clients/:id/payment',
         name: 'clientPayment',
         component: () => import('pages/clients/_payment.vue'),
@@ -31,9 +39,17 @@ const routes = [
         }
       },
       {
-        path: '/clients/:id/payments',
-        name: 'clientPayments',
-        component: () => import('pages/clients/_payments.vue'),
+        path: '/clients/:id/purchases',
+        name: 'clientPurchases',
+        component: () => import('pages/clients/_purchases.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: '/clients/:id/purchases/:purchaseId',
+        name: 'clientPurchase',
+        component: () => import('pages/clients/_purchase.vue'),
         meta: {
           requiresAuth: true
         }

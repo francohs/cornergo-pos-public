@@ -61,7 +61,7 @@ async function updatePasswornd() {
         <InputRead
           required
           onlynumbers
-          rut
+          format="rut"
           v-model="client.rut"
           label="RUT"
           class="col"
@@ -115,7 +115,10 @@ async function updatePasswornd() {
         </div>
 
         <div>
-          <q-btn label="HISTORIAL COMPRAS" />
+          <q-btn
+            label="HISTORIAL COMPRAS"
+            @click="router.push({ name: 'clientPurchases' })"
+          />
         </div>
       </div>
     </FormSave>

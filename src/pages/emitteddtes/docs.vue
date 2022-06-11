@@ -1,26 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { usePayments } from 'stores/payments'
+import { onMounted, provide, ref } from 'vue'
+import { useEmittedDtes } from 'stores/emitteddtes'
 import formatter from 'tools/formatter'
 
-const route = useRoute()
+const emittedDtes = useEmittedDtes()
+provide(emittedDtes.$id, emittedDtes)
 
-const payments = usePayments()
 const page = ref(1)
-const rowsPerPage = 5
+const rowsPerPage = 10
 const pages = ref(1)
 
 onMounted(async () => {
   await getDocs()
-  pages.value = Math.ceil(payments.count / rowsPerPage)
+  pages.value = Math.ceil(emittedDtes.count / rowsPerPage)
 })
 
 const getDocs = async () => {
-  await payments.getQueryDocs({
-    query: {
-      equal: { client: route.params.id }
-    },
+  await emittedDtes.getQueryDocs({
     sort: { createdAt: -1 },
     pagination: {
       page: page.value,
@@ -32,57 +28,52 @@ const getDocs = async () => {
 const changePage = async () => {
   await getDocs()
 }
-
-const payIcons = {
-  Efectivo: 'payments',
-  'Tarjeta de Debito': 'credit_card',
-  'Tarjeta de Credito': 'credit_card',
-  Trasferencia: 'local_atm',
-  Cheque: 'local_atm'
-}
 </script>
 
 <template>
   <PageResponsive :maxWidth="650">
-    <div class="q-pa-lg">
+    <div class="q-pa-lg q-px-xs-md q-px-md-xl">
       <q-linear-progress
         indeterminate
         class="absolute-top"
-        v-if="payments.loading"
+        v-if="emittedDtes.loading"
       />
 
-      <div class="row items-center q-mb-lg">
-        <ButtonBack />
+      <div class="text-h5 q-mb-md">Historial de Ventas</div>
 
-        <div class="text-h5">Historial de Abonos</div>
-      </div>
-
-      <q-list v-if="payments.docs.length > 0" bordered separator>
+      <q-list v-if="emittedDtes.docs.length > 0" bordered separator>
         <q-item
-          v-for="payment of payments.docs"
-          :key="payment._id"
-          class="q-py-md"
+          v-for="emittedDte of emittedDtes.docs"
+          :key="emittedDte._id"
+          class="q-py-sm"
+          clickable
+          :to="{ name: 'emitteddtes/:id', params: { id: emittedDte._id } }"
         >
           <q-item-section avatar>
             <q-avatar
               rounded
               color="primary"
               text-color="white"
-              :icon="payIcons[payment.payType]"
+              icon="shopping_cart"
             />
           </q-item-section>
 
           <q-item-section>
-            <q-item-label caption>{{ payment.payType }}</q-item-label>
+            <q-item-label caption
+              >BOLETA: {{ emittedDte.number }}
+            </q-item-label>
             <q-item-label>{{
-              formatter.datetime(payment.createdAt)
+              formatter.datetime(emittedDte.createdAt)
             }}</q-item-label>
+            <q-item-label caption
+              >Vendedor {{ emittedDte.sellerName }}</q-item-label
+            >
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label caption>Monto</q-item-label>
+            <q-item-label caption>TOTAL</q-item-label>
             <q-item-label>{{
-              formatter.currency(payment.amount)
+              formatter.currency(emittedDte.totalAmount)
             }}</q-item-label>
           </q-item-section>
         </q-item>
@@ -97,11 +88,11 @@ const payIcons = {
       </div>
 
       <div
-        v-if="payments.docs.length == 0"
+        v-if="emittedDtes.docs.length == 0"
         class="q-mt-xl text-center text-grey-7"
-        v-show="!payments.loading"
+        v-show="!emittedDtes.loading"
       >
-        Aún no tienes abonos
+        Aún no tienes ventas
       </div>
     </div>
   </PageResponsive>

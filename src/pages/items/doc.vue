@@ -1,3 +1,26 @@
+<script setup>
+import { onMounted, provide, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import { useItems } from 'stores/items'
+
+const route = useRoute()
+
+const items = useItems()
+const id = route.params.id
+const item = reactive({})
+
+provide(items.$id, items)
+
+onMounted(async () => {
+  try {
+    await items.getDoc(id)
+    Object.assign(item, items.doc)
+  } catch (error) {
+    console.error(error)
+  }
+})
+</script>
+
 <template>
   <PageResponsive :loading="items.loading">
     <FormSave :storeId="items.$id" :id="id" :doc="item">
@@ -25,26 +48,3 @@
     </FormSave>
   </PageResponsive>
 </template>
-
-<script setup>
-import { useItems } from "stores/items";
-import { onMounted, provide, reactive } from "vue";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-
-const items = useItems();
-const id = route.params.id;
-const item = reactive({});
-
-provide(items.$id, items);
-
-onMounted(async () => {
-  try {
-    await items.getDoc(id);
-    Object.assign(item, items.doc);
-  } catch (error) {
-    console.error(error);
-  }
-});
-</script>

@@ -1,7 +1,17 @@
+<script setup>
+import { onMounted, provide } from 'vue'
+import { useItems } from 'stores/items'
+
+const items = useItems()
+provide(items.$id, items)
+
+onMounted(async () => await items.getDocs())
+</script>
+
 <template>
   <PageResponsive :loading="items.loading">
     <div class="q-pa-lg q-px-xs-md q-px-md-xl">
-      <div class="row items-center justify-between q-mb-md">
+      <div class="row justify-between q-mb-md">
         <div class="text-h5">Items</div>
 
         <ButtonLinkCreate :store="items.$id" />
@@ -40,13 +50,3 @@
     </div>
   </PageResponsive>
 </template>
-
-<script setup>
-import { useItems } from 'stores/items'
-import { onMounted, provide } from 'vue'
-
-const items = useItems()
-provide(items.$id, items)
-
-onMounted(async () => await items.getDocs())
-</script>
