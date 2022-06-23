@@ -31,6 +31,8 @@ function createWindow() {
     }
   })
 
+  mainWindow.removeMenu()
+
   mainWindow.loadURL(process.env.APP_URL)
 
   if (process.env.DEBUGGING) {

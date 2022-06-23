@@ -35,7 +35,7 @@ export default route(function (/* { store, ssrContext } */) {
           await cashMoves.getDocs()
 
           if (!cashMoves.isOpen) {
-            Notify.info('Primero debes iniciar nueva caja')
+            Notify.info('Primero debes iniciar caja')
             next('/cashmoves')
           } else next()
         } else next()

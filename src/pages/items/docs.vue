@@ -20,7 +20,6 @@ onMounted(async () => await items.getDocs())
       <q-list v-if="items.docs.length > 0" bordered separator>
         <q-item
           clickable
-          v-ripple
           v-for="item of items.docs"
           :key="item._id"
           class="q-py-md"

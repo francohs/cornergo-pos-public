@@ -11,7 +11,7 @@ const ServerErrors = {
   NotFound: 'El usuario no existe',
   Unauthorized: 'Acceso no autorizado',
   AuthTokenIncorrect: 'Acceso no autorizado',
-  AuthTokenMissing: 'Sesion expirada',
+  AuthTokenMissing: 'Sesión expirada',
   IncorrectPassword: 'Contraseña incorrecta'
 }
 
@@ -38,6 +38,8 @@ export default boot(({ router, store }) => {
               auth.logout()
               router.push({ name: 'login' })
             }
+          } else {
+            notify.negative('Error en el servidor')
           }
         }
       }

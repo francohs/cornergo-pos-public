@@ -19,7 +19,6 @@ onMounted(async () => await clients.getDocs())
       <q-list v-if="clients.docs.length > 0" bordered separator>
         <q-item
           clickable
-          v-ripple
           v-for="client of clients.docs"
           :key="client._id"
           class="q-py-md"

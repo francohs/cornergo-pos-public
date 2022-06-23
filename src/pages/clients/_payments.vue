@@ -37,7 +37,7 @@ const payIcons = {
   Efectivo: 'payments',
   'Tarjeta de Debito': 'credit_card',
   'Tarjeta de Credito': 'credit_card',
-  Trasferencia: 'local_atm',
+  Transferencia: 'local_atm',
   Cheque: 'local_atm'
 }
 </script>

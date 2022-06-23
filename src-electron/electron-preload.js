@@ -87,10 +87,18 @@ contextBridge.exposeInMainWorld('printer', {
       }
 
       for (pay of dte.pays) {
-        const payAmount = formatter.currency(pay.payAmount) + ' '
+        const payAmount = formatter.currency(pay.amount) + ' '
         printer.text(
           `Pago ${pay.payType}:` + getSpaces(11, payAmount.length) + payAmount
         )
+        if (pay.payType == 'Credito Cliente') {
+          const clientBalance = formatter.currency(dte.client.balance) + ' '
+          printer.text(
+            `Saldo ${dte.client.name}:` +
+              getSpaces(11, clientBalance.length) +
+              clientBalance
+          )
+        }
       }
       if (dte.pays.length > 1) {
         printer.text(

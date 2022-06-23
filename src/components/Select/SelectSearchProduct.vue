@@ -1,3 +1,88 @@
+<script setup>
+import { ref, inject } from 'vue'
+import { useProducts } from 'stores/products'
+import formatter from 'tools/formatter'
+import notify from 'tools/notify'
+
+const emit = defineEmits(['next'])
+
+const inputValue = ref('')
+const options = ref([])
+const pos = inject('pos')
+const products = useProducts()
+const selectRef = ref('')
+
+const filterFn = async (value, update) => {
+  if (value.length > 2) {
+    await products.getQueryDocs({
+      query: {
+        contains: {
+          fields: ['code', 'name'],
+          value
+        },
+        equal: { active: true }
+      },
+      select: ['code', 'name', 'stock', 'price', 'exempt'],
+      sort: { name: -1 }
+    })
+
+    options.value = products.docs
+  } else {
+    options.value = []
+  }
+  update()
+}
+
+const addItem = product => {
+  pos.addItem(product)
+  clear()
+}
+
+const onEnter = async () => {
+  if (inputValue.value == '') {
+    emit('next')
+    return
+  }
+
+  let isNumber = Number.isInteger(parseInt(inputValue.value))
+
+  if (isNumber) {
+    await products.findDoc({
+      code: inputValue.value
+    })
+    let selectedItem = products.doc
+
+    if (selectedItem) {
+      addItem(selectedItem)
+    } else if (inputValue.value.length < 6) {
+      let code = Date.now()
+      addItem({
+        _id: code,
+        code,
+        name: 'PRODUCTO SIN CODIGO',
+        price: parseInt(inputValue.value),
+        quantity: 1,
+        exempt: false
+      })
+    } else {
+      notify.negative('Código sin resultados')
+    }
+  } else {
+    let selectedItem = options.value.find(item => item.name == inputValue.value)
+
+    if (selectedItem) {
+      addItem(selectedItem)
+    }
+  }
+}
+
+const clear = () => {
+  inputValue.value = ''
+  selectRef.value.updateInputValue('')
+  selectRef.value.focus()
+}
+</script>
+
 <template>
   <q-select
     v-bind="$attrs"
@@ -11,7 +96,7 @@
     use-input
     hide-selected
     fill-input
-    input-debounce="300"
+    input-debounce="500"
     option-value="name"
     option-label="name"
     emit-value
@@ -42,84 +127,3 @@
     </template>
   </q-select>
 </template>
-
-<script setup>
-import { ref, inject } from 'vue'
-import { api } from 'boot/axios'
-import formatter from 'tools/formatter'
-import notify from 'tools/notify'
-
-const emit = defineEmits(['next'])
-
-const inputValue = ref('')
-const options = ref([])
-const pos = inject('pos')
-const selectRef = ref('')
-
-const filterFn = async (value, update) => {
-  if (value.length > 2) {
-    const { data } = await api.post('products/query', {
-      query: {
-        contains: {
-          fields: ['code', 'name'],
-          value
-        },
-        equal: { active: true }
-      },
-      select: ['code', 'name', 'stock', 'price', 'isExempt'],
-      sort: { name: -1 }
-    })
-
-    options.value = data.docs
-  } else {
-    options.value = []
-  }
-  update()
-}
-
-const addItem = product => {
-  pos.addItem(product)
-  clear()
-}
-
-const onEnter = () => {
-  if (inputValue.value == '') {
-    emit('next')
-    return
-  }
-
-  let isNumber = Number.isInteger(parseInt(inputValue.value))
-
-  if (isNumber) {
-    let selectedItem = options.value.find(item => item.code == inputValue.value)
-
-    if (selectedItem) {
-      addItem(selectedItem)
-    } else if (inputValue.value.length < 6) {
-      let code = Date.now()
-      addItem({
-        _id: code,
-        code,
-        name: 'PRODUCTO SIN CODIGO',
-        price: parseInt(inputValue.value),
-        quantity: 1,
-        isExempt: false
-      })
-    } else {
-      notify.negative('Código sin resultados')
-    }
-  } else {
-    let selectedItem = options.value.find(item => item.name == inputValue.value)
-
-    if (selectedItem) {
-      addItem(selectedItem)
-    }
-  }
-}
-
-const clear = () => {
-  inputValue.value = ''
-  selectRef.value.updateInputValue('')
-  selectRef.value.focus()
-}
-</script>

@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "editorconfig.editorconfig",
-    "johnsoncodehk.volar",
     "wayou.vscode-todo-highlight"
   ],
   "unwantedRecommendations": [

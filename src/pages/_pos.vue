@@ -19,12 +19,10 @@ const payTypes = ref([
   'Efectivo',
   'Tarjeta de Debito',
   'Tarjeta de Credito',
-  'Trasferencia',
-  'Credito Cliente',
-  'Cheque'
+  'Transferencia',
+  'Credito Cliente'
 ])
 const payAmount = ref('')
-
 const loading = ref(false)
 
 const inputPay = ref(null)
@@ -94,7 +92,7 @@ const printDte = async () => {
   const dte = await emittedDtes.create({
     dteType: pos.dteType,
     payType: pos.payType,
-    client: pos.client._id,
+    client: pos.client ? pos.client._id : null,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
     items: pos.items.map(item => ({
       ...item,
@@ -105,10 +103,12 @@ const printDte = async () => {
     changeAmount: pos.changeAmount
   })
 
-  // window.printer.printDte(
-  //   { ...dte, roundedTotal: pos.roundedTotal },
-  //   generateBarcode(dte.ted, 1, 0.5)
-  // )
+  console.log(dte)
+
+  window.printer.printDte(
+    { ...dte, roundedTotal: pos.roundedTotal },
+    generateBarcode(dte.ted, 1, 0.5)
+  )
 
   pos.resetAll()
   focus(selectSearchProduct)

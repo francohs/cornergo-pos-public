@@ -7,7 +7,7 @@
       {{ pay.payType }}
     </q-item-section>
     <q-item-section side>
-      {{ formatter.currency(pay.payAmount) }}
+      {{ formatter.currency(pay.amount) }}
     </q-item-section>
   </q-item>
 </template>

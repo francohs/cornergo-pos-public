@@ -1,8 +1,8 @@
 {
   "name": "cornergo-v6-pos",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "description": "CornerGO: Punto de Venta",
+  "productName": "CornerGO POS",
   "author": "Franco <franco@gmail.com>",
   "private": true,
   "scripts": {
@@ -16,19 +16,21 @@
     "axios": "^0.27.2",
     "escpos": "^3.0.0-alpha.6",
     "escpos-usb": "^3.0.0-alpha.4",
+    "global": "^4.4.0",
     "moment": "^2.29.3",
     "pdf417": "^0.1.5",
     "pinia": "^2.0.14",
-    "quasar": "^2.7.1",
+    "quasar": "^2.7.3",
     "usb": "2.4.2",
-    "vue": "^3.2.33",
-    "vue-router": "^4.0.15"
+    "vue": "^3.2.37",
+    "vue-router": "^4.0.16"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.0.1",
+    "@quasar/app-vite": "^1.0.2",
     "@vue/devtools": "^6.1.4",
     "autoprefixer": "^10.4.7",
-    "electron": "^19.0.1"
+    "electron": "^19.0.5",
+    "electron-packager": "^15.2.0"
   },
   "resolutions": {
     "escpos-usb/usb": "1.9.2"

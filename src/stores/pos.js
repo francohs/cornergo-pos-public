@@ -34,7 +34,7 @@ export const usePos = defineStore({
       return roundedTotal
     },
     totalPay() {
-      return this.pays.reduce((prev, curr) => prev + curr.payAmount, 0)
+      return this.pays.reduce((prev, curr) => prev + curr.amount, 0)
     },
     changeAmount() {
       let changeAmount = this.totalPay - this.total
@@ -88,13 +88,13 @@ export const usePos = defineStore({
       }
     },
 
-    addPay(payAmount) {
+    addPay(amount) {
       const index = this.pays.findIndex(pay => pay.payType == this.payType)
 
       if (index > -1) {
-        this.pays[index].payAmount += payAmount
+        this.pays[index].amount += amount
       } else {
-        this.pays = [...this.pays, { payType: this.payType, payAmount }]
+        this.pays = [...this.pays, { payType: this.payType, amount }]
       }
 
       if (this.payType != 'Credito Cliente') {
