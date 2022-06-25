@@ -14,7 +14,7 @@ provide(clients.$id, clients)
 const emittedDtes = useEmittedDtes()
 const auth = useAuth()
 
-const dteTypes = ref(['Boleta'])
+const dteTypes = ref(['Boleta Electronica'])
 const payTypes = ref([
   'Efectivo',
   'Tarjeta de Debito',
@@ -22,7 +22,6 @@ const payTypes = ref([
   'Transferencia',
   'Credito Cliente'
 ])
-const payAmount = ref('')
 const loading = ref(false)
 
 const inputPay = ref(null)
@@ -40,26 +39,27 @@ const focus = async compRef => {
 }
 
 const setPayType = payType => {
-  pos.setPayType(payType)
+  if (payType == 'Credito Cliente') {
+    pos.pays = []
+  }
 
   if (payType != 'Credito Cliente') {
     focus(inputPay)
 
     if (payType != 'Efectivo' || pos.totalPay > 0) {
-      payAmount.value = pos.total - pos.totalPay
+      pos.payAmount = pos.total - pos.totalPay
     }
   }
 }
 
 const enterInputPay = () => {
-  if (payAmount.value == '') {
-    payAmount.value = pos.total - pos.totalPay
-  } else if (parseInt(payAmount.value) <= 20) {
-    payAmount.value = payAmount.value + '000'
+  if (pos.payAmount == '') {
+    pos.payAmount = pos.total - pos.totalPay
+  } else if (parseInt(pos.payAmount) <= 20) {
+    pos.payAmount = pos.payAmount + '000'
   }
 
-  pos.addPay(parseInt(payAmount.value))
-  payAmount.value = ''
+  pos.addPay(pos.payType, pos.payAmount)
 
   if (pos.isTotalReach) focus(btnPrint)
 }
@@ -72,7 +72,7 @@ const setClient = async name => {
   }
   await clients.findDoc({ name })
   pos.client = clients.doc
-  pos.addPay(pos.total)
+  pos.addPay(pos.payType, pos.total)
   focus(btnPrint)
 }
 
@@ -82,17 +82,26 @@ const loadItems = () => {
 }
 
 const removePay = () => {
-  if (pos.payType == 'Credito Cliente') {
+  if (payType.value == 'Credito Cliente') {
     pos.client = null
   }
   focus(inputPay)
 }
 
+const clearAll = () => {
+  pos.clearAll()
+  payType.value = 'Efectivo'
+  payAmount.value = ''
+}
+
 const printDte = async () => {
+  // if (payType.value == 'Efectivo') {
+  //   window.printer.cashdraw()
+  // }
+
   const dte = await emittedDtes.create({
     dteType: pos.dteType,
-    payType: pos.payType,
-    client: pos.client ? pos.client._id : null,
+    client: pos.client,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
     items: pos.items.map(item => ({
       ...item,
@@ -105,12 +114,17 @@ const printDte = async () => {
 
   console.log(dte)
 
-  window.printer.printDte(
-    { ...dte, roundedTotal: pos.roundedTotal },
-    generateBarcode(dte.ted, 1, 0.5)
-  )
+  if (
+    !pos.client ||
+    (pos.client && pos.client.dteType == 'Boleta Electronica')
+  ) {
+    window.printer.printDte(
+      { ...dte, roundedTotal: pos.roundedTotal },
+      generateBarcode(dte.ted, 1, 0.5)
+    )
+  }
 
-  pos.resetAll()
+  clearAll()
   focus(selectSearchProduct)
 }
 
@@ -141,7 +155,7 @@ watchEffect(() => {
                 <ItemPos
                   v-for="item of pos.items"
                   :item="item"
-                  :key="item._id"
+                  :key="item.code"
                 />
               </q-list>
             </q-card>
@@ -153,7 +167,7 @@ watchEffect(() => {
                   label="BORRAR TODO"
                   icon="delete"
                   class="text-grey-8"
-                  @click="pos.resetAll()"
+                  @click="pos.clearAll()"
                 />
                 <q-btn
                   label="GUARDAR COMPRA"
@@ -175,7 +189,7 @@ watchEffect(() => {
                 <span class="q-mr-md">TOTAL</span>
                 <span>{{
                   formatter.currency(
-                    pos.payType == 'Efectivo' ? pos.roundedTotal : pos.total
+                    payType == 'Efectivo' ? pos.roundedTotal : pos.total
                   )
                 }}</span>
               </div>
@@ -198,12 +212,12 @@ watchEffect(() => {
 
               <Select
                 label="Tipo de Pago"
-                :modelValue="pos.payType"
+                v-model="payType"
                 @update:modelValue="setPayType"
                 :options="payTypes"
                 icon="account_balance_wallet"
                 class="select-text-lg q-mb-md"
-                v-show="!pos.isTotalReach || pos.payType == 'Credito Cliente'"
+                v-show="!pos.isTotalReach || payType == 'Credito Cliente'"
               />
 
               <Input
@@ -216,8 +230,12 @@ watchEffect(() => {
                 input-style="font-size: 20px;"
                 ref="inputPay"
                 class="full-width"
-                v-show="!pos.isTotalReach && pos.payType != 'Credito Cliente'"
-              />
+                v-show="!pos.isTotalReach && payType != 'Credito Cliente'"
+              >
+                <template v-slot:append>
+                  <q-btn round dense flat icon="add" @click="enterInputPay" />
+                </template>
+              </Input>
 
               <SelectInputFetch
                 label="Cliente"
@@ -230,7 +248,7 @@ watchEffect(() => {
                 icon="person"
                 class="q-mb-md"
                 ref="selectClient"
-                v-show="pos.payType == 'Credito Cliente'"
+                v-if="payType == 'Credito Cliente'"
               />
               <InputRead
                 v-if="pos.client"

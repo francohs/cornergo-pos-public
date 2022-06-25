@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { LocalStorage } from 'quasar'
-import { api } from 'src/boot/axios'
 
 export const usePos = defineStore({
   id: 'pos',
 
   state: () => ({
-    dteType: 'Boleta',
+    dteType: 'Boleta Electronica',
     payType: 'Efectivo',
+    payAmount: '',
     client: null,
     items: [],
     savedItems: LocalStorage.getItem('savedItems') || [],
@@ -46,22 +46,22 @@ export const usePos = defineStore({
   },
 
   actions: {
-    addItem(product) {
-      const index = this.items.findIndex(item => item._id == product._id)
+    addItem(item) {
+      const index = this.items.findIndex(i => i.code == item.code)
       if (index > -1) {
         this.items[index].quantity++
       } else {
         this.items = [
           ...this.items,
           {
-            ...product,
+            ...item,
             quantity: 1
           }
         ]
       }
     },
     removeItem(item) {
-      this.items = this.items.filter(t => t._id !== item._id)
+      this.items = this.items.filter(i => i.code !== item.code)
     },
     saveItems() {
       LocalStorage.set('savedItems', this.items)
@@ -74,32 +74,34 @@ export const usePos = defineStore({
       LocalStorage.remove('savedItems')
     },
     incrementQuantity(item) {
-      const index = this.items.findIndex(t => t._id == item._id)
+      const index = this.items.findIndex(i => i.code == item.code)
 
       this.items[index].quantity++
     },
     decrementQuantity(item) {
-      const index = this.items.findIndex(t => t._id == item._id)
+      const index = this.items.findIndex(i => i.code == item.code)
 
       this.items[index].quantity--
 
       if (this.items[index].quantity < 1) {
-        this.items = this.items.filter(t => t._id !== item._id)
+        this.items = this.items.filter(i => i.code !== item.code)
       }
     },
 
-    addPay(amount) {
-      const index = this.pays.findIndex(pay => pay.payType == this.payType)
+    addPay(payType, amount) {
+      const index = this.pays.findIndex(p => p.payType == payType)
+      const amount = parseInt(amount)
 
       if (index > -1) {
         this.pays[index].amount += amount
       } else {
-        this.pays = [...this.pays, { payType: this.payType, amount }]
+        this.pays = [...this.pays, { payType, amount }]
       }
 
-      if (this.payType != 'Credito Cliente') {
+      if (payType != 'Credito Cliente') {
         this.payType = 'Efectivo'
       }
+      this.payAmount = ''
     },
 
     removePay(pay) {
@@ -108,42 +110,11 @@ export const usePos = defineStore({
       if (this.pays.length == 0) this.client = null
     },
 
-    setPayType(payType) {
-      if (payType == 'Credito Cliente') {
-        this.pays = []
-      }
-      this.payType = payType
-    },
-
-    resetAll() {
-      this.dteType = 'Boleta'
-      this.payType = 'Efectivo'
+    clearAll() {
+      this.dteType = 'Boleta Electronica'
       this.client = null
       this.items = []
       this.pays = []
-    },
-
-    async createDte() {
-      try {
-        console.log({
-          dteType: this.dteType,
-          payType: this.payType,
-          totalPay: this.totalPay,
-          client: this.client,
-          items: this.items,
-          savedItems: this.savedItems,
-          total: this.total,
-          pays: this.pays
-        })
-        console.log({ changeAmount: this.changeAmount })
-        console.log('print dte!')
-        this.resetAll()
-        // const response = await api.post(this.$id, { doc })
-
-        // commit('createDoc', { doc: response.data.doc })
-      } catch (error) {
-        throw error
-      }
     }
   }
 })

@@ -10,6 +10,9 @@ const notify = {
   positive: message => {
     Notify.create({ type: 'positive', message })
   },
+  warning: message => {
+    Notify.create({ type: 'warning', message })
+  },
   negative: message => {
     Notify.create({ type: 'negative', message })
   }

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { baseState, baseGetters, baseActions } from './base'
+import moment from 'moment'
 
 export const useCashMoves = defineStore({
   id: 'cashMoves',
@@ -18,11 +19,43 @@ export const useCashMoves = defineStore({
       let closeIndex = this.docs.findIndex(
         cashMove => cashMove.moveType == 'Cierre de Caja'
       )
-      return openIndex > -1 && closeIndex < 0
+      return openIndex > -1 && closeIndex == -1
+    },
+
+    validDate() {
+      if (this.docs.length > 0) {
+        return moment().diff(this.docs[0].createdAt, 'days') == 0
+      }
+      return true
     }
   },
 
   actions: {
-    ...baseActions()
+    ...baseActions(),
+
+    async closeCashBox(userId) {
+      const cashMove = {
+        user: userId,
+        moveType: 'Cierre de Caja',
+        amount: 0,
+        description: 'Cierre de Caja'
+      }
+
+      cashMove.amount = this.docs.reduce((acc, cashMove) => {
+        if (
+          cashMove.moveType == 'Inicio de Caja' ||
+          cashMove.moveType == 'Otro Ingreso'
+        ) {
+          return acc + parseInt(cashMove.amount)
+        } else if (
+          cashMove.moveType == 'Pago a Proveedor' ||
+          cashMove.moveType == 'Otro Egreso'
+        ) {
+          return acc - parseInt(cashMove.amount)
+        }
+      }, 0)
+
+      await this.create(cashMove, 'Caja cerrada con éxito')
+    }
   }
 })

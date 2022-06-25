@@ -22,28 +22,8 @@ const closeCashBox = () => {
       cancel: true
     })
     .onOk(async () => {
-      const cashMove = {
-        user: auth.user._id,
-        moveType: 'Cierre de Caja',
-        amount: 0,
-        description: 'Cierre de Caja'
-      }
-
-      cashMove.amount = cashMoves.docs.reduce((acc, cashMove) => {
-        if (
-          cashMove.moveType == 'Inicio de Caja' ||
-          cashMove.moveType == 'Otro Ingreso'
-        ) {
-          return acc + parseInt(cashMove.amount)
-        } else if (
-          cashMove.moveType == 'Pago a Proveedor' ||
-          cashMove.moveType == 'Otro Egreso'
-        ) {
-          return acc - parseInt(cashMove.amount)
-        }
-      }, 0)
-
-      await cashMoves.create(cashMove)
+      await cashMoves.closeCashBox(auth.user._id)
+      auth.logout()
     })
 }
 </script>
@@ -71,7 +51,7 @@ const closeCashBox = () => {
                 {{ cashMoves.isOpen ? '(Abierto)' : '(Cerrado)' }}
               </div>
               <div v-if="cashMoves.docs.length > 0">
-                {{ formatter.date(cashMoves.docs[0].createdAt) }}
+                {{ formatter.localDate(cashMoves.docs[0].createdAt) }}
               </div>
             </div>
 

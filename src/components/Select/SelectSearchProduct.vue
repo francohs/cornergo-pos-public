@@ -22,7 +22,7 @@ const filterFn = async (value, update) => {
         },
         equal: { active: true }
       },
-      select: ['code', 'name', 'stock', 'price', 'exempt'],
+      select: ['code', 'name', 'stock', 'price', 'exempt', 'cost'],
       sort: { name: -1 }
     })
 
@@ -33,8 +33,30 @@ const filterFn = async (value, update) => {
   update()
 }
 
-const addItem = product => {
-  pos.addItem(product)
+const addItem = item => {
+  pos.addItem({
+    code: item.code,
+    product: item._id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    exempt: item.exempt,
+    cost: item.cost
+  })
+  clear()
+}
+
+const addNoCodeItem = item => {
+  let code = Date.now()
+  addItem({
+    code,
+    product: null,
+    name: 'PRODUCTO SIN CODIGO',
+    price: parseInt(inputValue.value),
+    quantity: 1,
+    exempt: false,
+    cost: Math.round(parseInt(inputValue.value) / 1.4)
+  })
   clear()
 }
 
@@ -55,15 +77,7 @@ const onEnter = async () => {
     if (selectedItem) {
       addItem(selectedItem)
     } else if (inputValue.value.length < 6) {
-      let code = Date.now()
-      addItem({
-        _id: code,
-        code,
-        name: 'PRODUCTO SIN CODIGO',
-        price: parseInt(inputValue.value),
-        quantity: 1,
-        exempt: false
-      })
+      addNoCodeItem()
     } else {
       notify.negative('Código sin resultados')
     }

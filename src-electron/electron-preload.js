@@ -21,6 +21,12 @@ const getSpaces = (total, characters) => {
 }
 
 contextBridge.exposeInMainWorld('printer', {
+  cashdraw: () => {
+    device.open(error => {
+      if (error) console.error(error)
+      printer.cashdraw()
+    })
+  },
   printDte: (dte, tedPdf417) => {
     const emissionDate = moment(dte.emissionDate)
 
@@ -40,9 +46,9 @@ contextBridge.exposeInMainWorld('printer', {
       printer.text(`${dte.dteTypeName}: ${dte.number}`)
       printer
         .text(
-          `Fecha: ${formatter.date(emissionDate)}      Hora: ${formatter.time(
+          `Fecha: ${formatter.localDate(
             emissionDate
-          )}`
+          )}      Hora: ${formatter.time(emissionDate)}`
         )
         .text(`Vendedor: ${dte.sellerName}`)
         .feed(1)
@@ -69,12 +75,23 @@ contextBridge.exposeInMainWorld('printer', {
       }
       printer.text('------------------------------------------')
 
+      const roundedAmount =
+        formatter.currency(Math.abs(dte.totalAmount - dte.roundedTotal)) + ' '
+      const roundedTotal = formatter.currency(dte.roundedTotal) + ' '
       const textTotal = formatter.currency(dte.totalAmount) + ' '
       const textExemptAmount = formatter.currency(dte.exemptAmount) + ' '
       const textTotalPay = formatter.currency(dte.totalPay) + ' '
       const textChangeAmount = formatter.currency(dte.changeAmount) + ' '
 
       printer.align('rt')
+
+      const anyCashPay = dte.pays.findIndex(p => p.payType == 'Efectivo')
+
+      if (anyCashPay > -1 && dte.roundedTotal > 0) {
+        printer.text(
+          'Ley N° 20.956:' + getSpaces(11, roundedAmount.length) + roundedAmount
+        )
+      }
 
       printer.text('TOTAL:' + getSpaces(11, textTotal.length) + textTotal)
 

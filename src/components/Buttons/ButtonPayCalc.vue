@@ -23,7 +23,7 @@
           label: 'VENCIMIENTO',
           field: 'expirationDate',
           align: 'center',
-          format: val => formatter.date(val)
+          format: val => formatter.localDate(val)
         },
         {
           label: 'MONTO TOTAL',

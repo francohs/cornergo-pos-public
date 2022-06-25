@@ -37,6 +37,11 @@ export default route(function (/* { store, ssrContext } */) {
           if (!cashMoves.isOpen) {
             Notify.info('Primero debes iniciar caja')
             next('/cashmoves')
+          } else if (!cashMoves.validDate) {
+            Notify.warning('Último cierre de caja fuera de fecha')
+            await cashMoves.closeCashBox(auth.user._id)
+            auth.logout()
+            next('/login')
           } else next()
         } else next()
       } else {
