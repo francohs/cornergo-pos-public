@@ -24,7 +24,42 @@ contextBridge.exposeInMainWorld('printer', {
   cashdraw: () => {
     device.open(error => {
       if (error) console.error(error)
-      printer.cashdraw()
+      printer.cashdraw().close()
+    })
+  },
+  printPayment: (client, payment) => {
+    device.open(error => {
+      if (error) console.error(error)
+
+      const today = new Date()
+
+      printer.align('lt').size(0.01, 0.01).control('cr')
+      printer.style('b').text('Minimarket CornerGO').style('')
+      printer.text('Abono Cliente')
+      printer.text('------------------------------------------').feed(1)
+
+      printer.text(`Cliente: ${client.name}`)
+      printer.text(`Abono: ${formatter.currency(parseInt(payment.amount))}`)
+      printer.text(`Tipo de Pago: ${payment.payType}`)
+      printer.text(
+        `Saldo Anterior: ${formatter.currency(parseInt(client.balance))}`
+      )
+      printer.text(
+        `Saldo Actual: ${formatter.currency(
+          parseInt(client.balance) + parseInt(payment.amount)
+        )}`
+      )
+
+      printer.feed(1).text('------------------------------------------')
+      printer
+        .text(
+          `Fecha: ${formatter.localDate(today)}      Hora: ${formatter.time(
+            today
+          )}`
+        )
+        .feed(1)
+        .cut()
+        .close()
     })
   },
   printDte: (dte, tedPdf417) => {
@@ -78,7 +113,6 @@ contextBridge.exposeInMainWorld('printer', {
       const roundedAmount =
         formatter.currency(Math.abs(dte.totalAmount - dte.roundedTotal)) + ' '
       const roundedTotal = formatter.currency(dte.roundedTotal) + ' '
-      const textTotal = formatter.currency(dte.totalAmount) + ' '
       const textExemptAmount = formatter.currency(dte.exemptAmount) + ' '
       const textTotalPay = formatter.currency(dte.totalPay) + ' '
       const textChangeAmount = formatter.currency(dte.changeAmount) + ' '
@@ -93,7 +127,7 @@ contextBridge.exposeInMainWorld('printer', {
         )
       }
 
-      printer.text('TOTAL:' + getSpaces(11, textTotal.length) + textTotal)
+      printer.text('TOTAL:' + getSpaces(11, roundedTotal.length) + roundedTotal)
 
       if (dte.exemptAmount) {
         printer.text(

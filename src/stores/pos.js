@@ -6,7 +6,7 @@ export const usePos = defineStore({
 
   state: () => ({
     dteType: 'Boleta Electronica',
-    payType: 'Efectivo',
+    payType: 'Tarjeta de Debito',
     payAmount: '',
     client: null,
     items: [],
@@ -22,6 +22,8 @@ export const usePos = defineStore({
       )
     },
     roundedTotal() {
+      if (this.payType != 'Efectivo') return this.total
+
       const lastDigit = parseInt(this.total.toString().slice(-1))
 
       let roundedTotal = this.total
@@ -37,11 +39,11 @@ export const usePos = defineStore({
       return this.pays.reduce((prev, curr) => prev + curr.amount, 0)
     },
     changeAmount() {
-      let changeAmount = this.totalPay - this.total
+      let changeAmount = this.totalPay - this.roundedTotal
       return changeAmount < 0 ? 0 : changeAmount
     },
     isTotalReach() {
-      return this.totalPay >= this.total
+      return this.totalPay >= this.roundedTotal
     }
   },
 
@@ -66,7 +68,7 @@ export const usePos = defineStore({
     saveItems() {
       LocalStorage.set('savedItems', this.items)
       this.savedItems = this.items
-      this.resetAll()
+      this.clearAll()
     },
     loadItems() {
       this.items = this.savedItems
@@ -90,7 +92,7 @@ export const usePos = defineStore({
 
     addPay(payType, amount) {
       const index = this.pays.findIndex(p => p.payType == payType)
-      const amount = parseInt(amount)
+      amount = parseInt(amount)
 
       if (index > -1) {
         this.pays[index].amount += amount
@@ -98,21 +100,23 @@ export const usePos = defineStore({
         this.pays = [...this.pays, { payType, amount }]
       }
 
-      if (payType != 'Credito Cliente') {
-        this.payType = 'Efectivo'
-      }
+      // if (payType != 'Credito Cliente') {
+      //   this.payType = 'Efectivo'
+      // }
       this.payAmount = ''
     },
 
     removePay(pay) {
       this.pays = this.pays.filter(target => target.payType !== pay.payType)
-      this.payType = 'Efectivo'
+      this.payType = 'Tarjeta de Debito'
       if (this.pays.length == 0) this.client = null
     },
 
     clearAll() {
       this.dteType = 'Boleta Electronica'
       this.client = null
+      this.payType = 'Tarjeta de Debito'
+      this.payAmount = ''
       this.items = []
       this.pays = []
     }

@@ -22,7 +22,9 @@
         />
       </div>
       <div class="col q-pr-md text-left" style="font-size: 18px">
-        <q-item-label caption>Código: {{ item.code }}</q-item-label>
+        <q-item-label caption v-if="item.name != 'PRODUCTO SIN CODIGO'"
+          >Código: {{ item.code }}</q-item-label
+        >
         <q-item-label>
           {{ item.name }}
         </q-item-label>

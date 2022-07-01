@@ -27,7 +27,7 @@ function createWindow() {
     }
   })
 
-  // mainWindow.removeMenu()
+  mainWindow.removeMenu()
 
   mainWindow.loadURL(process.env.APP_URL)
 

@@ -17,20 +17,25 @@ const btnCreatePayment = ref(null)
 
 const payment = reactive({
   client: clientId,
-  payType: 'Efectivo',
+  payType: 'Transferencia',
   amount: ''
 })
 
 const payTypes = ref([
-  'Efectivo',
+  'Transferencia',
   'Tarjeta de Debito',
   'Tarjeta de Credito',
-  'Trasferencia',
+  'Efectivo',
   'Cheque'
 ])
 
 const createPayment = () => {
   payments.create(payment, 'Abono ingresado con éxito')
+  console.log({
+    client: clients.doc,
+    payment
+  })
+  window.printer.printPayment({ ...clients.doc }, { ...payment })
   clients.getDoc(clientId)
   router.go(-1)
 }

@@ -16,8 +16,8 @@ const auth = useAuth()
 
 const dteTypes = ref(['Boleta Electronica'])
 const payTypes = ref([
-  'Efectivo',
   'Tarjeta de Debito',
+  'Efectivo',
   'Tarjeta de Credito',
   'Transferencia',
   'Credito Cliente'
@@ -47,14 +47,14 @@ const setPayType = payType => {
     focus(inputPay)
 
     if (payType != 'Efectivo' || pos.totalPay > 0) {
-      pos.payAmount = pos.total - pos.totalPay
+      pos.payAmount = pos.roundedTotal - pos.totalPay
     }
   }
 }
 
 const enterInputPay = () => {
   if (pos.payAmount == '') {
-    pos.payAmount = pos.total - pos.totalPay
+    pos.payAmount = pos.roundedTotal - pos.totalPay
   } else if (parseInt(pos.payAmount) <= 20) {
     pos.payAmount = pos.payAmount + '000'
   }
@@ -72,7 +72,7 @@ const setClient = async name => {
   }
   await clients.findDoc({ name })
   pos.client = clients.doc
-  pos.addPay(pos.payType, pos.total)
+  pos.addPay(pos.payType, pos.roundedTotal)
   focus(btnPrint)
 }
 
@@ -86,12 +86,6 @@ const removePay = () => {
     pos.client = null
   }
   focus(inputPay)
-}
-
-const clearAll = () => {
-  pos.clearAll()
-  payType.value = 'Efectivo'
-  payAmount.value = ''
 }
 
 const printDte = async () => {
@@ -114,22 +108,22 @@ const printDte = async () => {
 
   console.log(dte)
 
-  if (
-    !pos.client ||
-    (pos.client && pos.client.dteType == 'Boleta Electronica')
-  ) {
-    window.printer.printDte(
-      { ...dte, roundedTotal: pos.roundedTotal },
-      generateBarcode(dte.ted, 1, 0.5)
-    )
-  }
+  // if (
+  //   !pos.client ||
+  //   (pos.client && pos.client.dteType == 'Boleta Electronica')
+  // ) {
+  //   window.printer.printDte(
+  //     { ...dte, roundedTotal: pos.roundedTotal },
+  //     generateBarcode(dte.ted, 1, 0.5)
+  //   )
+  // }
 
-  clearAll()
+  pos.clearAll()
   focus(selectSearchProduct)
 }
 
 watchEffect(() => {
-  if (pos.total == 0) focus(selectSearchProduct)
+  if (pos.roundedTotal == 0) focus(selectSearchProduct)
 })
 </script>
 
@@ -187,11 +181,7 @@ watchEffect(() => {
               </div>
               <div class="text-bold text-grey-9" style="font-size: 24px">
                 <span class="q-mr-md">TOTAL</span>
-                <span>{{
-                  formatter.currency(
-                    payType == 'Efectivo' ? pos.roundedTotal : pos.total
-                  )
-                }}</span>
+                <span>{{ formatter.currency(pos.roundedTotal) }}</span>
               </div>
             </q-card>
           </div>
@@ -212,17 +202,17 @@ watchEffect(() => {
 
               <Select
                 label="Tipo de Pago"
-                v-model="payType"
+                v-model="pos.payType"
                 @update:modelValue="setPayType"
                 :options="payTypes"
                 icon="account_balance_wallet"
                 class="select-text-lg q-mb-md"
-                v-show="!pos.isTotalReach || payType == 'Credito Cliente'"
+                v-show="!pos.isTotalReach || pos.payType == 'Credito Cliente'"
               />
 
               <Input
                 label="Monto de Pago"
-                v-model="payAmount"
+                v-model="pos.payAmount"
                 @keyup.enter="enterInputPay"
                 icon="paid"
                 stack-label
@@ -230,7 +220,7 @@ watchEffect(() => {
                 input-style="font-size: 20px;"
                 ref="inputPay"
                 class="full-width"
-                v-show="!pos.isTotalReach && payType != 'Credito Cliente'"
+                v-show="!pos.isTotalReach && pos.payType != 'Credito Cliente'"
               >
                 <template v-slot:append>
                   <q-btn round dense flat icon="add" @click="enterInputPay" />
@@ -248,7 +238,7 @@ watchEffect(() => {
                 icon="person"
                 class="q-mb-md"
                 ref="selectClient"
-                v-if="payType == 'Credito Cliente'"
+                v-if="pos.payType == 'Credito Cliente'"
               />
               <InputRead
                 v-if="pos.client"
@@ -303,7 +293,7 @@ watchEffect(() => {
                 ref="btnPrint"
                 @click="printDte"
                 :loading="emittedDtes.saving"
-                :disable="!pos.isTotalReach || pos.total == 0"
+                :disable="!pos.isTotalReach || pos.roundedTotal < 200"
               />
             </q-card>
           </div>
