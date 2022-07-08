@@ -3,7 +3,7 @@ import { LocalStorage } from 'quasar'
 import { useAuth } from 'stores/auth'
 import { ref } from 'vue'
 
-const dialog = ref(false)
+const dialog = ref(true)
 const version = ref('')
 
 const auth = useAuth()
@@ -18,7 +18,7 @@ const toggleDrawer = () => {
 }
 
 const restartAndUpdate = () => {
-  window.updater.send('restart_app')
+  window.updater.send('restart-app')
 }
 
 window.updater.receive('checking-for-update', () => {

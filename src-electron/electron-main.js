@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 const { autoUpdater } = require('electron-updater')
 import path from 'path'
 import os from 'os'
@@ -41,7 +41,7 @@ function createWindow() {
 
   mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
 
-  mainWindow.removeMenu()
+  // mainWindow.removeMenu()
 
   mainWindow.loadURL(process.env.APP_URL)
 
@@ -49,11 +49,11 @@ function createWindow() {
     // if on DEV or Production with debug enabled
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
     // we're on production; no access to devtools pls
-    // mainWindow.webContents.on('devtools-opened', () => {
-    //   mainWindow.webContents.closeDevTools()
-    // })
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools()
+    })
   }
 
   mainWindow.on('closed', () => {
@@ -75,7 +75,7 @@ app.on('activate', () => {
   }
 })
 
-app.on('restart_app', () => {
+ipcMain.on('restart-app', () => {
   autoUpdater.quitAndInstall()
 })
 
