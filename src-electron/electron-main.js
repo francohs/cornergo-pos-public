@@ -19,6 +19,7 @@ let mainWindow
 function createWindow() {
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
+    title: `CornerGO POS ${app.getVersion()}`,
     width: 1400,
     height: 800,
     useContentSize: true,
@@ -77,9 +78,21 @@ app.on('restart_app', () => {
   autoUpdater.quitAndInstall()
 })
 
-autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update_downloaded')
+autoUpdater.on('checking-for-update', () => {
+  mainWindow.webContents.send('checking-for-update')
+})
+autoUpdater.on('update-available', info => {
+  mainWindow.webContents.send('update_available', info)
+})
+autoUpdater.on('update-not-available', info => {
+  mainWindow.webContents.send('update-not-available', info)
 })
 autoUpdater.on('error', err => {
   mainWindow.webContents.send('error', err)
+})
+autoUpdater.on('download-progress', progressObj => {
+  mainWindow.webContents.send('download-progress', progressObj)
+})
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update_downloaded')
 })

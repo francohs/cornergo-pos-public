@@ -191,8 +191,11 @@ module.exports = configure(function (ctx) {
         // https://www.electron.build/configuration/configuration
 
         appId: 'cornergo-pos',
-        repo: 'cornergo-pos',
-        owener: 'francohs'
+        publish: {
+          provider: 'github',
+          repo: 'cornergo-pos',
+          owner: 'francohs'
+        }
       }
     },
 

@@ -1,19 +1,10 @@
-<template>
-  <q-layout view="hHh Lpr lff">
-    <Navbar @drawer-open="toggleDrawer" />
-
-    <Drawer v-model="drawerOpen" v-if="auth.isLogged" />
-
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-  </q-layout>
-</template>
-
 <script setup>
 import { LocalStorage } from 'quasar'
 import { useAuth } from 'stores/auth'
 import { ref } from 'vue'
+
+const dialog = ref(false)
+const version = ref('')
 
 const auth = useAuth()
 
@@ -26,11 +17,52 @@ const toggleDrawer = () => {
   LocalStorage.set('drawer', drawerOpen.value)
 }
 
-window.updater.receive('update_downloaded', () => {
-  console.log('[update_downloaded]')
+const restartAndUpdate = () => {
+  window.updater.send('restart_app')
+}
+
+window.updater.receive('checking-for-update', () => {
+  console.log('[checking-for-update]')
+})
+window.updater.receive('update-not-available', info => {
+  console.log('[update-not-available]', info)
 })
 
 window.updater.receive('error', err => {
   console.log('[error]', err)
 })
+window.updater.receive('download-progress', progressObj => {
+  console.log('[download-progress]', progressObj)
+})
+
+window.updater.receive('update_available', info => {
+  console.log('[update_available]', info)
+})
+window.updater.receive('update_downloaded', () => {
+  console.log('[update_downloaded]')
+  dialog.value = true
+})
 </script>
+
+<template>
+  <q-layout view="hHh Lpr lff">
+    <Navbar @drawer-open="toggleDrawer" />
+
+    <Drawer v-model="drawerOpen" v-if="auth.isLogged" />
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
+
+  <Dialog
+    v-model="dialog"
+    title="Nueva actualización"
+    confirmColor="negative"
+    @confirm="restartAndUpdate"
+  >
+    <div class="text-center q-pb-md">
+      ¿Desea reiniciar amplicación para actualizar?
+    </div>
+  </Dialog>
+</template>
