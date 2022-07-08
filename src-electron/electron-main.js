@@ -1,4 +1,5 @@
 import { app, BrowserWindow, nativeTheme } from 'electron'
+const { autoUpdater } = require('electron-updater')
 import path from 'path'
 import os from 'os'
 
@@ -27,6 +28,17 @@ function createWindow() {
     }
   })
 
+  mainWindow.once('ready-to-show', async () => {
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      owner: 'francohs',
+      repo: 'cornergo-pos',
+      private: true,
+      token: process.env.GH_TOKEN
+    })
+    autoUpdater.checkForUpdates()
+  })
+
   mainWindow.removeMenu()
 
   mainWindow.loadURL(process.env.APP_URL)
@@ -35,10 +47,11 @@ function createWindow() {
     // if on DEV or Production with debug enabled
     mainWindow.webContents.openDevTools()
   } else {
+    mainWindow.webContents.openDevTools()
     // we're on production; no access to devtools pls
-    mainWindow.webContents.on('devtools-opened', () => {
-      mainWindow.webContents.closeDevTools()
-    })
+    // mainWindow.webContents.on('devtools-opened', () => {
+    //   mainWindow.webContents.closeDevTools()
+    // })
   }
 
   mainWindow.on('closed', () => {
@@ -58,4 +71,15 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+app.on('restart_app', () => {
+  autoUpdater.quitAndInstall()
+})
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update_downloaded')
+})
+autoUpdater.on('error', err => {
+  mainWindow.webContents.send('error', err)
 })

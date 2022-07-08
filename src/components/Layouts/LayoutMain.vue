@@ -25,4 +25,12 @@ const toggleDrawer = () => {
   drawerOpen.value = !drawerOpen.value
   LocalStorage.set('drawer', drawerOpen.value)
 }
+
+window.updater.receive('update_downloaded', () => {
+  console.log('[update_downloaded]')
+})
+
+window.updater.receive('error', err => {
+  console.log('[error]', err)
+})
 </script>

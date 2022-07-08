@@ -2,7 +2,7 @@ import escpos from 'escpos'
 import escposUSB from 'escpos-usb'
 escpos.USB = escposUSB
 import moment from 'moment'
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import formatter from 'src/tools/formatter'
 
 const device = new escpos.USB(0x04b8, 0x0202)
@@ -175,5 +175,15 @@ contextBridge.exposeInMainWorld('printer', {
         })
       })
     })
+  }
+})
+
+contextBridge.exposeInMainWorld('updater', {
+  send: channel => {
+    ipcRenderer.send(channel)
+  },
+  receive: (channel, func) => {
+    ipcRenderer.removeAllListeners(channel)
+    ipcRenderer.on(channel, (event, ...args) => func(...args))
   }
 })
