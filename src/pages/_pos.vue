@@ -44,12 +44,13 @@ const setPayType = payType => {
   }
 
   if (payType != 'Credito Cliente') {
-    focus(inputPay)
-
-    if (payType != 'Efectivo' || pos.totalPay > 0) {
-      pos.payAmount = pos.roundedTotal - pos.totalPay
-    }
+    focusInputPay()
   }
+}
+
+const focusInputPay = () => {
+  pos.payAmount = pos.roundedTotal - pos.totalPay
+  focus(inputPay)
 }
 
 const enterInputPay = () => {
@@ -82,7 +83,7 @@ const loadItems = () => {
 }
 
 const removePay = () => {
-  if (payType.value == 'Credito Cliente') {
+  if (pos.payType == 'Credito Cliente') {
     pos.client = null
   }
   focus(inputPay)
@@ -108,15 +109,15 @@ const printDte = async () => {
 
   console.log(dte)
 
-  // if (
-  //   !pos.client ||
-  //   (pos.client && pos.client.dteType == 'Boleta Electronica')
-  // ) {
-  //   window.printer.printDte(
-  //     { ...dte, roundedTotal: pos.roundedTotal },
-  //     generateBarcode(dte.ted, 1, 0.5)
-  //   )
-  // }
+  if (
+    !pos.client ||
+    (pos.client && pos.client.dteType == 'Boleta Electronica')
+  ) {
+    window.printer.printDte(
+      { ...dte, roundedTotal: pos.roundedTotal },
+      generateBarcode(dte.ted, 1, 0.5)
+    )
+  }
 
   pos.clearAll()
   focus(selectSearchProduct)
@@ -135,7 +136,7 @@ watchEffect(() => {
           <div class="row q-pr-md q-pb-sm">
             <q-card class="fit row q-pa-md">
               <SelectSearchProduct
-                @next="focus(inputPay)"
+                @next="focusInputPay"
                 class="fit"
                 :loading="loading"
                 autofocus
@@ -196,7 +197,7 @@ watchEffect(() => {
                 label="Tipo de Documento"
                 v-model="pos.dteType"
                 :options="dteTypes"
-                icon="receipt"
+                icon="receipt_long"
                 class="q-mb-md"
               />
 

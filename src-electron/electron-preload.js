@@ -110,8 +110,8 @@ contextBridge.exposeInMainWorld('printer', {
       }
       printer.text('------------------------------------------')
 
-      const roundedAmount =
-        formatter.currency(Math.abs(dte.totalAmount - dte.roundedTotal)) + ' '
+      const roundedAmount = Math.abs(dte.totalAmount - dte.roundedTotal)
+      const textRoundedAmount = formatter.currency(roundedAmount) + ' '
       const roundedTotal = formatter.currency(dte.roundedTotal) + ' '
       const textExemptAmount = formatter.currency(dte.exemptAmount) + ' '
       const textTotalPay = formatter.currency(dte.totalPay) + ' '
@@ -121,9 +121,11 @@ contextBridge.exposeInMainWorld('printer', {
 
       const anyCashPay = dte.pays.findIndex(p => p.payType == 'Efectivo')
 
-      if (anyCashPay > -1 && dte.roundedTotal > 0) {
+      if (anyCashPay > -1 && roundedAmount > 0) {
         printer.text(
-          'Ley N° 20.956:' + getSpaces(11, roundedAmount.length) + roundedAmount
+          'Ley N° 20.956:' +
+            getSpaces(11, textRoundedAmount.length) +
+            textRoundedAmount
         )
       }
 

@@ -74,9 +74,7 @@ onMounted(async () => {
             </q-item-section>
 
             <q-item-section side>
-              <q-item-label>{{
-                formatter.currency(pay.amount)
-              }}</q-item-label>
+              <q-item-label>{{ formatter.currency(pay.amount) }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-list>

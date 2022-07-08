@@ -22,7 +22,7 @@ const filterFn = async (value, update) => {
         },
         equal: { active: true }
       },
-      select: ['code', 'name', 'stock', 'price', 'exempt', 'cost'],
+      select: ['code', 'name', 'stock', 'price', 'exempt', 'cost', 'batPrice'],
       sort: { name: -1 }
     })
 
@@ -41,7 +41,8 @@ const addItem = item => {
     price: item.price,
     quantity: item.quantity,
     exempt: item.exempt,
-    cost: item.cost
+    cost: item.cost,
+    batPrice: item.batPrice
   })
   clear()
 }
@@ -55,6 +56,7 @@ const addNoCodeItem = item => {
     price: parseInt(inputValue.value),
     quantity: 1,
     exempt: false,
+    batPrice: 0,
     cost: Math.round(parseInt(inputValue.value) / 1.4)
   })
   clear()

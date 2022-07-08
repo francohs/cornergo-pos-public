@@ -24,7 +24,11 @@ export const useCashMoves = defineStore({
 
     validDate() {
       if (this.docs.length > 0) {
-        return moment().diff(this.docs[0].createdAt, 'days') == 0
+        return (
+          moment()
+            .startOf('day')
+            .diff(moment(this.docs[0].createdAt).startOf('day'), 'days') == 0
+        )
       }
       return true
     }
