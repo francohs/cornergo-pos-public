@@ -27,16 +27,15 @@ window.updater.receive('checking-for-update', () => {
 window.updater.receive('update-not-available', info => {
   console.log('[update-not-available]', info)
 })
-
 window.updater.receive('error', err => {
   console.log('[error]', err)
 })
 window.updater.receive('download-progress', progressObj => {
   console.log('[download-progress]', progressObj)
 })
-
 window.updater.receive('update_available', info => {
   console.log('[update_available]', info)
+  version.value = info.version
 })
 window.updater.receive('update_downloaded', () => {
   console.log('[update_downloaded]')
@@ -57,8 +56,7 @@ window.updater.receive('update_downloaded', () => {
 
   <Dialog
     v-model="dialog"
-    title="Nueva actualización"
-    confirmColor="negative"
+    :title="`Nueva actualización v${version}`"
     @confirm="restartAndUpdate"
   >
     <div class="text-center q-pb-md">

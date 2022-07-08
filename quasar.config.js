@@ -191,6 +191,7 @@ module.exports = configure(function (ctx) {
         // https://www.electron.build/configuration/configuration
 
         appId: 'cornergo-pos',
+        productName: 'CornerGO POS',
         publish: {
           provider: 'github',
           repo: 'cornergo-pos',

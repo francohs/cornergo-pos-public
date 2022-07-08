@@ -19,7 +19,6 @@ let mainWindow
 function createWindow() {
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
-    title: `CornerGO POS ${app.getVersion()}`,
     width: 1400,
     height: 800,
     useContentSize: true,
@@ -39,6 +38,8 @@ function createWindow() {
     })
     autoUpdater.checkForUpdates()
   })
+
+  mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
 
   mainWindow.removeMenu()
 
