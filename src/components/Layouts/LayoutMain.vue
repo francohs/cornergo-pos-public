@@ -3,7 +3,7 @@ import { LocalStorage } from 'quasar'
 import { useAuth } from 'stores/auth'
 import { ref } from 'vue'
 
-const dialog = ref(true)
+const dialog = ref(false)
 const version = ref('')
 
 const auth = useAuth()
