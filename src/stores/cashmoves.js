@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { baseState, baseGetters, baseActions } from './base'
+import { useEmittedDtes } from 'stores/emitteddtes'
 import moment from 'moment'
 
 export const useCashMoves = defineStore({
@@ -38,12 +39,16 @@ export const useCashMoves = defineStore({
     ...baseActions(),
 
     async closeCashBox(userId) {
+      const emittedDtes = useEmittedDtes()
+
       const cashMove = {
         user: userId,
         moveType: 'Cierre de Caja',
         amount: 0,
         description: 'Cierre de Caja'
       }
+
+      console.log(await emittedDtes.getPayAmounts())
 
       cashMove.amount = this.docs.reduce((acc, cashMove) => {
         if (
@@ -59,7 +64,7 @@ export const useCashMoves = defineStore({
         }
       }, 0)
 
-      await this.create(cashMove, 'Caja cerrada con éxito')
+      // await this.create(cashMove, 'Caja cerrada con éxito')
     }
   }
 })

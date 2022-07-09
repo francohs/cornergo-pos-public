@@ -23,7 +23,7 @@ const closeCashBox = () => {
     })
     .onOk(async () => {
       await cashMoves.closeCashBox(auth.user._id)
-      auth.logout()
+      // auth.logout()
     })
 }
 </script>
