@@ -1,7 +1,7 @@
 <script setup>
 import { useCashMoves } from 'stores/cashmoves'
 import { useAuth } from 'stores/auth'
-import { provide, onMounted } from 'vue'
+import { provide, onMounted, reactive, ref } from 'vue'
 import formatter from 'tools/formatter'
 import { useQuasar } from 'quasar'
 
@@ -12,26 +12,38 @@ provide(auth.$id, auth)
 const quasar = useQuasar()
 provide('quasar', quasar)
 
-onMounted(async () => await cashMoves.getDocs())
+const cashMove = reactive({})
+const dialog = ref(false)
+const loadingClose = ref(false)
 
-const closeCashBox = () => {
-  quasar
-    .dialog({
-      title: 'Cierre de Caja',
-      message: '¿Estas seguro de realizar el cierre de caja?',
-      cancel: true
-    })
-    .onOk(async () => {
-      await cashMoves.closeCashBox(auth.user._id)
-      // auth.logout()
-    })
+onMounted(async () => {
+  await cashMoves.getLast()
+  Object.assign(cashMove, cashMoves.doc)
+})
+
+const closeCashMoves = async () => {
+  loadingClose.value = true
+  await cashMoves.closeCashMoves()
+  loadingClose.value = false
+  Object.assign(cashMove, cashMoves.doc)
+  dialog.value = false
+  window.printer.printCashClose(JSON.parse(JSON.stringify(cashMove)))
 }
 </script>
 
 <template>
+  <Dialog
+    v-model="dialog"
+    title="Cierre de Caja"
+    @confirm="closeCashMoves"
+    :loading="loadingClose"
+  >
+    ¿Estas seguro de realizar el cierre de caja?
+  </Dialog>
+
   <LayoutPage :loading="cashMoves.loading" class="q-pa-md">
-    <div class="full-height column">
-      <div class="row col q-px-lg">
+    <div class="full-height">
+      <div class="row full-height q-px-lg">
         <q-card class="full-width row justify-center q-px-lg q-pt-lg">
           <div class="col-6 column">
             <q-btn
@@ -44,19 +56,28 @@ const closeCashBox = () => {
               v-if="!cashMoves.isOpen"
             />
             <div
-              class="full-width row justify-between text-h5 text-bold q-my-lg"
+              v-if="cashMove"
+              class="row justify-end text-h5 text-bold q-mt-md"
             >
               <div>
+                {{ formatter.localDate(cashMove.createdAt) }}
+              </div>
+            </div>
+            <div
+              v-if="cashMove.user"
+              class="row justify-between items-end q-mb-lg"
+            >
+              <div class="text-h5 text-bold">
                 {{ cashMoves.isOpen ? '' : 'Último ' }}Arqueo
                 {{ cashMoves.isOpen ? '(Abierto)' : '(Cerrado)' }}
               </div>
-              <div v-if="cashMoves.docs.length > 0">
-                {{ formatter.localDate(cashMoves.docs[0].createdAt) }}
+              <div style="font-size: 18px">
+                {{ cashMove.user.name }}
+                {{ cashMove.user.lastName }}
               </div>
             </div>
-
             <div class="row items-baseline justify-between">
-              <div class="q-pa-none" style="font-size: 20px">
+              <div class="q-pa-none text-bold" style="font-size: 20px">
                 Movimientos de efectivo
               </div>
 
@@ -75,17 +96,141 @@ const closeCashBox = () => {
             <q-separator spaced />
             <q-list class="full-width overflow-hidden">
               <ItemCashMove
-                v-for="cashMove of cashMoves.docs"
-                :cashMove="cashMove"
-                :key="cashMove._id"
+                v-if="cashMoves.isOpen"
+                :move="{
+                  moveType: 'Inicio de Caja',
+                  description: 'Inicio de Caja',
+                  amount: cashMove.openAmount,
+                  createdAt: cashMove.createdAt
+                }"
+              />
+              <ItemCashMove
+                v-for="move of cashMoves.doc.moves"
+                :move="move"
+                :key="move._id"
               />
             </q-list>
+
+            <div v-if="!cashMoves.isOpen" class="q-mt-lg">
+              <div class="q-pa-none text-bold" style="font-size: 20px">
+                Cálculo cierre de caja
+              </div>
+              <q-separator spaced />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Inicio de Caja',
+                  description: 'Inicio de Caja',
+                  amount: cashMove.openAmount,
+                  createdAt: cashMove.createdAt
+                }"
+              />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Otro Ingreso',
+                  description: 'Total Pagos en Efectivo',
+                  amount: cashMove.cash
+                }"
+              />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Otro Ingreso',
+                  description: 'Total Otros Ingresos',
+                  amount: cashMove.totalInputs
+                }"
+              />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Otro Egreso',
+                  description: 'Total Otros Egresos',
+                  amount: cashMove.totalOutputs
+                }"
+              />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Otro Egreso',
+                  description: 'Total Vueltos',
+                  amount: cashMove.change
+                }"
+              />
+              <ItemCashMove
+                :move="{
+                  moveType: 'Cierre de Caja',
+                  description: 'Cierre de Caja',
+                  amount: cashMove.closeAmount,
+                  createdAt: cashMove.updatedAt
+                }"
+              />
+            </div>
+
+            <div v-if="!cashMoves.isOpen" class="q-mt-lg">
+              <q-expansion-item
+                label="Resumen de ventas"
+                header-class="q-pl-none text-bold"
+                header-style="font-size: 20px"
+                ><q-separator spaced />
+                <div>
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Inicio de Caja',
+                      description: 'Total Ventas',
+                      amount: cashMove.totalSales
+                    }"
+                  />
+                  <q-item class="q-pl-none q-pr-sm">
+                    <q-item-section side>
+                      <q-icon name="arrow_forward" />
+                    </q-item-section>
+                    <q-item-section class="q-ml-md">
+                      Número de Ventas
+                    </q-item-section>
+                    <q-item-section side>
+                      {{ cashMove.dtesQuantity }}
+                    </q-item-section>
+                  </q-item>
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: 'Efectivo',
+                      amount: cashMove.cash
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: 'Tarjeta Débito',
+                      amount: cashMove.debit
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: 'Tarjeta Cédito',
+                      amount: cashMove.credit
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: 'Transferencias',
+                      amount: cashMove.transfer
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: 'Crédito Cliente',
+                      amount: cashMove.clientCredit
+                    }"
+                  />
+                </div>
+              </q-expansion-item>
+            </div>
 
             <div class="row justify-end q-mt-lg">
               <q-btn
                 v-if="cashMoves.isOpen"
                 label="CERRAR CAJA"
-                @click="closeCashBox"
+                @click="dialog = true"
                 class="q-px-sm"
                 color="negative"
                 icon="close"

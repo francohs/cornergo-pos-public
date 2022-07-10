@@ -8,11 +8,6 @@ export const baseActions = () => {
         this.loading = true
         const { data } = await api.post(`${this.$id}/query`, request)
 
-        // if (request.pagination && request.pagination.page > 1) {
-        //   this.docs = [...this.docs, ...data.docs]
-        // } else {
-        //   this.docs = data.docs
-        // }
         this.docs = data.docs
 
         this.count = data.count
@@ -80,12 +75,12 @@ export const baseActions = () => {
         this.saving = false
       }
     },
-    async update(id, doc) {
+    async update(id, mod) {
       try {
         this.saving = true
 
         const { data } = await api.patch(`${this.$id}/${id}`, {
-          doc
+          mod
         })
 
         this.doc = data.doc
@@ -101,6 +96,69 @@ export const baseActions = () => {
         this.saving = false
       }
     },
+    async replace(id, doc, message = 'Datos modificados con éxito') {
+      try {
+        this.saving = true
+
+        const { data } = await api.put(`${this.$id}/${id}`, {
+          doc
+        })
+
+        this.doc = data.doc
+        const index = this.docs.findIndex(doc => doc._id === id)
+        if (index > -1) {
+          this.docs[index] = data.doc
+        }
+
+        notify.positive(message)
+      } catch (error) {
+        throw error
+      } finally {
+        this.saving = false
+      }
+    },
+
+    async addItem(itemsName, item, message = 'Item agregado con éxito') {
+      try {
+        this.saving = true
+
+        const { data } = await api.patch(`${this.$id}/${this.doc._id}/add`, {
+          itemsName,
+          item
+        })
+
+        this.doc = data.doc
+        this.insertDoc(this.doc)
+
+        notify.positive(message)
+      } catch (error) {
+        throw error
+      } finally {
+        this.saving = false
+      }
+    },
+
+    async removeItem(itemsName, itemId, message = 'Item eliminado con éxito') {
+      try {
+        this.saving = true
+
+        const { data } = await api.patch(`${this.$id}/${this.doc._id}/remove`, {
+          itemsName,
+          itemId
+        })
+
+        this.doc = data.doc
+        console.log(this.doc)
+        this.removeDoc(this.doc._id)
+
+        notify.positive(message)
+      } catch (error) {
+        throw error
+      } finally {
+        this.saving = false
+      }
+    },
+
     async delete(id) {
       try {
         this.deleting = true
@@ -113,6 +171,15 @@ export const baseActions = () => {
       } finally {
         this.deleting = false
       }
+    },
+    insertDoc(doc) {
+      const index = this.docs.findIndex(d => d._id === doc._id)
+      if (index > -1) {
+        this.docs[index] = doc
+      }
+    },
+    removeDoc(id) {
+      this.docs = this.docs.filter(d => d._id != id)
     },
     clearDoc() {
       this.doc = {}

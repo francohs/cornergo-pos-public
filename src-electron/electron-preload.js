@@ -27,6 +27,103 @@ contextBridge.exposeInMainWorld('printer', {
       printer.cashdraw().close()
     })
   },
+  printCashClose: cashClose => {
+    console.log({ cashClose })
+    device.open(error => {
+      if (error) console.error(error)
+
+      const today = new Date()
+
+      printer.align('lt').size(0.01, 0.01).control('cr')
+      printer.style('b').text('Minimarket CornerGO').style('')
+      printer.style('b').text('Cierre de Caja')
+      printer.text('------------------------------------------')
+      printer.feed(1)
+
+      printer.style('b').text(`Resumen de ventas`).style('')
+      printer.text('------------------------------------------')
+      printer.text(`Total Ventas: ${formatter.currency(cashClose.totalSales)}`)
+      printer.text(`Número de Ventas: ${cashClose.dtesQuantity}`)
+      printer.text(`Efectivo: ${formatter.currency(cashClose.cash)}`)
+      printer.text(`Tarjeta Débito: ${formatter.currency(cashClose.debit)}`)
+      printer.text(`Tarjeta Cédito: ${formatter.currency(cashClose.credit)}`)
+      printer.text(`Transferencias: ${formatter.currency(cashClose.transfer)}`)
+      printer.text(
+        `Crédito Cliente: ${formatter.currency(cashClose.clientCredit)}`
+      )
+      printer.feed(1)
+
+      printer.style('b').text(`Otros Ingresos`).style('')
+      printer.text('------------------------------------------')
+      cashClose.moves.forEach(move => {
+        if (move.moveType == 'Otro Ingreso') {
+          printer.text(
+            `${formatter.time(move.createdAt)} ${
+              move.description
+            } ${formatter.currency(move.amount)}`
+          )
+        }
+      })
+      printer.feed(1)
+
+      printer.style('b').text(`Otros Egresos`).style('')
+      printer.text('------------------------------------------')
+      cashClose.moves.forEach(move => {
+        if (
+          move.moveType == 'Otro Egreso' ||
+          move.moveType == 'Pago a Proveedor'
+        ) {
+          printer.text(
+            `${formatter.time(move.createdAt)} ${
+              move.description
+            } ${formatter.currency(move.amount)}`
+          )
+        }
+      })
+      printer.feed(1)
+
+      printer.style('b').text(`Calculo cierre de caja`).style('')
+      printer.text('------------------------------------------')
+      printer
+        .style('b')
+        .text(
+          `[${formatter.time(
+            cashClose.createdAt
+          )}] INICIO DE CAJA: ${formatter.currency(cashClose.openAmount)}`
+        )
+        .style('')
+      printer.text(
+        `Total Pagos en Efectivo: ${formatter.currency(cashClose.cash)}`
+      )
+      printer.text(
+        `Total Otros Ingresos: ${formatter.currency(cashClose.totalInputs)}`
+      )
+      printer.text(
+        `Total Otros Egresos: ${formatter.currency(cashClose.totalOutputs)}`
+      )
+      printer.text(`Total Vueltos: ${formatter.currency(cashClose.change)}`)
+      printer
+        .style('b')
+        .text(
+          `[${formatter.time(
+            cashClose.updatedAt
+          )}] CIERRE DE CAJA: ${formatter.currency(cashClose.closeAmount)}`
+        )
+        .style('')
+      printer.feed(1)
+
+      printer.text('------------------------------------------')
+      printer
+        .text(
+          `Fecha: ${formatter.localDate(
+            cashClose.updatedAt
+          )}      Hora: ${formatter.time(cashClose.updatedAt)}`
+        )
+        .feed(1)
+        .cut()
+        .close()
+    })
+  },
   printPayment: (client, payment) => {
     device.open(error => {
       if (error) console.error(error)
@@ -35,7 +132,7 @@ contextBridge.exposeInMainWorld('printer', {
 
       printer.align('lt').size(0.01, 0.01).control('cr')
       printer.style('b').text('Minimarket CornerGO').style('')
-      printer.text('Abono Cliente')
+      printer.style('b').text('Abono Cliente').style('')
       printer.text('------------------------------------------').feed(1)
 
       printer.text(`Cliente: ${client.name}`)

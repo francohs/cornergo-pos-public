@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { baseState, baseGetters, baseActions } from './base'
 import { useEmittedDtes } from 'stores/emitteddtes'
+import { api } from 'boot/axios'
 import moment from 'moment'
 
 export const useCashMoves = defineStore({
@@ -14,13 +15,7 @@ export const useCashMoves = defineStore({
     ...baseGetters(),
 
     isOpen() {
-      let openIndex = this.docs.findIndex(
-        cashMove => cashMove.moveType == 'Inicio de Caja'
-      )
-      let closeIndex = this.docs.findIndex(
-        cashMove => cashMove.moveType == 'Cierre de Caja'
-      )
-      return openIndex > -1 && closeIndex == -1
+      return this.doc && !this.doc.closeAmount
     },
 
     validDate() {
@@ -28,7 +23,7 @@ export const useCashMoves = defineStore({
         return (
           moment()
             .startOf('day')
-            .diff(moment(this.docs[0].createdAt).startOf('day'), 'days') == 0
+            .diff(moment(this.doc.createdAt).startOf('day'), 'days') == 0
         )
       }
       return true
@@ -38,33 +33,59 @@ export const useCashMoves = defineStore({
   actions: {
     ...baseActions(),
 
-    async closeCashBox(userId) {
+    async getLast() {
+      try {
+        this.loading = true
+        const { data } = await api.get(this.$id + '/last')
+        this.doc = data.doc
+      } catch (error) {
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async closeCashMoves() {
       const emittedDtes = useEmittedDtes()
 
-      const cashMove = {
-        user: userId,
-        moveType: 'Cierre de Caja',
-        amount: 0,
-        description: 'Cierre de Caja'
-      }
+      const cashMove = { ...this.doc }
 
-      console.log(await emittedDtes.getPayAmounts())
+      const payAmounts = await emittedDtes.getPayAmounts()
 
-      cashMove.amount = this.docs.reduce((acc, cashMove) => {
-        if (
-          cashMove.moveType == 'Inicio de Caja' ||
-          cashMove.moveType == 'Otro Ingreso'
-        ) {
-          return acc + parseInt(cashMove.amount)
-        } else if (
-          cashMove.moveType == 'Pago a Proveedor' ||
-          cashMove.moveType == 'Otro Egreso'
-        ) {
-          return acc - parseInt(cashMove.amount)
-        }
-      }, 0)
+      cashMove.cash = payAmounts.cash
+      cashMove.debit = payAmounts.debit
+      cashMove.credit = payAmounts.credit
+      cashMove.transfer = payAmounts.transfer
+      cashMove.totalDebitCredit = payAmounts.debit + payAmounts.credit
+      cashMove.clientCredit = payAmounts.clientCredit
+      cashMove.change = payAmounts.change
+      cashMove.dtesQuantity = payAmounts.count
+      cashMove.totalSales = payAmounts.total
 
-      // await this.create(cashMove, 'Caja cerrada con éxito')
+      cashMove.totalInputs = this.doc.moves.reduce(
+        (acc, curr) =>
+          curr.moveType == 'Otro Ingreso' ? acc + parseInt(curr.amount) : acc,
+        0
+      )
+
+      cashMove.totalOutputs = this.doc.moves.reduce(
+        (acc, curr) =>
+          curr.moveType == 'Pago a Proveedor' || curr.moveType == 'Otro Egreso'
+            ? acc + parseInt(curr.amount)
+            : acc,
+        0
+      )
+
+      cashMove.closeAmount =
+        cashMove.openAmount +
+        cashMove.cash -
+        cashMove.change +
+        cashMove.totalInputs -
+        cashMove.totalOutputs
+
+      // console.log(cashMove)
+
+      await this.replace(cashMove._id, cashMove, 'Caja cerrada con éxito')
     }
   }
 })

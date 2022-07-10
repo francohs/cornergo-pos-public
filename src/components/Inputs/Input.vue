@@ -10,7 +10,7 @@
     lazy-rules
     :input-class="limitClass"
     :style="`width: ${width ? width : 150}px;`"
-    @focus="onFocus"
+    @focus="focus"
     @blur="isFocus = false"
     @keyup.enter="isFocus = false"
     @keypress="numberValidation"
@@ -154,9 +154,11 @@ const numberValidation = event => {
   }
 }
 
-const onFocus = async () => {
+const focus = async () => {
   isFocus.value = true
   await nextTick()
   inputRef.value.select()
 }
+
+defineExpose({ focus })
 </script>

@@ -1,26 +1,41 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { inject, ref, computed } from 'vue'
 import formatter from 'tools/formatter'
 
-const props = defineProps(['cashMove'])
+const props = defineProps(['move'])
 
 const cashMoves = inject('cashMoves')
 const quasar = inject('quasar')
+const dialog = ref(false)
 const loading = ref(false)
 
-const remove = async id => {
+const icons = {
+  'Inicio de Caja': 'check_circle_outline',
+  'Cierre de Caja': 'check_circle_outline',
+  'Pago a Proveedor': 'local_shipping',
+  'Otro Ingreso': 'arrow_forward',
+  'Otro Egreso': 'arrow_back',
+  'Abono Cliente': 'payments'
+}
+
+const colors = {
+  'Inicio de Caja': 'positive',
+  'Cierre de Caja': 'negative'
+}
+
+const isOpenClose = computed(
+  () =>
+    props.move.moveType == 'Inicio de Caja' ||
+    props.move.moveType == 'Cierre de Caja'
+)
+
+const remove = async () => {
   loading.value = true
-  quasar
-    .dialog({
-      title: 'Remover Movimiento',
-      message: `¿Estas seguro de remover "${
-        props.cashMove.description
-      }" ${formatter.currency(props.cashMove.amount)}?`,
-      cancel: true
-    })
-    .onOk(async () => {
-      await cashMoves.delete(id)
-    })
+  await cashMoves.removeItem(
+    'moves',
+    props.move._id,
+    'Movimiento eliminado con éxito'
+  )
   loading.value = false
 }
 </script>
@@ -29,60 +44,41 @@ const remove = async id => {
   <q-item
     class="q-pl-none q-pr-sm"
     :class="{
-      'text-bold q-my-sm':
-        cashMove.moveType == 'Inicio de Caja' ||
-        cashMove.moveType == 'Cierre de Caja'
+      'text-bold q-my-sm': isOpenClose
     }"
   >
     <q-item-section side>
       <q-icon
-        v-if="cashMove.moveType == 'Pago a Proveedor'"
-        name="local_shipping"
-      />
-      <q-icon
-        v-else-if="cashMove.moveType == 'Otro Ingreso'"
-        name="arrow_forward"
-      />
-      <q-icon
-        v-else-if="cashMove.moveType == 'Otro Egreso'"
-        name="arrow_back"
-      />
-      <q-icon
-        v-else-if="cashMove.moveType == 'Abono Cliente'"
-        name="payments"
-      />
-      <q-icon
-        v-else-if="cashMove.moveType == 'Inicio de Caja'"
-        name="check_circle_outline"
-        color="positive"
-      />
-      <q-icon
-        v-else-if="cashMove.moveType == 'Cierre de Caja'"
-        name="check_circle_outline"
-        color="negative"
+        :name="icons[move.moveType]"
+        :color="isOpenClose ? colors[move.moveType] : ''"
       />
     </q-item-section>
     <q-item-section side>
-      {{ formatter.time(cashMove.createdAt) }}
+      {{ formatter.time(move.createdAt) }}
     </q-item-section>
     <q-item-section>
-      {{ cashMove.description }}
+      {{ move.description }}
     </q-item-section>
     <q-item-section side>
-      {{ formatter.currency(cashMove.amount) }}
+      {{ formatter.currency(move.amount) }}
     </q-item-section>
     <q-item-section
-      v-if="cashMove.moveType != 'Inicio de Caja' && cashMoves.isOpen"
+      v-if="move.moveType != 'Inicio de Caja' && cashMoves.isOpen"
       side
     >
-      <q-btn
-        dense
-        flat
-        icon="clear"
-        color="grey-7"
-        @click="remove(cashMove._id)"
-        :loading="loading"
-      />
+      <q-btn dense flat icon="clear" color="grey-7" @click="dialog = true" />
     </q-item-section>
   </q-item>
+  <Dialog
+    v-model="dialog"
+    title="Remover Movimiento"
+    @confirm="remove"
+    :loading="loading"
+  >
+    {{
+      `¿Estas seguro de remover "${
+        props.move.description
+      }" ${formatter.currency(props.move.amount)}?`
+    }}
+  </Dialog>
 </template>

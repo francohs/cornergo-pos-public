@@ -1,25 +1,5 @@
-<template>
-  <Select
-    v-bind="$attrs"
-    outlined
-    use-input
-    input-debounce="0"
-    clearable
-    options-dense
-    @filter="filterFn"
-    :options="options"
-    :loading="store.loading"
-    fill-input
-    hide-selected
-  >
-    <template v-if="icon" v-slot:prepend>
-      <q-icon :name="icon" />
-    </template>
-  </Select>
-</template>
-
 <script setup>
-import { onMounted, inject, ref } from 'vue'
+import { onMounted, inject, ref, nextTick } from 'vue'
 
 const props = defineProps({
   storeId: String,
@@ -28,12 +8,14 @@ const props = defineProps({
   lazy: Boolean,
   descending: Boolean,
   fetchAll: Boolean,
+  actives: Boolean,
   minInput: { type: Number, default: 0 }
 })
 
 const store = inject(props.storeId)
 const options = ref([])
 const fetchedOptions = ref([])
+const selectRef = ref(null)
 
 onMounted(async () => {
   if (!props.lazy && props.fetchAll) {
@@ -75,6 +57,11 @@ const fetchOptions = async (field, input) => {
       value: input
     }
   }
+  if (props.actives) {
+    query.equal = {
+      active: true
+    }
+  }
   await store.getQueryOptions({
     query,
     select: [field],
@@ -84,4 +71,32 @@ const fetchOptions = async (field, input) => {
   })
   fetchedOptions.value = store.options.map(doc => doc[field])
 }
+
+defineExpose({
+  focus: async () => {
+    await nextTick()
+    return selectRef.value.focus()
+  }
+})
 </script>
+
+<template>
+  <Select
+    v-bind="$attrs"
+    outlined
+    use-input
+    input-debounce="0"
+    clearable
+    options-dense
+    @filter="filterFn"
+    :options="options"
+    :loading="store.loading"
+    fill-input
+    hide-selected
+    ref="selectRef"
+  >
+    <template v-if="icon" v-slot:prepend>
+      <q-icon :name="icon" />
+    </template>
+  </Select>
+</template>

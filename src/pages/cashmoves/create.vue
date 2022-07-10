@@ -14,13 +14,6 @@ const providers = useProviders()
 provide(providers.$id, providers)
 const quasar = useQuasar()
 
-const cashMove = reactive({
-  user: null,
-  moveType: null,
-  amount: '',
-  description: ''
-})
-
 const moveTypes = ref([
   { icon: 'local_shipping', moveType: 'Pago a Proveedor' },
   { icon: 'arrow_forward', moveType: 'Otro Ingreso' },
@@ -30,52 +23,67 @@ const moveTypes = ref([
 const auth = useAuth()
 const provider = ref(null)
 const dteNumber = ref('')
+const dialog = ref(false)
 
-const selectProvider = ref(null)
-const inputDteNumber = ref(null)
-const inputDescription = ref(null)
-const inputAmount = ref(null)
-const btnCreateMove = ref(null)
-const btnOpenBox = ref(null)
+const move = reactive({ moveType: null, amount: '', description: '' })
+
+const cashMove = reactive({
+  user: auth.user._id,
+  openAmount: '',
+  moves: []
+})
+
+const refs = reactive({
+  selectProvider: null,
+  inputDteNumber: null,
+  inputAmount: null,
+  btnCreateMove: null,
+  btnOpenCashMoves: null
+})
 
 onMounted(async () => {
-  await cashMoves.getDocs()
-  if (!cashMoves.isOpen) {
-    cashMove.amount = cashMoves.docs[0].amount
+  await cashMoves.getLast()
+  if (cashMoves.doc && !cashMoves.isOpen) {
+    cashMove.openAmount = cashMoves.doc.openAmount
   }
 })
 
-const createCashMove = async () => {
-  if (provider.value) {
-    cashMove.description = `Pago ${provider.value} (${dteNumber.value})`
-  }
-
-  cashMove.user = auth.user._id
-
+const openCashMoves = async () => {
+  cashMove.openAmount = move.amount
   await cashMoves.create(cashMove)
   router.go(-1)
 }
 
-const openCashBox = async () => {
-  quasar
-    .dialog({
-      title: 'Inicio de Caja',
-      message: `¿Estas seguro de Inicia Caja como ${auth.user.name} ${
-        auth.user.lastName
-      } por ${formatter.currency(cashMove.amount)}?`,
-      cancel: true
-    })
-    .onOk(async () => {
-      cashMove.moveType = 'Inicio de Caja'
-      cashMove.description = 'Inicio de Caja'
+const createMove = async () => {
+  if (provider.value) {
+    move.description = `Pago ${provider.value} (${dteNumber.value})`
+  }
 
-      await createCashMove()
-    })
+  await cashMoves.addItem('moves', move, 'Moviemiento ingresado con éxito')
+  router.go(-1)
+}
+
+const focus = async name => {
+  await nextTick()
+  refs[name].focus()
 }
 </script>
 <template>
+  <Dialog
+    v-model="dialog"
+    title="Inicio de Caja"
+    @confirm="openCashMoves"
+    :loading="cashMoves.saving"
+  >
+    {{
+      `¿Estas seguro de Inicia Caja como ${auth.user.name} ${
+        auth.user.lastName
+      } por ${formatter.currency(move.amount)}?`
+    }}
+  </Dialog>
+
   <PageResponsive>
-    <Form @submit="createCashMove" class="q-pa-lg">
+    <Form @submit="createMove" class="q-pa-lg">
       <div class="row items-center justify-between q-pb-lg">
         <div class="row">
           <ButtonBack />
@@ -92,15 +100,15 @@ const openCashBox = async () => {
             <Select
               label="Tipo de Movimiento"
               required
-              v-model="cashMove.moveType"
+              v-model="move.moveType"
               :options="moveTypes"
               option-label="moveType"
               option-value="moveType"
               emit-value
               @update:modelValue="
-                cashMove.moveType == 'Pago a Proveedor'
-                  ? selectProvider.$el.focus()
-                  : inputDescription.$el.focus()
+                move.moveType == 'Pago a Proveedor'
+                  ? focus('selectProvider')
+                  : focus('inputDescription')
               "
             >
               <template v-slot:option="scope">
@@ -115,77 +123,78 @@ const openCashBox = async () => {
               </template>
             </Select>
 
-            <div v-if="cashMove.moveType == 'Pago a Proveedor'">
+            <div v-if="move.moveType == 'Pago a Proveedor'">
               <SelectInputFetch
                 label="Proveedor"
                 fetchAll
-                :store="providers.$id"
+                :storeId="providers.$id"
                 v-model="provider"
-                @update:modelValue="inputDteNumber.$el.focus()"
+                @update:modelValue="focus('inputDteNumber')"
                 field="alias"
-                ref="selectProvider"
+                actives
+                :ref="el => (refs.selectProvider = el)"
                 required
               />
 
               <Input
                 label="Folio Factura"
                 v-model="dteNumber"
-                @keyup.enter="dteNumber && inputAmount.$el.focus()"
-                ref="inputDteNumber"
+                class="full-width"
                 required
+                @keyup.enter="dteNumber && focus('inputAmount')"
+                :ref="el => (refs.inputDteNumber = el)"
               />
             </div>
 
             <Input
+              v-else
               label="Descripción"
-              ref="inputDescription"
-              v-model="cashMove.description"
-              @keyup.enter="inputAmount.$el.focus()"
+              v-model="move.description"
+              @keyup.enter="focus('inputAmount')"
               class="full-width"
               required
-              v-else
+              :ref="el => (refs.inputDescription = el)"
             />
             <Input
               label="Monto"
-              v-model="cashMove.amount"
+              v-model="move.amount"
               format="currency"
-              @keyup.enter="btnCreateMove.$el.focus()"
-              ref="inputAmount"
+              @keyup.enter="refs.btnCreateMove.$el.focus()"
               class="full-width q-mb-lg"
+              :ref="el => (refs.inputAmount = el)"
             />
 
             <q-btn
               label="INGRESAR MOVIMIENTO"
               color="positive"
-              ref="btnCreateMove"
               :disable="
-                !cashMove.moveType ||
-                cashMove.amount <= 0 ||
-                (!cashMove.description && (!provider || !dteNumber))
+                !move.moveType ||
+                move.amount <= 0 ||
+                (!move.description && (!provider || !dteNumber))
               "
               type="submit"
               :loading="cashMoves.saving"
+              :ref="el => (refs.btnCreateMove = el)"
             />
           </div>
 
           <div v-else class="column" style="width: 300px">
             <Input
               label="Monto"
-              v-model="cashMove.amount"
+              v-model="move.amount"
               format="currency"
-              ref="inputAmount"
               class="full-width"
-              @keyup.enter="btnOpenBox.$el.focus()"
+              @keyup.enter="refs.btnOpenCashMoves.$el.focus()"
               required
+              :ref="el => (refs.inputAmount = el)"
             />
             <q-btn
               color="positive"
               label="INICIO DE CAJA"
-              :disable="cashMove.amount <= 0"
-              @click="openCashBox"
-              :loading="cashMoves.saving"
-              ref="btnOpenBox"
+              :disable="move.amount <= 0"
+              @click="dialog = true"
               class="q-mt-md"
+              :ref="el => (refs.btnOpenCashMoves = el)"
             />
           </div>
         </div>

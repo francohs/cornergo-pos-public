@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { baseState, baseGetters, baseActions } from './base'
 import { api } from 'boot/axios'
+import moment from 'moment'
 
 export const useEmittedDtes = defineStore({
   id: 'emittedDtes',
@@ -29,7 +30,7 @@ export const useEmittedDtes = defineStore({
     async getPayAmounts() {
       try {
         const { data } = await api.get(this.$id + '/payamounts', {
-          params: { date: '2022-07-05' }
+          params: { date: moment().format('YYYY-MM-DD') }
         })
         return data
       } catch (error) {

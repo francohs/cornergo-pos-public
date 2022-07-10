@@ -13,7 +13,7 @@
         <Form @submit="$emit('confirm')">
           <slot />
 
-          <div class="row justify-end q-mt-md" v-if="!noFooter">
+          <div class="row justify-end q-mt-lg" v-if="!noFooter">
             <q-btn flat label="Cancelar" color="grey-7" v-close-popup />
             <q-btn
               type="submit"

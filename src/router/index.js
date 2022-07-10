@@ -44,6 +44,7 @@ export default route(function (/* { store, ssrContext } */) {
             next('/login')
           } else next()
         } else next()
+        // next()
       } else {
         Notify.info('Primero debes ingresar')
         next('/login')
