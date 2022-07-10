@@ -12,7 +12,7 @@ const cashMoves = useCashMoves()
 provide(cashMoves.$id, cashMoves)
 const providers = useProviders()
 provide(providers.$id, providers)
-const quasar = useQuasar()
+const auth = useAuth()
 
 const moveTypes = ref([
   { icon: 'local_shipping', moveType: 'Pago a Proveedor' },
@@ -20,7 +20,6 @@ const moveTypes = ref([
   { icon: 'arrow_back', moveType: 'Otro Egreso' }
 ])
 
-const auth = useAuth()
 const provider = ref(null)
 const dteNumber = ref('')
 const dialog = ref(false)

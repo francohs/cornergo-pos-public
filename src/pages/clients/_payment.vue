@@ -3,6 +3,8 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { usePayments } from 'stores/payments'
 import { useClients } from 'stores/clients'
+import { useCashMoves } from 'stores/cashmoves'
+import Notify from 'tools/notify'
 
 const router = useRouter()
 const route = useRoute()
@@ -11,6 +13,7 @@ const clientId = route.params.id
 
 const payments = usePayments()
 const clients = useClients()
+const cashMoves = useCashMoves()
 
 const inputPayAmount = ref(null)
 const btnCreatePayment = ref(null)
@@ -29,14 +32,25 @@ const payTypes = ref([
   'Cheque'
 ])
 
-const createPayment = () => {
-  payments.create(payment, 'Abono ingresado con éxito')
-  console.log({
-    client: clients.doc,
-    payment
-  })
+const createPayment = async () => {
+  if (payment.payType == 'Efectivo' && !cashMoves.isOpen) {
+    Notify.warning('Para ingresar un abono en efectivo debes iniciar caja')
+    return
+  }
+  await payments.create(payment, 'Abono ingresado con éxito')
+  if (payment.payType == 'Efectivo') {
+    await cashMoves.addItem(
+      'moves',
+      {
+        moveType: 'Otro Ingreso',
+        amount: payment.amount,
+        description: `Abono ${clients.doc.name}`
+      },
+      'Abono añadido a otros ingresos'
+    )
+  }
   window.printer.printPayment({ ...clients.doc }, { ...payment })
-  clients.getDoc(clientId)
+  await clients.getDoc(clientId)
   router.go(-1)
 }
 </script>

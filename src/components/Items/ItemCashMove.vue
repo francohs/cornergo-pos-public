@@ -29,15 +29,15 @@ const isOpenClose = computed(
     props.move.moveType == 'Cierre de Caja'
 )
 
-const remove = async () => {
-  loading.value = true
-  await cashMoves.removeItem(
-    'moves',
-    props.move._id,
-    'Movimiento eliminado con éxito'
-  )
-  loading.value = false
-}
+// const remove = async () => {
+//   loading.value = true
+//   await cashMoves.removeItem(
+//     'moves',
+//     props.move._id,
+//     'Movimiento eliminado con éxito'
+//   )
+//   loading.value = false
+// }
 </script>
 
 <template>
@@ -62,14 +62,14 @@ const remove = async () => {
     <q-item-section side>
       {{ formatter.currency(move.amount) }}
     </q-item-section>
-    <q-item-section
+    <!-- <q-item-section
       v-if="move.moveType != 'Inicio de Caja' && cashMoves.isOpen"
       side
     >
       <q-btn dense flat icon="clear" color="grey-7" @click="dialog = true" />
-    </q-item-section>
+    </q-item-section> -->
   </q-item>
-  <Dialog
+  <!-- <Dialog
     v-model="dialog"
     title="Remover Movimiento"
     @confirm="remove"
@@ -80,5 +80,5 @@ const remove = async () => {
         props.move.description
       }" ${formatter.currency(props.move.amount)}?`
     }}
-  </Dialog>
+  </Dialog> -->
 </template>

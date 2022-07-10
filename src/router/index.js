@@ -32,10 +32,10 @@ export default route(function (/* { store, ssrContext } */) {
     if (to.matched.some(record => record.meta.requiresAuth)) {
       if (auth.isLogged) {
         if (to.name == 'pos') {
-          await cashMoves.getDocs()
+          await cashMoves.getLast()
 
           if (!cashMoves.isOpen) {
-            Notify.info('Primero debes iniciar caja')
+            Notify.warning('Primero debes iniciar caja')
             next('/cashmoves')
           } else if (!cashMoves.validDate) {
             Notify.warning('Último cierre de caja fuera de fecha')
