@@ -5,6 +5,7 @@ import { usePayments } from 'stores/payments'
 import { useClients } from 'stores/clients'
 import { useCashMoves } from 'stores/cashmoves'
 import Notify from 'tools/notify'
+import formatter from 'tools/formatter'
 
 const router = useRouter()
 const route = useRoute()
@@ -17,6 +18,7 @@ const cashMoves = useCashMoves()
 
 const inputPayAmount = ref(null)
 const btnCreatePayment = ref(null)
+const dialog = ref(false)
 
 const payment = reactive({
   client: clientId,
@@ -56,9 +58,22 @@ const createPayment = async () => {
 </script>
 
 <template>
+  <Dialog
+    v-model="dialog"
+    title="Abono a cliente"
+    @confirm="createPayment"
+    :loading="payments.saving"
+  >
+    {{
+      `¿Desea hace un abono con ${payment.payType} a ${
+        clients.doc.name
+      } por ${formatter.currency(payment.amount)}?`
+    }}
+  </Dialog>
   <PageResponsive>
     <Form @submit="" class="q-pa-lg">
       <div class="row items-center justify-between q-pb-lg">
+        ñ
         <div class="row">
           <ButtonBack />
 
@@ -92,8 +107,7 @@ const createPayment = async () => {
             :disable="!payment.payType || payment.amount <= 0"
             type="submit"
             class="full-width"
-            @click="createPayment"
-            :loading="payments.saving"
+            @click="dialog = true"
           />
         </div>
       </div>
