@@ -1,11 +1,11 @@
 <template>
-  <div style="width: 110px">
+  <div style="width: 130px">
     <q-input
       v-bind="$attrs"
       outlined
       dense
       readonly
-      input-style="width: 20px;"
+      input-style="width: 40px;"
       input-class="text-center"
       class="numcontrol readonly"
     >

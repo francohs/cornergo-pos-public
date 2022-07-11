@@ -16,9 +16,8 @@ export const usePos = defineStore({
 
   getters: {
     total() {
-      return this.items.reduce(
-        (prev, curr) => prev + curr.price * curr.quantity,
-        0
+      return Math.round(
+        this.items.reduce((prev, curr) => prev + curr.price * curr.quantity, 0)
       )
     },
     roundedTotal() {
@@ -48,16 +47,17 @@ export const usePos = defineStore({
   },
 
   actions: {
-    addItem(item) {
+    addItem(item, quantity) {
+      console.log(item, quantity)
       const index = this.items.findIndex(i => i.code == item.code)
       if (index > -1) {
-        this.items[index].quantity++
+        this.items[index].quantity += quantity
       } else {
         this.items = [
           ...this.items,
           {
             ...item,
-            quantity: 1
+            quantity
           }
         ]
       }

@@ -25,8 +25,11 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD)
-    }
+    },
+    show: false
   })
+  mainWindow.maximize()
+  mainWindow.show()
 
   mainWindow.once('ready-to-show', async () => {
     autoUpdater.setFeedURL({

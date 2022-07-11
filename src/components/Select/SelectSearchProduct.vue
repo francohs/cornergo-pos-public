@@ -33,32 +33,36 @@ const filterFn = async (value, update) => {
   update()
 }
 
-const addItem = item => {
-  pos.addItem({
-    code: item.code,
-    product: item._id,
-    name: item.name,
-    price: item.price,
-    quantity: item.quantity,
-    exempt: item.exempt,
-    cost: item.cost,
-    batPrice: item.batPrice
-  })
+const addItem = (item, quantity) => {
+  pos.addItem(
+    {
+      code: item.code,
+      product: item._id,
+      name: item.name,
+      price: item.price,
+      exempt: item.exempt,
+      cost: item.cost,
+      batPrice: item.batPrice
+    },
+    quantity
+  )
   clear()
 }
 
 const addNoCodeItem = item => {
   let code = Date.now()
-  addItem({
-    code,
-    product: null,
-    name: 'PRODUCTO SIN CODIGO',
-    price: parseInt(inputValue.value),
-    quantity: 1,
-    exempt: false,
-    batPrice: 0,
-    cost: Math.round(parseInt(inputValue.value) / 1.4)
-  })
+  addItem(
+    {
+      code,
+      product: null,
+      name: 'PRODUCTO SIN CODIGO',
+      price: parseInt(inputValue.value),
+      exempt: false,
+      batPrice: 0,
+      cost: Math.round(parseInt(inputValue.value) / 1.4)
+    },
+    1
+  )
   clear()
 }
 
@@ -71,14 +75,22 @@ const onEnter = async () => {
   let isNumber = Number.isInteger(parseInt(inputValue.value))
 
   if (isNumber) {
-    await products.findDoc({
-      code: inputValue.value
-    })
+    let quantity = 1
+    let code = ''
+    if (inputValue.value.length && inputValue.value.slice(0, 3)) {
+      code = inputValue.value.slice(0, 7)
+      quantity = parseInt(inputValue.value.slice(7, 12))
+      if (quantity > 10) {
+        quantity = quantity / 1000
+      }
+    }
+
+    await products.findDoc({ code })
     let selectedItem = products.doc
 
     if (selectedItem) {
-      addItem(selectedItem)
-    } else if (inputValue.value.length < 6) {
+      addItem(selectedItem, quantity)
+    } else if (code.length < 6) {
       addNoCodeItem()
     } else {
       notify.negative('Código sin resultados')
@@ -87,7 +99,7 @@ const onEnter = async () => {
     let selectedItem = options.value.find(item => item.name == inputValue.value)
 
     if (selectedItem) {
-      addItem(selectedItem)
+      addItem(selectedItem, 1)
     }
   }
 }

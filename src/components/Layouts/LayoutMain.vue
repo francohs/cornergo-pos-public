@@ -18,29 +18,32 @@ const toggleDrawer = () => {
 }
 
 const restartAndUpdate = () => {
-  window.updater.send('restart-app')
+  if (window.updater) {
+    window.updater.send('restart-app')
+  }
 }
-
-window.updater.receive('checking-for-update', () => {
-  console.log('[checking-for-update]')
-})
-window.updater.receive('update-not-available', info => {
-  console.log('[update-not-available]', info)
-})
-window.updater.receive('error', err => {
-  console.log('[error]', err)
-})
-window.updater.receive('download-progress', progressObj => {
-  console.log('[download-progress]', progressObj)
-})
-window.updater.receive('update_available', info => {
-  console.log('[update_available]', info)
-  version.value = info.version
-})
-window.updater.receive('update_downloaded', () => {
-  console.log('[update_downloaded]')
-  dialog.value = true
-})
+if (window.updater) {
+  window.updater.receive('checking-for-update', () => {
+    console.log('[checking-for-update]')
+  })
+  window.updater.receive('update-not-available', info => {
+    console.log('[update-not-available]', info)
+  })
+  window.updater.receive('error', err => {
+    console.log('[error]', err)
+  })
+  window.updater.receive('download-progress', progressObj => {
+    console.log('[download-progress]', progressObj)
+  })
+  window.updater.receive('update_available', info => {
+    console.log('[update_available]', info)
+    version.value = info.version
+  })
+  window.updater.receive('update_downloaded', () => {
+    console.log('[update_downloaded]')
+    dialog.value = true
+  })
+}
 </script>
 
 <template>
