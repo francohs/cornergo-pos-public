@@ -90,9 +90,9 @@ const removePay = () => {
 }
 
 const printDte = async () => {
-  // if (payType.value == 'Efectivo') {
-  //   window.printer.cashdraw()
-  // }
+  if (pos.pays.find(p => p.payType == 'Efectivo')) {
+    window.printer.cashdraw()
+  }
 
   const dte = await emittedDtes.create({
     dteType: pos.dteType,

@@ -1,6 +1,6 @@
 {
   "name": "cornergo-pos",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "CornerGO: Punto de Venta",
   "author": "Franco <franco@gmail.com>",
   "private": true,
@@ -20,7 +20,7 @@
     "global": "^4.4.0",
     "moment": "^2.29.4",
     "pdf417": "^0.1.5",
-    "pinia": "^2.0.14",
+    "pinia": "^2.0.15",
     "quasar": "^2.7.5",
     "usb": "2.4.3",
     "vue": "^3.2.37",
