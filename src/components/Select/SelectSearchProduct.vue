@@ -76,8 +76,9 @@ const onEnter = async () => {
 
   if (isNumber) {
     let quantity = 1
-    let code = ''
-    if (inputValue.value.length && inputValue.value.slice(0, 3)) {
+    let code = inputValue.value
+
+    if (inputValue.value.length && inputValue.value.slice(0, 3) == '123') {
       code = inputValue.value.slice(0, 7)
       quantity = parseInt(inputValue.value.slice(7, 12))
       if (quantity > 10) {
@@ -132,7 +133,7 @@ const clear = () => {
     @keyup.enter="onEnter"
   >
     <template v-slot:option="scope">
-      <q-item v-bind="scope.itemProps" @click="addItem(scope.opt)">
+      <q-item v-bind="scope.itemProps" @click="addItem(scope.opt, 1)">
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
           <q-item-label caption

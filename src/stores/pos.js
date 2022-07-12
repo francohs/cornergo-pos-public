@@ -48,7 +48,6 @@ export const usePos = defineStore({
 
   actions: {
     addItem(item, quantity) {
-      console.log(item, quantity)
       const index = this.items.findIndex(i => i.code == item.code)
       if (index > -1) {
         this.items[index].quantity += quantity
