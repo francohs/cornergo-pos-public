@@ -87,7 +87,10 @@ const onEnter = async () => {
 
     disable.value = true
 
-    if (inputValue.value.length && inputValue.value.slice(0, 3) == '123') {
+    if (
+      inputValue.value.length == 13 &&
+      inputValue.value.slice(0, 3) == '123'
+    ) {
       code = inputValue.value.slice(0, 7)
       quantity = parseInt(inputValue.value.slice(7, 12))
       if (quantity > 10) {
@@ -137,7 +140,7 @@ const clear = () => {
     use-input
     hide-selected
     fill-input
-    input-debounce="500"
+    input-debounce="300"
     option-value="name"
     option-label="name"
     emit-value

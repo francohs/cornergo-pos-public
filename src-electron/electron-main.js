@@ -79,6 +79,10 @@ app.on('activate', () => {
   }
 })
 
+ipcMain.on('check-for-updates', () => {
+  autoUpdater.checkForUpdates()
+})
+
 ipcMain.on('restart-app', () => {
   autoUpdater.quitAndInstall()
 })

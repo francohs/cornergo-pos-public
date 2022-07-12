@@ -4,14 +4,12 @@ escpos.USB = escposUSB
 import moment from 'moment'
 import { contextBridge, ipcRenderer } from 'electron'
 import formatter from 'src/tools/formatter'
-import notify from 'src/tools/notify'
 
 let device
 try {
   device = new escpos.USB(0x04b8, 0x0202)
 } catch (error) {
   console.error('[ERROR] IMPRESORA NO CONECTADA')
-  notify.negative('IMPRESORA NO CONECTADA')
 }
 const printer = new escpos.Printer(device, {
   encoding: 'CP858'
