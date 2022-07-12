@@ -14,6 +14,13 @@ const selectRef = ref('')
 const disable = ref(false)
 
 const filterFn = async (value, update) => {
+  let isNumber = Number.isInteger(parseInt(value))
+
+  if (isNumber && value.length >= 6) {
+    update()
+    return
+  }
+
   if (value.length > 2) {
     await products.getQueryDocs({
       query: {

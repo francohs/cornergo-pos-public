@@ -27,7 +27,9 @@ const closeCashMoves = async () => {
   loadingClose.value = false
   Object.assign(cashMove, cashMoves.doc)
   dialog.value = false
-  window.printer.printCashClose(JSON.parse(JSON.stringify(cashMove)))
+  if (window.printer) {
+    window.printer.printCashClose(JSON.parse(JSON.stringify(cashMove)))
+  }
 }
 </script>
 

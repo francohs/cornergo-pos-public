@@ -97,8 +97,10 @@ const removePay = () => {
 }
 
 const printDte = async () => {
-  if (pos.pays.find(p => p.payType == 'Efectivo')) {
-    window.printer.cashdraw()
+  if (window.printer) {
+    if (pos.pays.find(p => p.payType == 'Efectivo')) {
+      window.printer.cashdraw()
+    }
   }
 
   const dte = await emittedDtes.create({
@@ -116,14 +118,16 @@ const printDte = async () => {
 
   console.log(dte)
 
-  if (
-    !pos.client ||
-    (pos.client && pos.client.dteType == 'Boleta Electronica')
-  ) {
-    window.printer.printDte(
-      { ...dte, roundedTotal: pos.roundedTotal },
-      generateBarcode(dte.ted, 1, 0.5)
-    )
+  if (window.printer) {
+    if (
+      !pos.client ||
+      (pos.client && pos.client.dteType == 'Boleta Electronica')
+    ) {
+      window.printer.printDte(
+        { ...dte, roundedTotal: pos.roundedTotal },
+        generateBarcode(dte.ted, 1, 0.5)
+      )
+    }
   }
 
   pos.clearAll()
