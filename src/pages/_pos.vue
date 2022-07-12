@@ -3,8 +3,9 @@ import { useAuth } from 'stores/auth'
 import { usePos } from 'stores/pos'
 import { useClients } from 'stores/clients'
 import { useEmittedDtes } from 'stores/emitteddtes'
-import { ref, nextTick, provide, watchEffect } from 'vue'
+import { ref, nextTick, provide, watchEffect, watch } from 'vue'
 import formatter from 'tools/formatter'
+import notify from 'tools/notify'
 import generateBarcode from 'pdf417'
 
 const pos = usePos()
@@ -28,6 +29,8 @@ const inputPay = ref(null)
 const btnPrint = ref(null)
 const selectSearchProduct = ref(null)
 const selectClient = ref(null)
+const scrollRef = ref(null)
+const cardRef = ref(null)
 
 const focus = async compRef => {
   await nextTick()
@@ -58,6 +61,10 @@ const enterInputPay = () => {
     pos.payAmount = pos.roundedTotal - pos.totalPay
   } else if (parseInt(pos.payAmount) <= 20) {
     pos.payAmount = pos.payAmount + '000'
+  } else if (pos.payAmount.length > 6) {
+    notify.warning('Excede pago máximo')
+    pos.payAmount = ''
+    return
   }
 
   pos.addPay(pos.payType, pos.payAmount)
@@ -126,6 +133,13 @@ const printDte = async () => {
 watchEffect(() => {
   if (pos.roundedTotal == 0) focus(selectSearchProduct)
 })
+
+watch(
+  () => scrollRef.value && scrollRef.value.getScroll().verticalSize,
+  () => {
+    scrollRef.value.setScrollPercentage('vertical', 1)
+  }
+)
 </script>
 
 <template>
@@ -144,17 +158,19 @@ watchEffect(() => {
               />
             </q-card>
           </div>
-          <div class="row col q-pr-md q-pb-sm">
-            <q-card class="fit row q-px-md">
-              <q-list bordered separator class="fit q-pa-sm">
+
+          <q-card class="row col q-mr-md q-mb-sm" ref="cardRef">
+            <q-scroll-area class="fit row q-px-md" ref="scrollRef">
+              <q-list separator class="fit q-pa-sm" style="overflow: auto">
                 <ItemPos
                   v-for="item of pos.items"
                   :item="item"
                   :key="item.code"
                 />
               </q-list>
-            </q-card>
-          </div>
+            </q-scroll-area>
+          </q-card>
+
           <div class="row items-center q-pr-md q-pt-sm" style="height: 95px">
             <q-card class="fit row justify-between q-pa-lg">
               <div>

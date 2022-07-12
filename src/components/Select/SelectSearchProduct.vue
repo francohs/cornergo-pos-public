@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, nextTick } from 'vue'
 import { useProducts } from 'stores/products'
 import formatter from 'tools/formatter'
 import notify from 'tools/notify'
@@ -11,6 +11,7 @@ const options = ref([])
 const pos = inject('pos')
 const products = useProducts()
 const selectRef = ref('')
+const disable = ref(false)
 
 const filterFn = async (value, update) => {
   if (value.length > 2) {
@@ -71,12 +72,13 @@ const onEnter = async () => {
     emit('next')
     return
   }
-
   let isNumber = Number.isInteger(parseInt(inputValue.value))
 
   if (isNumber) {
     let quantity = 1
     let code = inputValue.value
+
+    disable.value = true
 
     if (inputValue.value.length && inputValue.value.slice(0, 3) == '123') {
       code = inputValue.value.slice(0, 7)
@@ -103,6 +105,9 @@ const onEnter = async () => {
       addItem(selectedItem, 1)
     }
   }
+  disable.value = false
+  await nextTick()
+  selectRef.value.focus()
 }
 
 const clear = () => {
@@ -131,6 +136,7 @@ const clear = () => {
     emit-value
     @filter="filterFn"
     @keyup.enter="onEnter"
+    :disable="disable"
   >
     <template v-slot:option="scope">
       <q-item v-bind="scope.itemProps" @click="addItem(scope.opt, 1)">
