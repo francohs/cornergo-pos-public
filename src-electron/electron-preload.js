@@ -52,6 +52,9 @@ contextBridge.exposeInMainWorld('printer', {
       printer.text(`Efectivo: ${formatter.currency(cashClose.cash)}`)
       printer.text(`Tarjeta Débito: ${formatter.currency(cashClose.debit)}`)
       printer.text(`Tarjeta Cédito: ${formatter.currency(cashClose.credit)}`)
+      printer.text(
+        `Total Tarjetas: ${formatter.currency(cashClose.totalDebitCredit)}`
+      )
       printer.text(`Transferencias: ${formatter.currency(cashClose.transfer)}`)
       printer.text(
         `Crédito Cliente: ${formatter.currency(cashClose.clientCredit)}`

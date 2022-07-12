@@ -99,9 +99,6 @@ export const usePos = defineStore({
         this.pays = [...this.pays, { payType, amount }]
       }
 
-      // if (payType != 'Credito Cliente') {
-      //   this.payType = 'Efectivo'
-      // }
       this.payAmount = ''
     },
 
