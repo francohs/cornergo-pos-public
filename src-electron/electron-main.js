@@ -99,8 +99,8 @@ autoUpdater.on('update-not-available', info => {
 autoUpdater.on('error', err => {
   mainWindow.webContents.send('error', err)
 })
-autoUpdater.on('download-progress', progressObj => {
-  mainWindow.webContents.send('download-progress', progressObj)
+autoUpdater.on('download-progress', info => {
+  mainWindow.webContents.send('download-progress', info)
 })
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update_downloaded')
