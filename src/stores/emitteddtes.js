@@ -27,10 +27,10 @@ export const useEmittedDtes = defineStore({
         this.saving = false
       }
     },
-    async getPayAmounts() {
+    async getPayAmounts(dates) {
       try {
         const { data } = await api.get(this.$id + '/payamounts', {
-          params: { date: moment().format('YYYY-MM-DD') }
+          params: { dates }
         })
         return data
       } catch (error) {

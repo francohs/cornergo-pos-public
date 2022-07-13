@@ -50,7 +50,10 @@ export const useCashMoves = defineStore({
 
       const cashMove = { ...this.doc }
 
-      const payAmounts = await emittedDtes.getPayAmounts()
+      const payAmounts = await emittedDtes.getPayAmounts({
+        openDate: cashMove.createdAt,
+        closeDate: new Date()
+      })
 
       cashMove.cash = payAmounts.cash
       cashMove.debit = payAmounts.debit
