@@ -61,7 +61,6 @@ export const useCashMoves = defineStore({
       cashMove.transfer = payAmounts.transfer
       cashMove.totalDebitCredit = payAmounts.debit + payAmounts.credit
       cashMove.clientCredit = payAmounts.clientCredit
-      cashMove.change = payAmounts.change
       cashMove.dtesQuantity = payAmounts.count
       cashMove.totalSales = payAmounts.total
 
@@ -81,8 +80,7 @@ export const useCashMoves = defineStore({
 
       cashMove.closeAmount =
         cashMove.openAmount +
-        cashMove.cash -
-        cashMove.change +
+        cashMove.cash +
         cashMove.totalInputs -
         cashMove.totalOutputs
 

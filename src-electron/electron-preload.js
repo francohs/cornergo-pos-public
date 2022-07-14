@@ -109,7 +109,6 @@ contextBridge.exposeInMainWorld('printer', {
       printer.text(
         `Total Otros Egresos: ${formatter.currency(cashClose.totalOutputs)}`
       )
-      printer.text(`Total Vueltos: ${formatter.currency(cashClose.change)}`)
       printer
         .style('b')
         .text(

@@ -149,13 +149,6 @@ const closeCashMoves = async () => {
               />
               <ItemCashMove
                 :move="{
-                  moveType: 'Otro Egreso',
-                  description: 'Total Vueltos',
-                  amount: cashMove.change
-                }"
-              />
-              <ItemCashMove
-                :move="{
                   moveType: 'Cierre de Caja',
                   description: 'Cierre de Caja',
                   amount: cashMove.closeAmount,
