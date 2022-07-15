@@ -48,21 +48,12 @@ export const useCashMoves = defineStore({
     async closeCashMoves() {
       const emittedDtes = useEmittedDtes()
 
-      const cashMove = { ...this.doc }
-
       const payAmounts = await emittedDtes.getPayAmounts({
-        openDate: cashMove.createdAt,
+        openDate: this.doc.createdAt,
         closeDate: new Date()
       })
 
-      cashMove.cash = payAmounts.cash
-      cashMove.debit = payAmounts.debit
-      cashMove.credit = payAmounts.credit
-      cashMove.transfer = payAmounts.transfer
-      cashMove.totalDebitCredit = payAmounts.debit + payAmounts.credit
-      cashMove.clientCredit = payAmounts.clientCredit
-      cashMove.dtesQuantity = payAmounts.count
-      cashMove.totalSales = payAmounts.total
+      const cashMove = { ...payAmounts }
 
       cashMove.totalInputs = this.doc.moves.reduce(
         (acc, curr) =>
@@ -79,14 +70,14 @@ export const useCashMoves = defineStore({
       )
 
       cashMove.closeAmount =
-        cashMove.openAmount +
+        this.doc.openAmount +
         cashMove.cash +
         cashMove.totalInputs -
         cashMove.totalOutputs
 
       // console.log(cashMove)
 
-      await this.replace(cashMove._id, cashMove, 'Caja cerrada con éxito')
+      await this.update(this.doc._id, cashMove, 'Caja cerrada con éxito')
     }
   }
 })

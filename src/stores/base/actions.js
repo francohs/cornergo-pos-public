@@ -75,7 +75,7 @@ export const baseActions = () => {
         this.saving = false
       }
     },
-    async update(id, mod) {
+    async update(id, mod, message = 'Datos modificados con éxito') {
       try {
         this.saving = true
 
@@ -89,7 +89,7 @@ export const baseActions = () => {
           this.docs[index] = data.doc
         }
 
-        notify.positive('Datos modificados con éxito')
+        notify.positive(message)
       } catch (error) {
         throw error
       } finally {

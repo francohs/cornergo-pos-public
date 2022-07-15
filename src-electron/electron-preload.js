@@ -48,12 +48,22 @@ contextBridge.exposeInMainWorld('printer', {
       printer.style('b').text(`Resumen de ventas`).style('')
       printer.text('------------------------------------------')
       printer.text(`Total Ventas: ${formatter.currency(cashClose.totalSales)}`)
-      printer.text(`Número de Ventas: ${cashClose.dtesQuantity}`)
+      printer.text(`Número de Ventas: ${cashClose.dtesQty}`)
       printer.text(`Efectivo: ${formatter.currency(cashClose.cash)}`)
-      printer.text(`Tarjeta Débito: ${formatter.currency(cashClose.debit)}`)
-      printer.text(`Tarjeta Cédito: ${formatter.currency(cashClose.credit)}`)
       printer.text(
-        `Total Tarjetas: ${formatter.currency(cashClose.totalDebitCredit)}`
+        `Tarjeta Débito (${cashClose.nDebit}): ${formatter.currency(
+          cashClose.debit
+        )}`
+      )
+      printer.text(
+        `Tarjeta Crédito (${cashClose.nCredit}): ${formatter.currency(
+          cashClose.credit
+        )}`
+      )
+      printer.text(
+        `Total Tarjetas (${
+          cashClose.nDebit + cashClose.nCredit
+        }): ${formatter.currency(cashClose.debit + cashClose.credit)}`
       )
       printer.text(`Transferencias: ${formatter.currency(cashClose.transfer)}`)
       printer.text(

@@ -6,6 +6,8 @@ import { ref } from 'vue'
 const auth = useAuth()
 const quasar = useQuasar()
 
+const emits = defineEmits(['drawerOpen'])
+
 const checking = ref(false)
 const progress = ref(0)
 const version = ref('')
@@ -67,7 +69,7 @@ const restartAndUpdate = () => {
           flat
           icon="menu"
           aria-label="Menu"
-          @click="$emit('drawer-open')"
+          @click="emits('drawerOpen')"
         />
         <q-btn flat dense style="font-size: 18px" label="CORNERGO POS"
           ><q-menu :offset="[0, 7]">

@@ -24,7 +24,11 @@ const provider = ref(null)
 const dteNumber = ref('')
 const dialog = ref(false)
 
-const move = reactive({ moveType: null, amount: '', description: '' })
+const move = reactive({
+  moveType: null,
+  amount: '',
+  description: ''
+})
 
 const cashMove = reactive({
   user: auth.user._id,

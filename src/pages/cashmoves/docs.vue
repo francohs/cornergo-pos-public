@@ -179,7 +179,7 @@ const closeCashMoves = async () => {
                       Número de Ventas
                     </q-item-section>
                     <q-item-section side>
-                      {{ cashMove.dtesQuantity }}
+                      {{ cashMove.dtesQty }}
                     </q-item-section>
                   </q-item>
                   <ItemCashMove
@@ -192,15 +192,24 @@ const closeCashMoves = async () => {
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: 'Tarjeta Débito',
+                      description: `Tarjeta Débito (${cashMove.nDebit})`,
                       amount: cashMove.debit
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: 'Tarjeta Cédito',
+                      description: `Tarjeta Crédito (${cashMove.nCredit})`,
                       amount: cashMove.credit
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: `Total Tarjetas (${
+                        cashMove.nDebit + cashMove.nCredit
+                      })`,
+                      amount: cashMove.debit + cashMove.credit
                     }"
                   />
                   <ItemCashMove

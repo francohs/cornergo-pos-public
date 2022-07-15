@@ -103,7 +103,7 @@ const printDte = async () => {
     }
   }
 
-  const dte = await emittedDtes.create({
+  const dataToBsale = {
     dteType: pos.dteType,
     client: pos.client,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
@@ -114,9 +114,12 @@ const printDte = async () => {
     pays: pos.pays,
     totalPay: pos.totalPay,
     changeAmount: pos.changeAmount
-  })
+  }
 
-  console.log(dte)
+  console.log(dataToBsale)
+
+  const dte = await emittedDtes.create(dataToBsale)
+  // console.log(dte)
 
   if (window.printer) {
     if (
