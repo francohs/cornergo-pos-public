@@ -157,8 +157,9 @@ watch(
         <div class="fit column">
           <div class="row q-pr-md q-pb-sm">
             <q-card class="fit row q-pa-md">
+              <!-- @next="focusInputPay" -->
               <SelectSearchProduct
-                @next="focusInputPay"
+                @next="focus(selectPayType)"
                 class="fit"
                 :loading="loading"
                 autofocus
@@ -226,14 +227,16 @@ watch(
               />
 
               <!-- @keyup.enter.prevent="focus(inputPay)" -->
+              <!-- @update:modelValue="setPayType" -->
               <Select
                 label="Tipo de Pago"
                 v-model="pos.payType"
-                @update:modelValue="setPayType"
+                @popup-hide="focus(inputPay)"
                 :options="payTypes"
                 icon="account_balance_wallet"
                 class="select-text-lg q-mb-md"
                 v-show="!pos.isTotalReach || pos.payType == 'Credito Cliente'"
+                ref="selectPayType"
               />
 
               <Input
