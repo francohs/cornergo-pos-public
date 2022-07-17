@@ -40,9 +40,8 @@ function createWindow() {
       token: process.env.GH_TOKEN
     })
     autoUpdater.checkForUpdates()
+    mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
   })
-
-  mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
 
   // mainWindow.removeMenu()
 
