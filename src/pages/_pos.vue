@@ -42,12 +42,16 @@ const focus = async compRef => {
   }
 }
 
-const setPayType = payType => {
+// function entered(event) {
+//   console.log({ entered: event })
+// }
+
+const setPayType = async payType => {
   if (payType == 'Credito Cliente') {
     pos.pays = []
-  }
-
-  if (payType != 'Credito Cliente') {
+  } else {
+    await nextTick()
+    await nextTick()
     focusInputPay()
   }
 }
@@ -57,7 +61,8 @@ const focusInputPay = () => {
   focus(inputPay)
 }
 
-const enterInputPay = () => {
+const enterInputPay = event => {
+  console.log({ inputEnter: event })
   if (pos.payAmount == '') {
     pos.payAmount = pos.roundedTotal - pos.totalPay
   } else if (parseInt(pos.payAmount) <= 20) {
@@ -157,13 +162,13 @@ watch(
         <div class="fit column">
           <div class="row q-pr-md q-pb-sm">
             <q-card class="fit row q-pa-md">
-              <!-- @next="focusInputPay" -->
               <SelectSearchProduct
-                @next="focus(selectPayType)"
+                @next="focusInputPay"
                 class="fit"
                 :loading="loading"
                 autofocus
                 ref="selectSearchProduct"
+                tabindex="1"
               />
             </q-card>
           </div>
@@ -231,12 +236,13 @@ watch(
               <Select
                 label="Tipo de Pago"
                 v-model="pos.payType"
-                @popup-hide="focus(inputPay)"
+                @update:modelValue="setPayType"
                 :options="payTypes"
                 icon="account_balance_wallet"
                 class="select-text-lg q-mb-md"
                 v-show="!pos.isTotalReach || pos.payType == 'Credito Cliente'"
                 ref="selectPayType"
+                tabindex="2"
               />
 
               <Input
@@ -250,6 +256,7 @@ watch(
                 ref="inputPay"
                 class="full-width"
                 v-show="!pos.isTotalReach && pos.payType != 'Credito Cliente'"
+                tabindex="3"
               >
                 <template v-slot:append>
                   <q-btn round dense flat icon="add" @click="enterInputPay" />
@@ -323,6 +330,7 @@ watch(
                 @click="printDte"
                 :loading="emittedDtes.saving"
                 :disable="!pos.isTotalReach || pos.roundedTotal < 200"
+                tabindex="4"
               />
             </q-card>
           </div>
