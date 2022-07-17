@@ -22,13 +22,18 @@ onMounted(async () => {
 })
 
 const closeCashMoves = async () => {
-  loadingClose.value = true
-  await cashMoves.closeCashMoves()
-  loadingClose.value = false
-  Object.assign(cashMove, cashMoves.doc)
-  dialog.value = false
-  if (window.printer) {
-    window.printer.printCashClose(JSON.parse(JSON.stringify(cashMove)))
+  try {
+    loadingClose.value = true
+    await cashMoves.closeCashMoves()
+    Object.assign(cashMove, cashMoves.doc)
+    if (window.printer) {
+      window.printer.printCashClose(JSON.parse(JSON.stringify(cashMove)))
+    }
+  } catch (error) {
+    throw error
+  } finally {
+    loadingClose.value = false
+    dialog.value = false
   }
 }
 </script>
@@ -129,8 +134,8 @@ const closeCashMoves = async () => {
               <ItemCashMove
                 :move="{
                   moveType: 'Otro Ingreso',
-                  description: 'Total Pagos en Efectivo',
-                  amount: cashMove.cash
+                  description: 'Pagos en Efectivo',
+                  amount: cashMove.cash.amount
                 }"
               />
               <ItemCashMove
@@ -167,63 +172,52 @@ const closeCashMoves = async () => {
                   <ItemCashMove
                     :move="{
                       moveType: 'Inicio de Caja',
-                      description: 'Total Ventas',
-                      amount: cashMove.totalSales
-                    }"
-                  />
-                  <q-item class="q-pl-none q-pr-sm">
-                    <q-item-section side>
-                      <q-icon name="arrow_forward" />
-                    </q-item-section>
-                    <q-item-section class="q-ml-md">
-                      Número de Ventas
-                    </q-item-section>
-                    <q-item-section side>
-                      {{ cashMove.dtesQty }}
-                    </q-item-section>
-                  </q-item>
-                  <ItemCashMove
-                    :move="{
-                      moveType: 'Otro Ingreso',
-                      description: 'Efectivo',
-                      amount: cashMove.cash
+                      description: `Total Ventas (${cashMove.totalSales.count})`,
+                      amount: cashMove.totalSales.amount
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: `Tarjeta Débito (${cashMove.nDebit})`,
-                      amount: cashMove.debit
+                      description: `Efectivo (${cashMove.cash.count})`,
+                      amount: cashMove.cash.amount
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: `Tarjeta Crédito (${cashMove.nCredit})`,
-                      amount: cashMove.credit
+                      description: `Tarjeta Débito (${cashMove.debit.count})`,
+                      amount: cashMove.debit.amount
+                    }"
+                  />
+                  <ItemCashMove
+                    :move="{
+                      moveType: 'Otro Ingreso',
+                      description: `Tarjeta Crédito (${cashMove.credit.count})`,
+                      amount: cashMove.credit.amount
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
                       description: `Total Tarjetas (${
-                        cashMove.nDebit + cashMove.nCredit
+                        cashMove.debit.count + cashMove.credit.count
                       })`,
-                      amount: cashMove.debit + cashMove.credit
+                      amount: cashMove.debit.amount + cashMove.credit.amount
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: 'Transferencias',
-                      amount: cashMove.transfer
+                      description: `Trasferencias (${cashMove.transfer.count})`,
+                      amount: cashMove.transfer.amount
                     }"
                   />
                   <ItemCashMove
                     :move="{
                       moveType: 'Otro Ingreso',
-                      description: 'Crédito Cliente',
-                      amount: cashMove.clientCredit
+                      description: `Cédito Cliente (${cashMove.clientCredit.count})`,
+                      amount: cashMove.clientCredit.amount
                     }"
                   />
                 </div>

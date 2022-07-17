@@ -48,12 +48,12 @@ export const useCashMoves = defineStore({
     async closeCashMoves() {
       const emittedDtes = useEmittedDtes()
 
-      const payAmounts = await emittedDtes.getPayAmounts({
+      const payments = await emittedDtes.getPayments({
         openDate: this.doc.createdAt,
         closeDate: new Date()
       })
 
-      const cashMove = { ...payAmounts }
+      const cashMove = { ...payments }
 
       cashMove.totalInputs = this.doc.moves.reduce(
         (acc, curr) =>
@@ -71,7 +71,7 @@ export const useCashMoves = defineStore({
 
       cashMove.closeAmount =
         this.doc.openAmount +
-        cashMove.cash +
+        cashMove.cash.amount +
         cashMove.totalInputs -
         cashMove.totalOutputs
 

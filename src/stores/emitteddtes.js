@@ -27,9 +27,9 @@ export const useEmittedDtes = defineStore({
         this.saving = false
       }
     },
-    async getPayAmounts(dates) {
+    async getPayments(dates) {
       try {
-        const { data } = await api.post(this.$id + '/payamounts', { dates })
+        const { data } = await api.post(this.$id + '/payments', { dates })
         return data
       } catch (error) {
         throw error

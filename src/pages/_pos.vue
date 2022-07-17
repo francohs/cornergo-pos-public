@@ -29,6 +29,7 @@ const inputPay = ref(null)
 const btnPrint = ref(null)
 const selectSearchProduct = ref(null)
 const selectClient = ref(null)
+const selectPayType = ref(null)
 const scrollRef = ref(null)
 const cardRef = ref(null)
 
@@ -224,6 +225,7 @@ watch(
                 class="q-mb-md"
               />
 
+              <!-- @keyup.enter.prevent="focus(inputPay)" -->
               <Select
                 label="Tipo de Pago"
                 v-model="pos.payType"

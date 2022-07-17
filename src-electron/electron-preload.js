@@ -32,12 +32,10 @@ contextBridge.exposeInMainWorld('printer', {
       printer.cashdraw().close()
     })
   },
-  printCashClose: cashClose => {
-    console.log({ cashClose })
+  printCashClose: cashMove => {
+    console.log({ cashMove })
     device.open(error => {
       if (error) console.error(error)
-
-      const today = new Date()
 
       printer.align('lt').size(0.01, 0.01).control('cr')
       printer.style('b').text('Minimarket CornerGO').style('')
@@ -47,33 +45,48 @@ contextBridge.exposeInMainWorld('printer', {
 
       printer.style('b').text(`Resumen de ventas`).style('')
       printer.text('------------------------------------------')
-      printer.text(`Total Ventas: ${formatter.currency(cashClose.totalSales)}`)
-      printer.text(`Número de Ventas: ${cashClose.dtesQty}`)
-      printer.text(`Efectivo: ${formatter.currency(cashClose.cash)}`)
       printer.text(
-        `Tarjeta Débito (${cashClose.nDebit}): ${formatter.currency(
-          cashClose.debit
+        `Total Ventas (${cashMove.totalSales.count}): ${formatter.currency(
+          cashMove.totalSales.amount
         )}`
       )
       printer.text(
-        `Tarjeta Crédito (${cashClose.nCredit}): ${formatter.currency(
-          cashClose.credit
+        `Efectivo (${cashMove.cash.count}): ${formatter.currency(
+          cashMove.cash.amount
+        )}`
+      )
+      printer.text(
+        `Tarjeta Débito (${cashMove.debit.count}): ${formatter.currency(
+          cashMove.debit.amount
+        )}`
+      )
+      printer.text(
+        `Tarjeta Crédito (${cashMove.credit.count}): ${formatter.currency(
+          cashMove.credit.amount
         )}`
       )
       printer.text(
         `Total Tarjetas (${
-          cashClose.nDebit + cashClose.nCredit
-        }): ${formatter.currency(cashClose.debit + cashClose.credit)}`
+          cashMove.debit.count + cashMove.credit.count
+        }): ${formatter.currency(
+          cashMove.debit.amount + cashMove.credit.amount
+        )}`
       )
-      printer.text(`Transferencias: ${formatter.currency(cashClose.transfer)}`)
       printer.text(
-        `Crédito Cliente: ${formatter.currency(cashClose.clientCredit)}`
+        `Transferencias (${cashMove.transfer.count}): ${formatter.currency(
+          cashMove.transfer.amount
+        )}`
+      )
+      printer.text(
+        `Crédito Cliente (${cashMove.clientCredit.count}): ${formatter.currency(
+          cashMove.clientCredit.amount
+        )}`
       )
       printer.feed(1)
 
       printer.style('b').text(`Otros Ingresos`).style('')
       printer.text('------------------------------------------')
-      cashClose.moves.forEach(move => {
+      cashMove.moves.forEach(move => {
         if (move.moveType == 'Otro Ingreso') {
           printer.text(
             `${formatter.time(move.createdAt)} ${
@@ -86,7 +99,7 @@ contextBridge.exposeInMainWorld('printer', {
 
       printer.style('b').text(`Otros Egresos`).style('')
       printer.text('------------------------------------------')
-      cashClose.moves.forEach(move => {
+      cashMove.moves.forEach(move => {
         if (
           move.moveType == 'Otro Egreso' ||
           move.moveType == 'Pago a Proveedor'
@@ -106,25 +119,25 @@ contextBridge.exposeInMainWorld('printer', {
         .style('b')
         .text(
           `[${formatter.time(
-            cashClose.createdAt
-          )}] INICIO DE CAJA: ${formatter.currency(cashClose.openAmount)}`
+            cashMove.createdAt
+          )}] INICIO DE CAJA: ${formatter.currency(cashMove.openAmount)}`
         )
         .style('')
       printer.text(
-        `Total Pagos en Efectivo: ${formatter.currency(cashClose.cash)}`
+        `Total Pagos en Efectivo: ${formatter.currency(cashMove.cash.amount)}`
       )
       printer.text(
-        `Total Otros Ingresos: ${formatter.currency(cashClose.totalInputs)}`
+        `Total Otros Ingresos: ${formatter.currency(cashMove.totalInputs)}`
       )
       printer.text(
-        `Total Otros Egresos: ${formatter.currency(cashClose.totalOutputs)}`
+        `Total Otros Egresos: ${formatter.currency(cashMove.totalOutputs)}`
       )
       printer
         .style('b')
         .text(
           `[${formatter.time(
-            cashClose.updatedAt
-          )}] CIERRE DE CAJA: ${formatter.currency(cashClose.closeAmount)}`
+            cashMove.updatedAt
+          )}] CIERRE DE CAJA: ${formatter.currency(cashMove.closeAmount)}`
         )
         .style('')
       printer.feed(1)
@@ -133,8 +146,8 @@ contextBridge.exposeInMainWorld('printer', {
       printer
         .text(
           `Fecha: ${formatter.localDate(
-            cashClose.updatedAt
-          )}      Hora: ${formatter.time(cashClose.updatedAt)}`
+            cashMove.updatedAt
+          )}      Hora: ${formatter.time(cashMove.updatedAt)}`
         )
         .feed(1)
         .cut()
