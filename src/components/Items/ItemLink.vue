@@ -1,10 +1,9 @@
 <template>
   <q-item clickable @click="goto" :active="isActive" active-class="active-link">
-    <q-item-section avatar>
-      <q-icon :name="icon" />
-    </q-item-section>
-
-    <q-item-section>{{ label }}</q-item-section>
+    <div class="row items-center">
+      <q-icon :name="icon" size="sm" class="q-mr-md" />
+      <div>{{ label }}</div>
+    </div>
   </q-item>
 </template>
 
@@ -37,8 +36,9 @@ const goto = () => {
 
 <style lang="scss">
 .active-link {
-  color: $primary;
-  border-left: 5px solid $primary;
-  background: white;
+  // color: rgb(52, 222, 222);
+  color: $green-13;
+  // border-left: 5px solid $primary;
+  // background: white;
 }
 </style>

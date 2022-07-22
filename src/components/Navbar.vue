@@ -65,13 +65,18 @@ const restartAndUpdate = () => {
   <q-header class="bg-blue-grey-10">
     <q-toolbar class="justify-between q-pl-none q-pr-lg">
       <div class="row items-center">
-        <q-btn
+        <!-- <q-btn
           flat
           icon="menu"
           aria-label="Menu"
           @click="emits('drawerOpen')"
-        />
-        <q-btn flat dense style="font-size: 18px" label="CORNERGO POS"
+        /> -->
+        <q-btn
+          flat
+          dense
+          class="q-mx-lg"
+          style="font-size: 18px"
+          label="CORNERGO POS"
           ><q-menu :offset="[0, 7]">
             <q-list style="width: 240px">
               <q-item clickable @click="checkUpdates">
@@ -92,6 +97,11 @@ const restartAndUpdate = () => {
               />
             </q-list> </q-menu
         ></q-btn>
+
+        <ItemLink page="pos" icon="point_of_sale" label="POS" />
+        <ItemLink page="cashmoves" icon="sync_alt" label="ARQUEO" />
+        <ItemLink page="emitteddtes" icon="receipt_long" label="VENTAS" />
+        <ItemLink page="clients" icon="groups" label="CLIENTES" />
       </div>
 
       <q-btn

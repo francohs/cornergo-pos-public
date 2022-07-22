@@ -31,7 +31,7 @@ const filterFn = async (value, update) => {
         equal: { active: true }
       },
       select: ['code', 'name', 'stock', 'price', 'exempt', 'cost', 'batPrice'],
-      sort: { name: -1 }
+      sort: { totalSales: -1 }
     })
 
     options.value = products.docs

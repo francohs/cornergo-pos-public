@@ -1,6 +1,7 @@
 {
   "name": "cornergo-pos",
-  "version": "0.0.26",
+  "version": "0.0.27",
+  "productName": "CornerGO POS v0.0.27",
   "description": "CornerGO: Punto de Venta",
   "author": "Franco <franco@gmail.com>",
   "private": true,

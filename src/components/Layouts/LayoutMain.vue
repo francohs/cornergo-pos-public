@@ -19,7 +19,7 @@ const toggleDrawer = () => {
   <q-layout view="hHh Lpr lff">
     <Navbar @drawerOpen="toggleDrawer" />
 
-    <Drawer v-model="drawerOpen" v-if="auth.isLogged" />
+    <!-- <Drawer v-model="drawerOpen" v-if="auth.isLogged" /> -->
 
     <q-page-container>
       <router-view />
