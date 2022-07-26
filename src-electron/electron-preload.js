@@ -39,7 +39,8 @@ contextBridge.exposeInMainWorld('printer', {
 
       printer.align('lt').size(0.01, 0.01).control('cr')
       printer.style('b').text('Minimarket CornerGO').style('')
-      printer.style('b').text('Cierre de Caja')
+      printer.style('b').text('Cierre de Caja').style('')
+      printer.text(`Cajero: ${cashMove.user.name} ${cashMove.user.lastName}`)
       printer.text('------------------------------------------')
       printer.feed(1)
 
