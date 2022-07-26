@@ -1,7 +1,7 @@
 {
   "name": "cornergo-pos",
-  "version": "0.0.27",
-  "productName": "CornerGO POS v0.0.27",
+  "version": "0.0.29",
+  "productName": "CornerGO POS v0.0.28",
   "description": "CornerGO: Punto de Venta",
   "author": "Franco <franco@gmail.com>",
   "private": true,
@@ -13,7 +13,7 @@
     "deploy": "quasar build --mode electron --publish always"
   },
   "dependencies": {
-    "@quasar/extras": "^1.14.2",
+    "@quasar/extras": "^1.15.0",
     "axios": "^0.27.2",
     "electron-updater": "4.6.5",
     "escpos": "^3.0.0-alpha.6",
@@ -21,7 +21,7 @@
     "global": "^4.4.0",
     "moment": "^2.29.4",
     "pdf417": "^0.1.5",
-    "pinia": "^2.0.15",
+    "pinia": "^2.0.17",
     "quasar": "^2.7.5",
     "usb": "2.4.3",
     "vue": "^3.2.37",

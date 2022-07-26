@@ -145,10 +145,10 @@
     vite "2.9.13"
     webpack-merge "^5.8.0"
 
-"@quasar/extras@^1.14.2":
-  version "1.14.2"
-  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.14.2.tgz#a5382ec83ddf967f8bc17d0dbe6ef88ddb31b796"
-  integrity sha512-F9T1aIhRIiuJeuxPCu2CBlPj5js6mBZWQOAHHyVlreNa5qhVEHhr/9GfljG6RTnjvTNOjJraTl0hi8g0IuUfLw==
+"@quasar/extras@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.15.0.tgz#ed397abdc8372b2b1de525dd93c7ec6bc061db8f"
+  integrity sha512-e5IHHqo3i/u7yWdcdspBbthnrDDZ3VRXaQoyhEEy526lzITFAw3hnlt4h7YnZ6Ck6gVIM0YbCaZbKaQYfKPOzQ==
 
 "@quasar/fastclick@1.1.5":
   version "1.1.5"
@@ -439,6 +439,11 @@
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.2.0.tgz#e3dc98a0cce8e87292745e2d24c9ee8c274a023b"
   integrity sha512-pF1G4wky+hkifDiZSWn8xfuLOJI1ZXtuambpBEYaf7Xaf6zC/pM29rvAGpd3qaGXnr4BAXU1Pxz/VfvBGwexGA==
+
+"@vue/devtools-api@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.2.1.tgz#6f2948ff002ec46df01420dfeff91de16c5b4092"
+  integrity sha512-OEgAMeQXvCoJ+1x8WyQuVZzFo0wcyCmUR3baRVLmKBo1LmYZWMlRiXlux5jd0fqVJu6PfDbOrZItVqUEzLobeQ==
 
 "@vue/devtools@^6.2.0":
   version "6.2.0"
@@ -3486,12 +3491,12 @@ pify@^3.0.0:
   resolved "https://registry.yarnpkg.com/pify/-/pify-3.0.0.tgz#e5a4acd2c101fdf3d9a4d07f0dbc4db49dd28176"
   integrity sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==
 
-pinia@^2.0.15:
-  version "2.0.15"
-  resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.0.15.tgz#74700e33c208c380360c61e9c637a5848c1cc24f"
-  integrity sha512-qkIvXdGWMbnc3UG3l8rn9SV4nE2H4I2R/exZcdn/0pDzjaKQmMUsBXlIurfKu62VJsjETkqss46NP/c88NnjYQ==
+pinia@^2.0.17:
+  version "2.0.17"
+  resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.0.17.tgz#f925e5e4f73c15e16dfb4838176a9ca50752f26b"
+  integrity sha512-AtwLwEWQgIjofjgeFT+nxbnK5lT2QwQjaHNEDqpsi2AiCwf/NY78uWTeHUyEhiiJy8+sBmw0ujgQMoQbWiZDfA==
   dependencies:
-    "@vue/devtools-api" "^6.1.4"
+    "@vue/devtools-api" "^6.2.1"
     vue-demi "*"
 
 plist@^3.0.0, plist@^3.0.1, plist@^3.0.4:

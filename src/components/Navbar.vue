@@ -11,6 +11,7 @@ const emits = defineEmits(['drawerOpen'])
 const checking = ref(false)
 const progress = ref(0)
 const version = ref('')
+const message = ref('Buscar actualización')
 const dialog = ref(false)
 
 const isMovile = quasar.screen.width < 480
@@ -31,26 +32,34 @@ const checkUpdates = () => {
 if (window.updater) {
   window.updater.receive('checking-for-update', () => {
     console.log('[checking-for-update]')
+    message.value = 'Buscando actualizacion...'
   })
   window.updater.receive('update-not-available', info => {
     console.log('[update-not-available]', info)
     checking.value = false
+    message.value = 'Tienes la última versión'
+    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
   })
   window.updater.receive('error', err => {
     console.log('[error]', err)
+    message.value = 'Error al buscar'
+    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
   })
   window.updater.receive('download-progress', info => {
     console.log('[download-progress]', info)
     progress.value = info.percent / 100
+    message.value = `Descargando ${info.percent}`
   })
   window.updater.receive('update_available', info => {
     console.log('[update_available]', info)
     version.value = info.version
+    message.value = `Nueva versión v${info.version}`
   })
   window.updater.receive('update_downloaded', () => {
     console.log('[update_downloaded]')
     checking.value = false
     dialog.value = true
+    message.value = `Nueva versión v${info.version}`
   })
 }
 
@@ -78,17 +87,13 @@ const restartAndUpdate = () => {
           style="font-size: 18px"
           label="CORNERGO POS"
           ><q-menu :offset="[0, 7]">
-            <q-list style="width: 240px">
+            <q-list style="width: 280px">
               <q-item clickable @click="checkUpdates">
                 <q-item-section avatar>
                   <q-icon name="update" />
                 </q-item-section>
 
-                <q-item-section>{{
-                  progress == 1
-                    ? `Actualizar a v${version}`
-                    : 'Buscar actualización'
-                }}</q-item-section>
+                <q-item-section>{{ message }}</q-item-section>
               </q-item>
               <q-linear-progress
                 v-show="checking || progress > 0"
@@ -105,7 +110,6 @@ const restartAndUpdate = () => {
       </div>
 
       <q-btn
-        dense
         flat
         v-if="auth.isLogged"
         :label="auth.user.username"
