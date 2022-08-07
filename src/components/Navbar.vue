@@ -47,19 +47,19 @@ if (window.updater) {
   })
   window.updater.receive('download-progress', info => {
     console.log('[download-progress]', info)
-    progress.value = info.percent / 100
-    message.value = `Descargando ${info.percent}`
+    progress.value = Math.round(info.percent / 100)
+    message.value = `Descargando ${Math.round(info.percent)}%`
   })
   window.updater.receive('update_available', info => {
     console.log('[update_available]', info)
     version.value = info.version
-    message.value = `Nueva versión v${info.version}`
+    message.value = `Nueva versión v${version.value}`
   })
   window.updater.receive('update_downloaded', () => {
     console.log('[update_downloaded]')
     checking.value = false
     dialog.value = true
-    message.value = `Nueva versión v${info.version}`
+    message.value = `Nueva versión v${version.value}`
   })
 }
 

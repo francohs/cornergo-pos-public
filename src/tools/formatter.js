@@ -1,6 +1,10 @@
 import { date } from 'quasar'
 import moment from 'moment'
 
+function isNumeric(num) {
+  return !isNaN(num)
+}
+
 const formatter = {
   rut: value => {
     if (!value) return ''

@@ -27,8 +27,8 @@ const filterFn = async (value, update) => {
         contains: {
           fields: ['code', 'name'],
           value
-        },
-        equal: { active: true }
+        }
+        // equal: { active: true }
       },
       select: [
         'code',
@@ -38,9 +38,10 @@ const filterFn = async (value, update) => {
         'exempt',
         'cost',
         'batPrice',
-        'pack'
+        'pack',
+        'active'
       ],
-      sort: { totalSales: -1 }
+      sort: { active: -1, totalSales: -1 }
     })
 
     options.value = products.docs
@@ -164,7 +165,8 @@ const clear = () => {
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
           <q-item-label caption
-            >Código: {{ scope.opt.code }} Stock: {{ scope.opt.stock }} Precio:
+            >{{ scope.opt.active ? '' : '(no activo)' }} Código:
+            {{ scope.opt.code }} Stock: {{ scope.opt.stock }} Precio:
             {{ formatter.currency(scope.opt.price) }}</q-item-label
           >
         </q-item-section>
