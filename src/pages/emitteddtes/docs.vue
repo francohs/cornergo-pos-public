@@ -83,6 +83,7 @@ const changePage = async () => {
         <q-pagination
           v-model="page"
           :max="pages"
+          :max-pages="5"
           @update:modelValue="changePage"
         />
       </div>

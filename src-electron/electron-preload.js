@@ -7,7 +7,8 @@ import formatter from 'src/tools/formatter'
 
 let device
 try {
-  device = new escpos.USB(0x04b8, 0x0202)
+  device = new escpos.USB(0x04b8, 0x0202) // TM-88
+  // device = new escpos.USB(0x04b8, 0x0e15) // TM-20
 } catch (error) {
   console.error('[ERROR] IMPRESORA NO CONECTADA')
 }

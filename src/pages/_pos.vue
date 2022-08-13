@@ -6,7 +6,6 @@ import { useEmittedDtes } from 'stores/emitteddtes'
 import { ref, nextTick, provide, watchEffect, watch } from 'vue'
 import formatter from 'tools/formatter'
 import notify from 'tools/notify'
-import generateBarcode from 'pdf417'
 
 const pos = usePos()
 provide(pos.$id, pos)
@@ -62,7 +61,6 @@ const focusInputPay = () => {
 }
 
 const enterInputPay = event => {
-  console.log({ inputEnter: event })
   if (pos.payAmount == '') {
     pos.payAmount = pos.roundedTotal - pos.totalPay
   } else if (parseInt(pos.payAmount) <= 20) {
@@ -102,6 +100,40 @@ const removePay = () => {
   focus(inputPay)
 }
 
+function resizeImage(base64Str) {
+  return new Promise(function (resolve, reject) {
+    var img = new Image()
+    img.onload = async function () {
+      var canvas = document.createElement('canvas')
+      var ctx = canvas.getContext('2d')
+
+      console.log(img.width, img.height)
+
+      // const download = document.createElement('a')
+      // download.href = 'data:image/png;base64,' + base64Str
+      // download.download = 'reddot' + Math.random() * 100 + '.png'
+      // download.click()
+
+      canvas.width = img.width * 0.25
+      canvas.height = img.height * 0.18
+
+      const imageBitmap = await createImageBitmap(img, {
+        resizeWidth: canvas.width,
+        resizeHeight: canvas.height,
+        resizeQuality: 'pixelated'
+      })
+
+      ctx.drawImage(imageBitmap, 0, 0)
+
+      resolve(canvas.toDataURL())
+    }
+    img.onerror = function () {
+      reject()
+    }
+    img.src = 'data:image/png;base64,' + base64Str
+  })
+}
+
 const printDte = async () => {
   if (window.printer) {
     if (pos.pays.find(p => p.payType == 'Efectivo')) {
@@ -125,17 +157,16 @@ const printDte = async () => {
   console.log(dataToBsale)
 
   const dte = await emittedDtes.create(dataToBsale)
-  // console.log(dte)
+  console.log(dte)
+
+  const ted = await resizeImage(dte.ted)
 
   if (window.printer) {
     if (
       !pos.client ||
       (pos.client && pos.client.dteType == 'Boleta Electronica')
     ) {
-      window.printer.printDte(
-        { ...dte, roundedTotal: pos.roundedTotal },
-        generateBarcode(dte.ted, 1, 0.5)
-      )
+      window.printer.printDte({ ...dte, roundedTotal: pos.roundedTotal }, ted)
     }
   }
 

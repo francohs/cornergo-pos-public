@@ -3449,18 +3449,6 @@ path-type@^2.0.0:
   dependencies:
     pify "^2.0.0"
 
-pdf417@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/pdf417/-/pdf417-0.0.3.tgz#9df2c9be0dca73d426a7f2a3dfb857b5b5635f7c"
-  integrity sha512-LQl+b/ulDvM6nOigZVuz7Y1GAVgibGHItQxdE77eQvHVmQOkLJL4uDgC3gxloKjyMJw1pCEcUw2JbCuQh21xAg==
-
-pdf417@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/pdf417/-/pdf417-0.1.5.tgz#5234c1a985da1db4778eadde06bd80e86a2f8bb2"
-  integrity sha512-+kDUclGVoitnpSaHYhfW3Xh1U7M20rGU61Myo1o7sOKe2tKxcTNPX24QCH1Yec8YHn39SIbZBkN+yNjlsA8czQ==
-  dependencies:
-    pdf417 "0.0.3"
-
 pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"

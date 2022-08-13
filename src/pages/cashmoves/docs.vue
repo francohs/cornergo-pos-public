@@ -12,7 +12,32 @@ provide(auth.$id, auth)
 const quasar = useQuasar()
 provide('quasar', quasar)
 
-const cashMove = reactive({})
+const cashMove = reactive({
+  cash: {
+    count: 0,
+    amount: 0
+  },
+  debit: {
+    count: 0,
+    amount: 0
+  },
+  credit: {
+    count: 0,
+    amount: 0
+  },
+  transfer: {
+    count: 0,
+    amount: 0
+  },
+  clientCredit: {
+    count: 0,
+    amount: 0
+  },
+  totalSales: {
+    count: 0,
+    amount: 0
+  }
+})
 const dialog = ref(false)
 const loadingClose = ref(false)
 
