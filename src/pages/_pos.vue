@@ -114,8 +114,10 @@ function resizeImage(base64Str) {
       // download.download = 'reddot' + Math.random() * 100 + '.png'
       // download.click()
 
-      canvas.width = img.width * 0.25
+      canvas.width = img.width * 0.223
       canvas.height = img.height * 0.18
+
+      console.log(canvas.width, canvas.height)
 
       const imageBitmap = await createImageBitmap(img, {
         resizeWidth: canvas.width,
@@ -159,13 +161,12 @@ const printDte = async () => {
   const dte = await emittedDtes.create(dataToBsale)
   console.log(dte)
 
-  const ted = await resizeImage(dte.ted)
-
   if (window.printer) {
     if (
       !pos.client ||
       (pos.client && pos.client.dteType == 'Boleta Electronica')
     ) {
+      const ted = await resizeImage(dte.ted)
       window.printer.printDte({ ...dte, roundedTotal: pos.roundedTotal }, ted)
     }
   }
