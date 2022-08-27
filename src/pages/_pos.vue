@@ -16,8 +16,8 @@ const auth = useAuth()
 
 const dteTypes = ref(['Boleta Electronica'])
 const payTypes = ref([
-  'Tarjeta de Debito',
   'Efectivo',
+  'Tarjeta de Debito',
   'Tarjeta de Credito',
   'Transferencia',
   'Credito Cliente'

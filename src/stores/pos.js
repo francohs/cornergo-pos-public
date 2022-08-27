@@ -6,7 +6,7 @@ export const usePos = defineStore({
 
   state: () => ({
     dteType: 'Boleta Electronica',
-    payType: 'Tarjeta de Debito',
+    payType: 'Efectivo',
     payAmount: '',
     client: null,
     items: [],
@@ -104,14 +104,14 @@ export const usePos = defineStore({
 
     removePay(pay) {
       this.pays = this.pays.filter(target => target.payType !== pay.payType)
-      this.payType = 'Tarjeta de Debito'
+      this.payType = 'Efectivo'
       if (this.pays.length == 0) this.client = null
     },
 
     clearAll() {
       this.dteType = 'Boleta Electronica'
       this.client = null
-      this.payType = 'Tarjeta de Debito'
+      this.payType = 'Efectivo'
       this.payAmount = ''
       this.items = []
       this.pays = []
