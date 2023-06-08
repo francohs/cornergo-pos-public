@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<EnvioBOLETA xmlns="http://www.sii.cl/SiiDte" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sii.cl/SiiDte EnvioBOLETA_v11.xsd" version="1.0">
+  <SetDTE ID="OpenFactura_SetDoc">
+    <Caratula version="1.0">
+      <RutEmisor>76260131-1</RutEmisor>
+      <RutEnvia>16765768-0</RutEnvia>
+      <RutReceptor>66666666-6</RutReceptor>
+      <FchResol>2014-08-22</FchResol>
+      <NroResol>80</NroResol>
+      <TmstFirmaEnv>2023-06-06T17:56:44</TmstFirmaEnv>
+      <SubTotDTE>
+        <TpoDTE>39</TpoDTE>
+        <NroDTE>1</NroDTE>
+      </SubTotDTE>
+    </Caratula>
+    <DTE version="1.0">
+  <Documento ID="OpenFactura39F608763">
+    <Encabezado>
+      <IdDoc>
+        <TipoDTE>39</TipoDTE>
+        <Folio>608763</Folio>
+        <FchEmis>2023-06-06</FchEmis>
+        <IndServicio>3</IndServicio>
+      </IdDoc>
+      <Emisor>
+        <RUTEmisor>76260131-1</RUTEmisor>
+        <RznSocEmisor>SERVICIOS DE INGENIERIA BIGVISION SPA</RznSocEmisor>
+        <GiroEmisor>VENTA AL POR MENOR DE ALIMENTOS EN COMERCIOS ESPECIALIZADOS</GiroEmisor>
+        <DirOrigen>FREIRE 1698, CONCEPCION</DirOrigen>
+        <CmnaOrigen>CONCEPCION</CmnaOrigen>
+      </Emisor>
+      <Receptor>
+        <RUTRecep>66666666-6</RUTRecep>
+      </Receptor>
+      <Totales>
+        <MntNeto>378</MntNeto>
+        <MntExe>0</MntExe>
+        <IVA>72</IVA>
+        <MntTotal>450</MntTotal>
+      </Totales>
+    </Encabezado>
+    <Detalle>
+      <NroLinDet>1</NroLinDet>
+      <NmbItem>CHOCOLATE TRENCITO 24 G</NmbItem>
+      <QtyItem>1</QtyItem>
+      <PrcItem>450</PrcItem>
+      <MontoItem>450</MontoItem>
+    </Detalle>
+    <TED version="1.0">
+  <DD>
+    <RE>76260131-1</RE>
+    <TD>39</TD>
+    <F>608763</F>
+    <FE>2023-06-06</FE>
+    <RR>66666666-6</RR>
+    <RSR>66666666-6</RSR>
+    <MNT>450</MNT>
+    <IT1>CHOCOLATE TRENCITO 24 G</IT1>
+    <CAF version="1.0">
+<DA>
+<RE>76260131-1</RE>
+<RS>SERVICIOS DE INGENIERIA BIGVISION SPA</RS>
+<TD>39</TD>
+<RNG><D>600101</D><H>642238</H></RNG>
+<FA>2023-05-11</FA>
+<RSAPK><M>5r/OyBGBUVHiEu4P6SPyUNRSetNP7sKQJEMrasHlYr2zb2u7Vgj5lqYpv0AVgPJ4DKYG+LMxMjVAu057H6YZXw==</M><E>Aw==</E></RSAPK>
+<IDK>300</IDK>
+</DA>
+<FRMA algoritmo="SHA1withRSA">Pb73ueXarY+twVYQYJnHZfXSJuoVhsurOl9Q97ens7FTbWBX4RT6kksFXHs/ksuqPP8eZZK+blFLFwH7YP4P5A==</FRMA>
+</CAF>
+    <TSTED>2023-06-06T17:56:44</TSTED>
+  </DD>
+  <FRMT algoritmo="SHA1withRSA">3RIVU0HvbfgnV1LG0hLiNMjSOLnm9fWxbkmv8RIrtkHQO+JFVl7EPxn/T/Yi57FCqi0hBcRgrLzHH1l/0/kw5w==</FRMT>
+</TED>
+  <TmstFirma>2023-06-06T17:56:44</TmstFirma></Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#OpenFactura39F608763"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>q9qWAsXlyzDCEqkHKBwuFzRFgSg=</DigestValue></Reference></SignedInfo><SignatureValue>dzDbXAWQ2Nem7MrLfztKL8VxiqVpX0iPQFhyoYSHv2p4Z6UlC3rSrDRoF41CwshW
+oDg26XfsMoNpOnjHlcQY6WGoUrUK7rRlyCoJfaThvjFTFzKVrMyhVxJi8r1J+clM
+ZA/2V0wYclmW/20ct9v8rRFPyI6C76ibGNkktbTEnBPKjQytUOV2moJzzZtJgGsJ
+NH6ND0njm50jr7biiByvZ+0cF7qRdiQv5WknbFILFii53bsIuh4j9FjNxGFVKTdM
+hRSbBprDnYAowLnDjLR9jSAerauXuB6PiTgmIbOAsunqg8DsNoc2J2ADEkhAje7i
+ghNwjOXhfD5bPXv2qDHgfA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>uO2LV3lk2+u+UVRmxZrcTZojygq+VLkt7j5azv1+EMa1XSfAAMReGoLyctBM0KuE
+LermTMn5ANwE7vbOwlgnrwJwq14rUDQhxBNW4KU3GLhjKd7FW/SvJ7PE8ecoLY2c
+abC2qkGiT6nPESbRAhuMsmOFFXyyrSVnKSzC3CGHpc0DVEue7QR5rNTOf4W2QZk0
+ARdDYlM75U/xhrnG1nd0vB+Kkwrf/mPd2MKjO8cQsLzRgerFe0FdIuVxgWUojQ53
+8MB9vKxaEQx98KbRvE4SleDCiXnupW3K5SA1OvYQZL6bKSeWnwsvMPpqzD2dZhhx
+mUmZ0VGN6CtV9motNlT8EQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIH0jCCBbqgAwIBAgIKRqyz2AABAAJvgDANBgkqhkiG9w0BAQsFADCBvzELMAkG
+A1UEBhMCQ0wxHTAbBgNVBAgTFFJlZ2lvbiBNZXRyb3BvbGl0YW5hMREwDwYDVQQH
+EwhTYW50aWFnbzEUMBIGA1UEChMLRS1DRVJUQ0hJTEUxIDAeBgNVBAsTF0F1dG9y
+aWRhZCBDZXJ0aWZpY2Fkb3JhMR4wHAYDVQQDExVFLUNFUlRDSElMRSBDQSBGRVMg
+MDIxJjAkBgkqhkiG9w0BCQEWF3NjbGllbnRlQGUtY2VydGNoaWxlLmNsMB4XDTIy
+MDgwODIxMTQzNVoXDTI1MDgwNzIxMTQzNVowgc4xCzAJBgNVBAYTAkNMMSIwIAYD
+VQQIExlNRVRST1BPTElUQU5BIERFIFNBTlRJQUdPMREwDwYDVQQHEwhTQU5USUFH
+TzEiMCAGA1UEChMZRlJBTkNPIEVTVEVCQU4gSE9STUFaQUJBTDEKMAgGA1UECwwB
+KjEtMCsGA1UEAxMkRlJBTkNPIEVTVEVCQU4gSE9STUFaQUJBTCBTQU5USUJBTkVa
+MSkwJwYJKoZIhvcNAQkBFhpGUkFOQ09IT1JNQVpBQkFMQEdNQUlMLkNPTTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALjti1d5ZNvrvlFUZsWa3E2aI8oK
+vlS5Le4+Ws79fhDGtV0nwADEXhqC8nLQTNCrhC3q5kzJ+QDcBO72zsJYJ68CcKte
+K1A0IcQTVuClNxi4YynexVv0ryezxPHnKC2NnGmwtqpBok+pzxEm0QIbjLJjhRV8
+sq0lZykswtwhh6XNA1RLnu0EeazUzn+FtkGZNAEXQ2JTO+VP8Ya5xtZ3dLwfipMK
+3/5j3djCozvHELC80YHqxXtBXSLlcYFlKI0Od/DAfbysWhEMffCm0bxOEpXgwol5
+7qVtyuUgNTr2EGS+myknlp8LLzD6asw9nWYYcZlJmdFRjegrVfZqLTZU/BECAwEA
+AaOCAr0wggK5MIIBXwYDVR0gBIIBVjCCAVIwggFOBggrBgEEAcNSBTCCAUAwPQYI
+KwYBBQUHAgEWMWh0dHBzOi8vd3d3LmUtY2VydGNoaWxlLmNsL3BvbGl0aWNhcy15
+LXByYWN0aWNhcy8wgf4GCCsGAQUFBwICMIHxHoHuAEUAbAAgAHIAZQBzAHAAbwBu
+AGQAZQByACAAZQBzAHQAZQAgAGYAbwByAG0AdQBsAGEAcgBpAG8AIABlAHMAIAB1
+AG4AIAByAGUAcQB1AGkAcwBpAHQAbwAgAGkAbgBkAGkAcwBwAGUAbgBzAGEAYgBs
+AGUAIABwAGEAcgBhACAAZABhAHIAIABpAG4AaQBjAGkAbwAgAGEAbAAgAHAAcgBv
+AGMAZQBzAG8AIABkAGUAIABjAGUAcgB0AGkAZgBpAGMAYQBjAGkA8wBuAC4AIABQ
+AG8AcwB0AGUAcgBpAG8AcgBtAGUAbgB0AGUALDAdBgNVHQ4EFgQU/xC5VkEgKxxH
+zI65jvWP6aVAHF0wCwYDVR0PBAQDAgTwMCMGA1UdEQQcMBqgGAYIKwYBBAHBAQGg
+DBYKMTY3NjU3NjgtMDAfBgNVHSMEGDAWgBR01iGz9FroLXy7WQZjQ+9ptDqTBDBA
+BgNVHR8EOTA3MDWgM6Axhi9odHRwOi8vY3JsLmVjZXJ0Y2hpbGUuY2wvRS1DRVJU
+Q0hJTEVDQUZFUzAyLmNybDA9BggrBgEFBQcBAQQxMC8wLQYIKwYBBQUHMAGGIWh0
+dHA6Ly9vY3NwZmVzLmVjZXJ0Y2hpbGUuY2wvb2NzcDA8BgkrBgEEAYI3FQcELzAt
+BiUrBgEEAYI3FQiB3dJNl9Q6homdBoeIzm+Dr8xgRYbS7AiGx8p9AgFkAgEHMCMG
+A1UdEgQcMBqgGAYIKwYBBAHBAQKgDBYKOTY5MjgxODAtNTANBgkqhkiG9w0BAQsF
+AAOCAgEAjSXDXpan34ssOHR589S69t7Q05RAVenkvNspqxutPyCrZm5YO8PXeVVt
+SLbxOoiKN4bz1MPjUfoGahjwyTdinktjvC6gRs9vfgILVnHo+6nnMXAmil/2T5DK
+Who+YkC9sTi8gIBg6ibZXr62+OFFTrkP1r1tWD+rPd1Bla+wafLOsKHOMsRZ5RLK
+jpmR6DgwzI9kcJ8IzZErshE5TleAa3Y6IHZYUwvVs0U5GomlLYZQFPrGksa4LFXO
+PaQxyWLIS42FUfvkSjGaVvVOEU2bksMpdrHgH6IM0KtbiLsRMNf9NAinUb3g2/ms
+nbNWsJK46nbWMTuSuKvZsfpiDFlLAa1+OwFSyneqqgfz69Hq0vXtgPlz5Jnwoton
+Ycu52+e9qvHi+Pk16HLzJ2CCn1LWMuYR/aPYXsvBLUXCXa1Ub9d4KyQMdnG3mpJk
+VfLnWWlu38A4khZ7ZKlDcQCMEyMR0jqSktoyZMQDZ/6AFvbQtg/MYYrgulawKR5H
+oUxqDAicO4iJJ0zR3osTE4VKjoqqfA7nZehx0EfSlV/dwPlMaa2hYI54AVIAiOtX
+6TBu/fpB8F4gUmTaQMc4dSLWPOaw5x1v0Li6GkyXjeZm+AmASq82+redOmAngt8Z
+lztXxVRSFOIEWcU1frc1CPkj+3ayYQKuZLI3JbGdhl7ds8ekYl4=</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+  </SetDTE>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#OpenFactura_SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>qaq7GPwqp/QFfvNefm5rR1Bb/lU=</DigestValue></Reference></SignedInfo><SignatureValue>hIYPL79XUlz6bhB0htxGL7DCdJvQ1xAfSXSY9nvM8bHuo5qPnyX2GflsoG+sRkIi
+lmFWFH1EB1V1eQV9z9KyeiKuaZKtkDdrkj0vgrxDEUPRl38X1RNlY9PlO7S1n5dR
+zrtsftE6lHRplbsbaXayNzOeW38mDaZb/TOeYXtnHyvl+ap/fm3Kjs9HZnboPuxo
+YzmpEeciNCGArwDfqUZYmTwCbg3RMS7RKHM3A8k9StDgn92WfY1Bda9Eo18sy7Bg
+AXvZvDOVmyOXtDjuHzxoyTm/SMf+0miPUeg9fzYBDB7jPqIsUO9MWUzWo1i7ZkbO
+ByC3bjXwfCa31R7OtotMZA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>uO2LV3lk2+u+UVRmxZrcTZojygq+VLkt7j5azv1+EMa1XSfAAMReGoLyctBM0KuE
+LermTMn5ANwE7vbOwlgnrwJwq14rUDQhxBNW4KU3GLhjKd7FW/SvJ7PE8ecoLY2c
+abC2qkGiT6nPESbRAhuMsmOFFXyyrSVnKSzC3CGHpc0DVEue7QR5rNTOf4W2QZk0
+ARdDYlM75U/xhrnG1nd0vB+Kkwrf/mPd2MKjO8cQsLzRgerFe0FdIuVxgWUojQ53
+8MB9vKxaEQx98KbRvE4SleDCiXnupW3K5SA1OvYQZL6bKSeWnwsvMPpqzD2dZhhx
+mUmZ0VGN6CtV9motNlT8EQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIH0jCCBbqgAwIBAgIKRqyz2AABAAJvgDANBgkqhkiG9w0BAQsFADCBvzELMAkG
+A1UEBhMCQ0wxHTAbBgNVBAgTFFJlZ2lvbiBNZXRyb3BvbGl0YW5hMREwDwYDVQQH
+EwhTYW50aWFnbzEUMBIGA1UEChMLRS1DRVJUQ0hJTEUxIDAeBgNVBAsTF0F1dG9y
+aWRhZCBDZXJ0aWZpY2Fkb3JhMR4wHAYDVQQDExVFLUNFUlRDSElMRSBDQSBGRVMg
+MDIxJjAkBgkqhkiG9w0BCQEWF3NjbGllbnRlQGUtY2VydGNoaWxlLmNsMB4XDTIy
+MDgwODIxMTQzNVoXDTI1MDgwNzIxMTQzNVowgc4xCzAJBgNVBAYTAkNMMSIwIAYD
+VQQIExlNRVRST1BPTElUQU5BIERFIFNBTlRJQUdPMREwDwYDVQQHEwhTQU5USUFH
+TzEiMCAGA1UEChMZRlJBTkNPIEVTVEVCQU4gSE9STUFaQUJBTDEKMAgGA1UECwwB
+KjEtMCsGA1UEAxMkRlJBTkNPIEVTVEVCQU4gSE9STUFaQUJBTCBTQU5USUJBTkVa
+MSkwJwYJKoZIhvcNAQkBFhpGUkFOQ09IT1JNQVpBQkFMQEdNQUlMLkNPTTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALjti1d5ZNvrvlFUZsWa3E2aI8oK
+vlS5Le4+Ws79fhDGtV0nwADEXhqC8nLQTNCrhC3q5kzJ+QDcBO72zsJYJ68CcKte
+K1A0IcQTVuClNxi4YynexVv0ryezxPHnKC2NnGmwtqpBok+pzxEm0QIbjLJjhRV8
+sq0lZykswtwhh6XNA1RLnu0EeazUzn+FtkGZNAEXQ2JTO+VP8Ya5xtZ3dLwfipMK
+3/5j3djCozvHELC80YHqxXtBXSLlcYFlKI0Od/DAfbysWhEMffCm0bxOEpXgwol5
+7qVtyuUgNTr2EGS+myknlp8LLzD6asw9nWYYcZlJmdFRjegrVfZqLTZU/BECAwEA
+AaOCAr0wggK5MIIBXwYDVR0gBIIBVjCCAVIwggFOBggrBgEEAcNSBTCCAUAwPQYI
+KwYBBQUHAgEWMWh0dHBzOi8vd3d3LmUtY2VydGNoaWxlLmNsL3BvbGl0aWNhcy15
+LXByYWN0aWNhcy8wgf4GCCsGAQUFBwICMIHxHoHuAEUAbAAgAHIAZQBzAHAAbwBu
+AGQAZQByACAAZQBzAHQAZQAgAGYAbwByAG0AdQBsAGEAcgBpAG8AIABlAHMAIAB1
+AG4AIAByAGUAcQB1AGkAcwBpAHQAbwAgAGkAbgBkAGkAcwBwAGUAbgBzAGEAYgBs
+AGUAIABwAGEAcgBhACAAZABhAHIAIABpAG4AaQBjAGkAbwAgAGEAbAAgAHAAcgBv
+AGMAZQBzAG8AIABkAGUAIABjAGUAcgB0AGkAZgBpAGMAYQBjAGkA8wBuAC4AIABQ
+AG8AcwB0AGUAcgBpAG8AcgBtAGUAbgB0AGUALDAdBgNVHQ4EFgQU/xC5VkEgKxxH
+zI65jvWP6aVAHF0wCwYDVR0PBAQDAgTwMCMGA1UdEQQcMBqgGAYIKwYBBAHBAQGg
+DBYKMTY3NjU3NjgtMDAfBgNVHSMEGDAWgBR01iGz9FroLXy7WQZjQ+9ptDqTBDBA
+BgNVHR8EOTA3MDWgM6Axhi9odHRwOi8vY3JsLmVjZXJ0Y2hpbGUuY2wvRS1DRVJU
+Q0hJTEVDQUZFUzAyLmNybDA9BggrBgEFBQcBAQQxMC8wLQYIKwYBBQUHMAGGIWh0
+dHA6Ly9vY3NwZmVzLmVjZXJ0Y2hpbGUuY2wvb2NzcDA8BgkrBgEEAYI3FQcELzAt
+BiUrBgEEAYI3FQiB3dJNl9Q6homdBoeIzm+Dr8xgRYbS7AiGx8p9AgFkAgEHMCMG
+A1UdEgQcMBqgGAYIKwYBBAHBAQKgDBYKOTY5MjgxODAtNTANBgkqhkiG9w0BAQsF
+AAOCAgEAjSXDXpan34ssOHR589S69t7Q05RAVenkvNspqxutPyCrZm5YO8PXeVVt
+SLbxOoiKN4bz1MPjUfoGahjwyTdinktjvC6gRs9vfgILVnHo+6nnMXAmil/2T5DK
+Who+YkC9sTi8gIBg6ibZXr62+OFFTrkP1r1tWD+rPd1Bla+wafLOsKHOMsRZ5RLK
+jpmR6DgwzI9kcJ8IzZErshE5TleAa3Y6IHZYUwvVs0U5GomlLYZQFPrGksa4LFXO
+PaQxyWLIS42FUfvkSjGaVvVOEU2bksMpdrHgH6IM0KtbiLsRMNf9NAinUb3g2/ms
+nbNWsJK46nbWMTuSuKvZsfpiDFlLAa1+OwFSyneqqgfz69Hq0vXtgPlz5Jnwoton
+Ycu52+e9qvHi+Pk16HLzJ2CCn1LWMuYR/aPYXsvBLUXCXa1Ub9d4KyQMdnG3mpJk
+VfLnWWlu38A4khZ7ZKlDcQCMEyMR0jqSktoyZMQDZ/6AFvbQtg/MYYrgulawKR5H
+oUxqDAicO4iJJ0zR3osTE4VKjoqqfA7nZehx0EfSlV/dwPlMaa2hYI54AVIAiOtX
+6TBu/fpB8F4gUmTaQMc4dSLWPOaw5x1v0Li6GkyXjeZm+AmASq82+redOmAngt8Z
+lztXxVRSFOIEWcU1frc1CPkj+3ayYQKuZLI3JbGdhl7ds8ekYl4=</X509Certificate></X509Data></KeyInfo></Signature></EnvioBOLETA>

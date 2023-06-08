@@ -6,6 +6,8 @@ import { useEmittedDtes } from 'stores/emitteddtes'
 import { ref, nextTick, provide, watchEffect, watch } from 'vue'
 import formatter from 'tools/formatter'
 import notify from 'tools/notify'
+import { useQuasar } from 'quasar'
+import generateBarcode from 'pdf417'
 
 const pos = usePos()
 provide(pos.$id, pos)
@@ -13,6 +15,7 @@ const clients = useClients()
 provide(clients.$id, clients)
 const emittedDtes = useEmittedDtes()
 const auth = useAuth()
+const quasar = useQuasar()
 
 const dteTypes = ref(['Boleta Electronica'])
 const payTypes = ref([
@@ -23,6 +26,7 @@ const payTypes = ref([
   'Credito Cliente'
 ])
 const loading = ref(false)
+const dialog = ref(false)
 
 const inputPay = ref(null)
 const btnPrint = ref(null)
@@ -102,12 +106,12 @@ const removePay = () => {
 
 function resizeImage(base64Str) {
   return new Promise(function (resolve, reject) {
-    var img = new Image()
+    let img = new Image()
     img.onload = async function () {
-      var canvas = document.createElement('canvas')
-      var ctx = canvas.getContext('2d')
+      let canvas = document.createElement('canvas')
+      let ctx = canvas.getContext('2d')
 
-      console.log(img.width, img.height)
+      // console.log(img.width, img.height)
 
       // const download = document.createElement('a')
       // download.href = 'data:image/png;base64,' + base64Str
@@ -117,7 +121,7 @@ function resizeImage(base64Str) {
       canvas.width = img.width * 0.223
       canvas.height = img.height * 0.18
 
-      console.log(canvas.width, canvas.height)
+      // console.log(canvas.width, canvas.height)
 
       const imageBitmap = await createImageBitmap(img, {
         resizeWidth: canvas.width,
@@ -129,21 +133,17 @@ function resizeImage(base64Str) {
 
       resolve(canvas.toDataURL())
     }
-    img.onerror = function () {
-      reject()
+    img.onerror = function (error) {
+      reject(new Error(error))
     }
     img.src = 'data:image/png;base64,' + base64Str
   })
 }
 
-const printDte = async () => {
-  if (window.printer) {
-    if (pos.pays.find(p => p.payType == 'Efectivo')) {
-      window.printer.cashdraw()
-    }
-  }
+async function generateDte() {
+  dialog.value = false
 
-  const dataToBsale = {
+  const dataToHaulmer = {
     dteType: pos.dteType,
     client: pos.client,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
@@ -156,23 +156,43 @@ const printDte = async () => {
     changeAmount: pos.changeAmount
   }
 
-  console.log(dataToBsale)
+  console.log(dataToHaulmer)
 
-  const dte = await emittedDtes.create(dataToBsale)
-  console.log(dte)
-
-  if (window.printer) {
-    if (
-      !pos.client ||
-      (pos.client && pos.client.dteType == 'Boleta Electronica')
-    ) {
-      const ted = await resizeImage(dte.ted)
-      window.printer.printDte({ ...dte, roundedTotal: pos.roundedTotal }, ted)
-    }
-  }
+  const dte = await emittedDtes.create(dataToHaulmer)
 
   pos.clearAll()
   focus(selectSearchProduct)
+
+  console.log(dte)
+
+  return dte
+}
+
+async function printDte() {
+  if (pos.pays.find(p => p.payType == 'Efectivo')) {
+    window.printer.cashdraw()
+  }
+  const dte = await generateDte()
+
+  if (
+    !pos.client ||
+    (pos.client && pos.client.dteType == 'Boleta Electronica')
+  ) {
+    try {
+      // const ted = await resizeImage(dte.ted)
+      // window.printer.printDte({ ...dte, roundedTotal: pos.roundedTotal }, ted)
+      // window.printer.printDte(
+      //   { ...dte, roundedTotal: pos.roundedTotal },
+      //   generateBarcode(dte.ted, 1, 0.5)
+      // )
+      window.main.send('print-dte', {
+        dte: { ...dte, roundedTotal: pos.roundedTotal },
+        ted: generateBarcode(dte.ted, 1, 0.5)
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
 watchEffect(() => {
@@ -188,6 +208,16 @@ watch(
 </script>
 
 <template>
+  <Dialog
+    v-model="dialog"
+    title="Impresora Desconectada"
+    @confirm="generateDte"
+  >
+    <template v-slot:icon
+      ><q-icon name="print_disabled" color="red-13" class="q-mr-md"
+    /></template>
+    La impresora esta desconectada. ¿Desea generar boleta sin imprimir?
+  </Dialog>
   <LayoutPage class="bg-grey-2">
     <div class="fit row">
       <div class="col">
@@ -359,7 +389,7 @@ watch(
                 class="fit"
                 color="primary"
                 ref="btnPrint"
-                @click="printDte"
+                @click="pos.printerStatus ? printDte() : (dialog = true)"
                 :loading="emittedDtes.saving"
                 :disable="!pos.isTotalReach || pos.roundedTotal < 200"
                 tabindex="4"

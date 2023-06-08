@@ -1,33 +1,32 @@
+import moment from 'moment'
 import escpos from 'escpos'
 import escposUSB from 'escpos-usb'
-escpos.USB = escposUSB
-import moment from 'moment'
-import { contextBridge, ipcRenderer } from 'electron'
 import formatter from 'src/tools/formatter'
+import { contextBridge, ipcRenderer } from 'electron'
 
 let device
-try {
-  device = new escpos.USB(0x04b8, 0x0202) // TM-88
-  // device = new escpos.USB(0x04b8, 0x0e15) // TM-20
-} catch (error) {
-  console.error('[ERROR] IMPRESORA NO CONECTADA')
-}
-const printer = new escpos.Printer(device, {
-  encoding: 'CP858'
-})
+let printer
 const spaceLimit = 42
 
-const getSpaces = (total, characters) => {
-  let spaces = ''
-  const nSpaces = total - characters
-  for (space = 0; space < nSpaces; space++) {
-    spaces = spaces + ' '
+function printerConnect() {
+  try {
+    // device = new escpos.USB(0x04b8, 0x0202) // TM-88
+    device = new escposUSB(0x04b8, 0x0e15) // TM-20
+    printer = new escpos.Printer(device, {
+      encoding: 'CP858'
+    })
+
+    return true
+  } catch (error) {
+    console.error(error)
+    return false
   }
-  return spaces
 }
 
 contextBridge.exposeInMainWorld('printer', {
+  status: printerConnect,
   cashdraw: () => {
+    printerConnect()
     device.open(error => {
       if (error) console.error(error)
       printer.cashdraw().close()
@@ -35,6 +34,8 @@ contextBridge.exposeInMainWorld('printer', {
   },
   printCashClose: cashMove => {
     console.log({ cashMove })
+
+    printerConnect()
     device.open(error => {
       if (error) console.error(error)
 
@@ -157,6 +158,7 @@ contextBridge.exposeInMainWorld('printer', {
     })
   },
   printPayment: (client, payment) => {
+    printerConnect()
     device.open(error => {
       if (error) console.error(error)
 
@@ -191,7 +193,8 @@ contextBridge.exposeInMainWorld('printer', {
         .close()
     })
   },
-  printDte: (dte, tedPdf417) => {
+  printDte: ({ dte, ted }) => {
+    printerConnect()
     const emissionDate = moment(dte.emissionDate)
 
     device.open(error => {
@@ -294,7 +297,7 @@ contextBridge.exposeInMainWorld('printer', {
       printer.align('ct')
       printer.feed(1)
 
-      escpos.Image.load(tedPdf417, function (image) {
+      escpos.Image.load(ted, image => {
         printer.image(image).then(() => {
           printer.feed(1)
           printer.text('Timbre Electrónico S.I.I')
@@ -307,12 +310,22 @@ contextBridge.exposeInMainWorld('printer', {
   }
 })
 
-contextBridge.exposeInMainWorld('updater', {
-  send: channel => {
-    ipcRenderer.send(channel)
+contextBridge.exposeInMainWorld('main', {
+  send: (channel, data) => {
+    // console.log(data)
+    ipcRenderer.send(channel, data)
   },
-  receive: (channel, func) => {
+  on: (channel, func) => {
     ipcRenderer.removeAllListeners(channel)
     ipcRenderer.on(channel, (event, ...args) => func(...args))
   }
 })
+
+const getSpaces = (total, characters) => {
+  let spaces = ''
+  const nSpaces = total - characters
+  for (space = 0; space < nSpaces; space++) {
+    spaces = spaces + ' '
+  }
+  return spaces
+}

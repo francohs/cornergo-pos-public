@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { LocalStorage } from 'quasar'
+import { Notify } from 'quasar'
 
 export const usePos = defineStore({
   id: 'pos',
@@ -11,7 +12,8 @@ export const usePos = defineStore({
     client: null,
     items: [],
     savedItems: LocalStorage.getItem('savedItems') || [],
-    pays: []
+    pays: [],
+    printerStatus: false
   }),
 
   getters: {
@@ -115,6 +117,23 @@ export const usePos = defineStore({
       this.payAmount = ''
       this.items = []
       this.pays = []
+    },
+
+    setPrinterStatus(status) {
+      this.printerStatus = status
+
+      if (status)
+        Notify.create({
+          type: 'positive',
+          message: 'Impresora Conectada',
+          position: 'top'
+        })
+      else
+        Notify.create({
+          type: 'negative',
+          message: 'Impresora Desconectada',
+          position: 'top'
+        })
     }
   }
 })

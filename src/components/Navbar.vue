@@ -1,9 +1,11 @@
 <script setup>
-import { useAuth } from 'stores/auth'
+import { onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
-import { ref } from 'vue'
+import { useAuth } from 'stores/auth'
+import { usePos } from 'stores/pos'
 
 const auth = useAuth()
+const pos = usePos()
 const quasar = useQuasar()
 
 const emits = defineEmits(['drawerOpen'])
@@ -16,6 +18,10 @@ const dialog = ref(false)
 
 const isMovile = quasar.screen.width < 480
 
+onMounted(() => {
+  window.main.send('printer-status')
+})
+
 const checkUpdates = () => {
   if (progress.value == 1) {
     restartAndUpdate()
@@ -24,38 +30,43 @@ const checkUpdates = () => {
 
   checking.value = true
 
-  if (window.updater) {
-    window.updater.send('check-for-updates')
+  if (window.main) {
+    window.main.send('check-for-updates')
   }
 }
 
-if (window.updater) {
-  window.updater.receive('checking-for-update', () => {
+if (window.main) {
+  window.main.on('printer-status', status => {
+    console.log('[printer-status]', status)
+    pos.setPrinterStatus(status)
+  })
+
+  window.main.on('checking-for-update', () => {
     console.log('[checking-for-update]')
     message.value = 'Buscando actualizacion...'
   })
-  window.updater.receive('update-not-available', info => {
+  window.main.on('update-not-available', info => {
     console.log('[update-not-available]', info)
     checking.value = false
     message.value = 'Tienes la última versión'
     setTimeout(() => (message.value = 'Buscar actualización'), 5000)
   })
-  window.updater.receive('error', err => {
+  window.main.on('error', err => {
     console.log('[error]', err)
     message.value = 'Error al buscar'
     setTimeout(() => (message.value = 'Buscar actualización'), 5000)
   })
-  window.updater.receive('download-progress', info => {
+  window.main.on('download-progress', info => {
     console.log('[download-progress]', info)
     progress.value = Math.round(info.percent / 100)
     message.value = `Descargando ${Math.round(info.percent)}%`
   })
-  window.updater.receive('update_available', info => {
+  window.main.on('update_available', info => {
     console.log('[update_available]', info)
     version.value = info.version
     message.value = `Nueva versión v${version.value}`
   })
-  window.updater.receive('update_downloaded', () => {
+  window.main.on('update_downloaded', () => {
     console.log('[update_downloaded]')
     checking.value = false
     dialog.value = true
@@ -64,8 +75,8 @@ if (window.updater) {
 }
 
 const restartAndUpdate = () => {
-  if (window.updater) {
-    window.updater.send('restart-app')
+  if (window.main) {
+    window.main.send('restart-app')
   }
 }
 </script>
@@ -109,35 +120,47 @@ const restartAndUpdate = () => {
         <ItemLink page="clients" icon="groups" label="CLIENTES" />
       </div>
 
-      <q-btn
-        flat
-        v-if="auth.isLogged"
-        :label="auth.user.username"
-        icon="person"
-      >
-        <q-menu :offset="[0, 7]">
-          <q-list style="width: 180px">
-            <ItemLink
-              page="users/:id"
-              :id="auth.user._id"
-              icon="person"
-              label="Mi Cuenta"
-            />
-            <q-separator />
-            <ItemLinkLogout />
-          </q-list>
-        </q-menu>
-      </q-btn>
+      <div class="row items-center">
+        <q-icon
+          :name="pos.printerStatus ? 'print' : 'print_disabled'"
+          size="sm"
+          :color="pos.printerStatus ? 'green-13' : 'red-13'"
+        >
+          <q-tooltip>{{
+            pos.printerStatus ? 'Impresora Conectada' : 'Impresora Desconectada'
+          }}</q-tooltip>
+        </q-icon>
 
-      <div v-else class="row no-wrap">
         <q-btn
           flat
-          :dense="isMovile"
-          :stack="isMovile"
-          label="INGRESAR"
-          icon="login"
-          :to="{ name: 'login' }"
-        />
+          v-if="auth.isLogged"
+          :label="auth.user.username"
+          icon="person"
+        >
+          <q-menu :offset="[0, 7]">
+            <q-list style="width: 180px">
+              <ItemLink
+                page="users/:id"
+                :id="auth.user._id"
+                icon="person"
+                label="Mi Cuenta"
+              />
+              <q-separator />
+              <ItemLinkLogout />
+            </q-list>
+          </q-menu>
+        </q-btn>
+
+        <div v-else class="row no-wrap">
+          <q-btn
+            flat
+            :dense="isMovile"
+            :stack="isMovile"
+            label="INGRESAR"
+            icon="login"
+            :to="{ name: 'login' }"
+          />
+        </div>
       </div>
     </q-toolbar>
   </q-header>

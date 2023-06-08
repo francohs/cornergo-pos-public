@@ -2,7 +2,9 @@
   <q-dialog v-bind="$attrs">
     <q-card class="q-pa-sm" :style="`width: ${width}px; max-width: 80vw`">
       <q-card-section class="row items-center q-pr-sm">
-        <span class="text-h6">
+        <span class="text-h6 row items-center">
+          <slot name="icon"></slot>
+
           {{ title }}
         </span>
         <q-space />
