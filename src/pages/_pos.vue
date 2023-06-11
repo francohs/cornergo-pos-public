@@ -45,10 +45,6 @@ const focus = async compRef => {
   }
 }
 
-// function entered(event) {
-//   console.log({ entered: event })
-// }
-
 const setPayType = async payType => {
   if (payType == 'Credito Cliente') {
     pos.pays = []
@@ -104,46 +100,10 @@ const removePay = () => {
   focus(inputPay)
 }
 
-function resizeImage(base64Str) {
-  return new Promise(function (resolve, reject) {
-    let img = new Image()
-    img.onload = async function () {
-      let canvas = document.createElement('canvas')
-      let ctx = canvas.getContext('2d')
-
-      // console.log(img.width, img.height)
-
-      // const download = document.createElement('a')
-      // download.href = 'data:image/png;base64,' + base64Str
-      // download.download = 'reddot' + Math.random() * 100 + '.png'
-      // download.click()
-
-      canvas.width = img.width * 0.223
-      canvas.height = img.height * 0.18
-
-      // console.log(canvas.width, canvas.height)
-
-      const imageBitmap = await createImageBitmap(img, {
-        resizeWidth: canvas.width,
-        resizeHeight: canvas.height,
-        resizeQuality: 'pixelated'
-      })
-
-      ctx.drawImage(imageBitmap, 0, 0)
-
-      resolve(canvas.toDataURL())
-    }
-    img.onerror = function (error) {
-      reject(new Error(error))
-    }
-    img.src = 'data:image/png;base64,' + base64Str
-  })
-}
-
 async function generateDte() {
   dialog.value = false
 
-  const dataToHaulmer = {
+  const data = {
     dteType: pos.dteType,
     client: pos.client,
     sellerName: `${auth.user.name} ${auth.user.lastName}`,
@@ -156,9 +116,9 @@ async function generateDte() {
     changeAmount: pos.changeAmount
   }
 
-  console.log(dataToHaulmer)
+  console.log(data)
 
-  const dte = await emittedDtes.create(dataToHaulmer)
+  const dte = await emittedDtes.generate(data)
 
   pos.clearAll()
   focus(selectSearchProduct)
@@ -170,7 +130,7 @@ async function generateDte() {
 
 async function printDte() {
   if (pos.pays.find(p => p.payType == 'Efectivo')) {
-    window.printer.cashdraw()
+    window.main.send('cashdraw')
   }
   const dte = await generateDte()
 
@@ -178,21 +138,18 @@ async function printDte() {
     !pos.client ||
     (pos.client && pos.client.dteType == 'Boleta Electronica')
   ) {
-    try {
-      // const ted = await resizeImage(dte.ted)
-      // window.printer.printDte({ ...dte, roundedTotal: pos.roundedTotal }, ted)
-      // window.printer.printDte(
-      //   { ...dte, roundedTotal: pos.roundedTotal },
-      //   generateBarcode(dte.ted, 1, 0.5)
-      // )
-      window.main.send('print-dte', {
-        dte: { ...dte, roundedTotal: pos.roundedTotal },
-        ted: generateBarcode(dte.ted, 1, 0.5)
-      })
-    } catch (error) {
-      console.log(error)
-    }
+    dte.pdf417 = generateBarcode(dte.ted, 1, 0.5)
+    window.main.send('print-dte', {
+      dte: { ...dte, roundedTotal: pos.roundedTotal }
+    })
   }
+
+  await emittedDtes.create(dte)
+}
+
+async function noPrintDTE() {
+  const dte = await generateDte()
+  await emittedDtes.create(dte)
 }
 
 watchEffect(() => {
@@ -208,11 +165,7 @@ watch(
 </script>
 
 <template>
-  <Dialog
-    v-model="dialog"
-    title="Impresora Desconectada"
-    @confirm="generateDte"
-  >
+  <Dialog v-model="dialog" title="Impresora Desconectada" @confirm="noPrintDTE">
     <template v-slot:icon
       ><q-icon name="print_disabled" color="red-13" class="q-mr-md"
     /></template>

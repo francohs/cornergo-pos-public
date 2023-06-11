@@ -16,9 +16,17 @@ export const useEmittedDtes = defineStore({
 
   actions: {
     ...baseActions(),
-    async create(doc) {
+    async generate(doc) {
       try {
         this.saving = true
+        const { data } = await api.post(this.$id + '/generate', { doc })
+        return data.doc
+      } catch (error) {
+        throw error
+      }
+    },
+    async create(doc) {
+      try {
         const { data } = await api.post(this.$id, { doc })
         return data.doc
       } catch (error) {

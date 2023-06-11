@@ -51,10 +51,7 @@ const createPayment = async () => {
       'Abono añadido a otros ingresos'
     )
   }
-  if(window.printer) {
-
-    window.printer.printPayment({ ...clients.doc }, { ...payment })
-  }
+  window.main.send('print-payment', { ...clients.doc }, { ...payment })
   await clients.getDoc(clientId)
   router.go(-1)
 }
