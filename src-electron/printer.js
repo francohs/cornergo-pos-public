@@ -43,7 +43,7 @@ function cashdraw() {
   })
 }
 
-function printCashClose(event, ashMove) {
+function printCashClose(event, cashMove) {
   connectPrinter()
   device.open(error => {
     if (error) console.error(error)

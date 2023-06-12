@@ -51,7 +51,7 @@ const closeCashMoves = async () => {
     loadingClose.value = true
     await cashMoves.closeCashMoves()
     Object.assign(cashMove, cashMoves.doc)
-    window.main.send('close-cash-close', JSON.parse(JSON.stringify(cashMove)))
+    window.main.send('print-cash-close', JSON.parse(JSON.stringify(cashMove)))
   } catch (error) {
     throw error
   } finally {
