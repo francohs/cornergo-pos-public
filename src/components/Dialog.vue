@@ -23,6 +23,7 @@
               label="Aceptar"
               :color="confirmColor"
               :loading="loading"
+              autofocus
             />
           </div>
         </Form>

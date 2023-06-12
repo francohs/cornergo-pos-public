@@ -116,40 +116,46 @@ async function generateDte() {
     changeAmount: pos.changeAmount
   }
 
-  console.log(data)
-
-  const dte = await emittedDtes.generate(data)
-
-  pos.clearAll()
-  focus(selectSearchProduct)
-
-  console.log(dte)
-
-  return dte
+  return await emittedDtes.generate(data)
 }
 
 async function printDte() {
-  if (pos.pays.find(p => p.payType == 'Efectivo')) {
-    window.main.send('cashdraw')
-  }
-  const dte = await generateDte()
+  try {
+    if (pos.pays.find(p => p.payType == 'Efectivo')) {
+      window.main.send('cashdraw')
+    }
+    const dte = await generateDte()
 
-  if (
-    !pos.client ||
-    (pos.client && pos.client.dteType == 'Boleta Electronica')
-  ) {
-    dte.pdf417 = generateBarcode(dte.ted, 1, 0.5)
-    window.main.send('print-dte', {
-      dte: { ...dte, roundedTotal: pos.roundedTotal }
-    })
-  }
+    if (
+      !pos.client ||
+      (pos.client && pos.client.dteType == 'Boleta Electronica')
+    ) {
+      dte.pdf417 = generateBarcode(dte.ted, 1, 0.5)
+      dte.roundedTotal = pos.roundedTotal
+      console.log(dte)
+      window.main.send('print-dte', dte)
+    }
 
-  await emittedDtes.create(dte)
+    await emittedDtes.create(dte)
+    pos.clearAll()
+    focus(selectSearchProduct)
+  } catch (error) {
+    emittedDtes.saving = false
+    throw error
+  }
 }
 
 async function noPrintDTE() {
-  const dte = await generateDte()
-  await emittedDtes.create(dte)
+  try {
+    const dte = await generateDte()
+    console.log(dte)
+    await emittedDtes.create(dte)
+    pos.clearAll()
+    focus(selectSearchProduct)
+  } catch (error) {
+    emittedDtes.saving = false
+    throw error
+  }
 }
 
 watchEffect(() => {
@@ -171,6 +177,7 @@ watch(
     /></template>
     La impresora esta desconectada. ¿Desea generar boleta sin imprimir?
   </Dialog>
+
   <LayoutPage class="bg-grey-2">
     <div class="fit row">
       <div class="col">

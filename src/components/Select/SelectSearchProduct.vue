@@ -132,7 +132,7 @@ const onEnter = async () => {
   selectRef.value.focus()
 }
 
-const clear = () => {
+const clear = async () => {
   inputValue.value = ''
   selectRef.value.updateInputValue('')
   selectRef.value.focus()
@@ -157,7 +157,7 @@ const clear = () => {
     option-label="name"
     emit-value
     @filter="filterFn"
-    @keyup.enter="onEnter"
+    @keyup.enter.stop="onEnter"
     :disable="disable"
   >
     <template v-slot:option="scope">

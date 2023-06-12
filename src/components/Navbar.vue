@@ -37,16 +37,13 @@ const checkUpdates = () => {
 
 if (window.main) {
   window.main.on('printer-status', status => {
-    console.log('[printer-status]', status)
     pos.setPrinterStatus(status)
   })
 
   window.main.on('checking-for-update', () => {
-    console.log('[checking-for-update]')
     message.value = 'Buscando actualizacion...'
   })
   window.main.on('update-not-available', info => {
-    console.log('[update-not-available]', info)
     checking.value = false
     message.value = 'Tienes la última versión'
     setTimeout(() => (message.value = 'Buscar actualización'), 5000)
@@ -57,17 +54,14 @@ if (window.main) {
     setTimeout(() => (message.value = 'Buscar actualización'), 5000)
   })
   window.main.on('download-progress', info => {
-    console.log('[download-progress]', info)
     progress.value = Math.round(info.percent / 100)
     message.value = `Descargando ${Math.round(info.percent)}%`
   })
   window.main.on('update_available', info => {
-    console.log('[update_available]', info)
     version.value = info.version
     message.value = `Nueva versión v${version.value}`
   })
   window.main.on('update_downloaded', () => {
-    console.log('[update_downloaded]')
     checking.value = false
     dialog.value = true
     message.value = `Nueva versión v${version.value}`

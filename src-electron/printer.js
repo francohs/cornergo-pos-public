@@ -6,7 +6,7 @@ import { getDeviceList } from 'usb'
 
 const vendorTM20II = 1208
 const productTM20II = 3605
-// const productTM88V = 514
+const productTM88V = 514
 
 let device
 let printer
@@ -15,7 +15,7 @@ const spaceLimit = 42
 function isPrinter(usbDevice) {
   return (
     usbDevice.deviceDescriptor.idVendor == vendorTM20II &&
-    usbDevice.deviceDescriptor.idProduct == productTM20II
+    [productTM20II, productTM88V].includes(usbDevice.deviceDescriptor.idProduct)
   )
 }
 
@@ -25,17 +25,14 @@ function findPrinter() {
 
 function connectPrinter() {
   try {
-    // device = new escpos.USB(0x04b8, 0x0202) // TM-88
-    device = new escposUSB(0x04b8, 0x0e15) // TM-20
-    printer = new escpos.Printer(device, {
-      encoding: 'CP858'
-    })
-
-    return true
+    device = new escposUSB(1208, 514) // TM-88
   } catch (error) {
-    console.error(error)
-    return false
+    device = new escposUSB(1208, 3605) // TM-20
+    // console.error(error)
   }
+  printer = new escpos.Printer(device, {
+    encoding: 'CP858'
+  })
 }
 
 function cashdraw() {
@@ -212,8 +209,8 @@ function printDte(event, dte) {
   device.open(error => {
     if (error) console.error(error)
 
-    printer.align('lt').size(0.01, 0.01).control('cr')
-    printer.style('b').text('Minimarket CornerGO').style('')
+    printer.size(0.01, 0.01).control('cr').align('lt')
+    printer.style('b').text('MINIMARKET CORNERGO').style('')
 
     printer
       .text('Servicios de Ingeniería BigVision SpA')
@@ -232,7 +229,7 @@ function printDte(event, dte) {
       .text(`Vendedor: ${dte.sellerName}`)
       .feed(1)
 
-    printer.text('Producto   Cantidad X Precio     Sub-Total').style('')
+    printer.text('Producto   Cantidad X Precio     Sub-Total')
     printer.text('------------------------------------------') // spaceLimit espacios
 
     for (item of dte.items) {
@@ -257,6 +254,8 @@ function printDte(event, dte) {
     const roundedAmount = Math.abs(dte.totalAmount - dte.roundedTotal)
     const textRoundedAmount = formatter.currency(roundedAmount) + ' '
     const roundedTotal = formatter.currency(dte.roundedTotal) + ' '
+    const netAmount = formatter.currency(dte.netAmount) + ' '
+    const taxAmount = formatter.currency(dte.taxAmount) + ' '
     const textExemptAmount = formatter.currency(dte.exemptAmount) + ' '
     const textTotalPay = formatter.currency(dte.totalPay) + ' '
     const textChangeAmount = formatter.currency(dte.changeAmount) + ' '
@@ -274,14 +273,16 @@ function printDte(event, dte) {
     }
 
     printer.text('TOTAL:' + getSpaces(11, roundedTotal.length) + roundedTotal)
+    printer.text('NETO:' + getSpaces(11, netAmount.length) + netAmount)
 
     if (dte.exemptAmount) {
       printer.text(
-        'TOTAL EXENTO:' +
-          getSpaces(11, textExemptAmount.length) +
-          textExemptAmount
+        'EXENTO:' + getSpaces(11, textExemptAmount.length) + textExemptAmount
       )
     }
+
+    if (dte.taxAmount)
+      printer.text('IVA:' + getSpaces(11, taxAmount.length) + taxAmount)
 
     for (pay of dte.pays) {
       const payAmount = formatter.currency(pay.amount) + ' '
@@ -303,14 +304,14 @@ function printDte(event, dte) {
       )
     }
 
-    printer.text(
-      'Vuelto:' + getSpaces(11, textChangeAmount.length) + textChangeAmount
-    )
+    if (dte.changeAmount)
+      printer.text(
+        'Vuelto:' + getSpaces(11, textChangeAmount.length) + textChangeAmount
+      )
     printer.align('ct')
     printer.feed(1)
 
     escpos.Image.load(dte.pdf417, function (image) {
-      console.log(image)
       printer.image(image).then(() => {
         printer.feed(1)
         printer.text('Timbre Electrónico S.I.I')
