@@ -19,7 +19,7 @@ const dialog = ref(false)
 const isMovile = quasar.screen.width < 480
 
 onMounted(() => {
-  window.main.send('printer-status')
+  if (window.main) window.main.send('printer-status')
 })
 
 const checkUpdates = () => {

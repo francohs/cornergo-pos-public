@@ -1,3 +1,23 @@
+<script setup>
+import { inject, ref } from 'vue'
+import formatter from 'tools/formatter'
+
+const props = defineProps({
+  item: Object,
+  readonly: Boolean
+})
+
+const pos = props.readonly ? null : inject('pos')
+const deleting = ref(false)
+
+async function removeItem(item) {
+  deleting.value = true
+  await pos.userRemoveItems([item])
+  pos.removeItem(item)
+  deleting.value = false
+}
+</script>
+
 <template>
   <q-item class="q-px-none">
     <div class="full-width row items-center q-py-sm">
@@ -7,7 +27,8 @@
           flat
           icon="clear"
           color="grey-7"
-          @click="pos.removeItem(item)"
+          @click="removeItem(item)"
+          :loading="deleting"
         />
       </div>
       <div class="row justify-start q-mr-md">
@@ -44,15 +65,3 @@
     </div>
   </q-item>
 </template>
-
-<script setup>
-import { inject } from 'vue'
-import formatter from 'tools/formatter'
-
-const props = defineProps({
-  item: Object,
-  readonly: Boolean
-})
-
-const pos = props.readonly ? null : inject('pos')
-</script>

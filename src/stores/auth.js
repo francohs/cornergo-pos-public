@@ -10,14 +10,14 @@ export const useAuth = defineStore({
       username: '',
       password: ''
     },
-    user: LocalStorage.getItem('user'),
-    token: LocalStorage.getItem('token'),
+    user: process.env.DEV ? LocalStorage.getItem('user') : null,
+    token: process.env.DEV ? LocalStorage.getItem('token') : null,
     loading: false
   }),
 
   getters: {
     isLogged() {
-      return this.token !== null
+      return this.user !== null
     }
   },
 
@@ -28,10 +28,16 @@ export const useAuth = defineStore({
 
         const { data } = await api.post(`${this.$id}/login`, this.credentials)
 
+        console.log()
+
         this.user = data.user
         this.token = data.token
-        LocalStorage.set('user', this.user)
-        LocalStorage.set('token', this.token)
+
+        if (process.env.DEV) {
+          LocalStorage.set('user', this.user)
+          LocalStorage.set('token', this.token)
+        }
+
         addBererToken(this.token)
       } catch (error) {
         throw error
@@ -42,8 +48,11 @@ export const useAuth = defineStore({
     logout() {
       this.user = null
       this.token = null
-      LocalStorage.remove('username')
-      LocalStorage.remove('token')
+
+      if (process.env.DEV) {
+        LocalStorage.remove('username')
+        LocalStorage.remove('token')
+      }
     }
   }
 })

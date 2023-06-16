@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { LocalStorage } from 'quasar'
-import { Notify } from 'quasar'
+import { api } from 'boot/axios'
+import notify from 'tools/notify'
 
 export const usePos = defineStore({
   id: 'pos',
@@ -10,7 +11,8 @@ export const usePos = defineStore({
     payType: 'Efectivo',
     payAmount: '',
     client: null,
-    items: [],
+    items: LocalStorage.getItem('currentItems') || [],
+    deleting: false,
     savedItems: LocalStorage.getItem('savedItems') || [],
     pays: [],
     printerStatus: false
@@ -62,33 +64,59 @@ export const usePos = defineStore({
           }
         ]
       }
+      LocalStorage.set('currentItems', this.items)
+    },
+    async userRemoveItems(items) {
+      try {
+        this.deleting = true
+        await api.post('productsremoves', items)
+        notify.positive('Eliminación registrada')
+      } catch (error) {
+        throw error
+      } finally {
+        this.deleting = false
+      }
     },
     removeItem(item) {
       this.items = this.items.filter(i => i.code !== item.code)
+      if (!this.items.length) {
+        this.clearAll()
+      }
+      LocalStorage.set('currentItems', this.items)
     },
     saveItems() {
       LocalStorage.set('savedItems', this.items)
       this.savedItems = this.items
       this.clearAll()
+      LocalStorage.set('currentItems', this.items)
     },
     loadItems() {
+      if (this.items.length) {
+        notify.warning('Para cargar venta guardada, elimine venta actual')
+        return
+      }
       this.items = this.savedItems
       this.savedItems = []
       LocalStorage.remove('savedItems')
+      LocalStorage.set('currentItems', this.items)
     },
     incrementQuantity(item) {
       const index = this.items.findIndex(i => i.code == item.code)
 
       this.items[index].quantity++
+      LocalStorage.set('currentItems', this.items)
     },
-    decrementQuantity(item) {
+    async decrementQuantity(item) {
       const index = this.items.findIndex(i => i.code == item.code)
 
       this.items[index].quantity--
 
+      await this.userRemoveItems([{ ...item, quantity: 1 }])
+
       if (this.items[index].quantity < 1) {
-        this.items = this.items.filter(i => i.code !== item.code)
+        this.removeItem(this.items[index])
       }
+      LocalStorage.set('currentItems', this.items)
     },
 
     addPay(payType, amount) {
@@ -117,23 +145,20 @@ export const usePos = defineStore({
       this.payAmount = ''
       this.items = []
       this.pays = []
+      LocalStorage.set('currentItems', this.items)
+    },
+
+    async userClearAll() {
+      await this.userRemoveItems(this.items)
+      this.clearAll()
     },
 
     setPrinterStatus(status) {
       this.printerStatus = status
 
-      if (status)
-        Notify.create({
-          type: 'positive',
-          message: 'Impresora Conectada',
-          position: 'top'
-        })
-      else
-        Notify.create({
-          type: 'negative',
-          message: 'Impresora Desconectada',
-          position: 'top'
-        })
+      status
+        ? notify.positive('Impresora Conectada')
+        : notify.negative('Impresora Desconectada')
     }
   }
 })

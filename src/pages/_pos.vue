@@ -214,7 +214,8 @@ watch(
                   label="BORRAR TODO"
                   icon="delete"
                   class="text-grey-8"
-                  @click="pos.clearAll()"
+                  @click="pos.userClearAll()"
+                  :loading="pos.deleting"
                 />
                 <q-btn
                   label="GUARDAR COMPRA"
