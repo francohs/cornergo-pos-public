@@ -10,7 +10,7 @@ const productTM88V = 514
 
 let device
 let printer
-const spaceLimit = 42
+let spaceLimit
 
 function isPrinter(usbDevice) {
   return (
@@ -26,8 +26,10 @@ function findPrinter() {
 function connectPrinter() {
   try {
     device = new escposUSB(1208, 514) // TM-88
+    spaceLimit = 42
   } catch (error) {
     device = new escposUSB(1208, 3605) // TM-20
+    spaceLimit = 48
     // console.error(error)
   }
   printer = new escpos.Printer(device, {
