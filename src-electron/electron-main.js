@@ -3,6 +3,7 @@ import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import os from 'os'
 import printer from './printer.js'
+import transbank from './transbank.js'
 import { usb } from 'usb'
 
 // needed in case process is undefined under Linux
@@ -81,6 +82,10 @@ app.on('activate', () => {
   }
 })
 
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall()
+})
+
 ipcMain.on('check-for-updates', () => {
   autoUpdater.checkForUpdates()
 })
@@ -122,6 +127,12 @@ ipcMain.on('cashdraw', printer.cashdraw)
 ipcMain.on('print-cash-close', printer.printCashClose)
 ipcMain.on('print-payment', printer.printPayment)
 
-ipcMain.on('restart-app', () => {
-  autoUpdater.quitAndInstall()
-})
+ipcMain.on('transbank-init', transbank.init)
+ipcMain.on('transbank-keys', transbank.loadKeys)
+ipcMain.on('transbank-sale', transbank.sale)
+ipcMain.on('transbank-refund', transbank.refund)
+ipcMain.on('transbank-close', transbank.closeDay)
+ipcMain.on('transbank-detail', transbank.salesDetail)
+ipcMain.on('transbank-last', transbank.getLastSale)
+ipcMain.on('transbank-normal', transbank.changeToNormalMode)
+ipcMain.on('transbank-status', transbank.status)

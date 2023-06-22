@@ -20,6 +20,7 @@ const isMovile = quasar.screen.width < 480
 
 onMounted(() => {
   if (window.main) window.main.send('printer-status')
+  if (window.main) window.main.send('transbank-init')
 })
 
 const checkUpdates = () => {
