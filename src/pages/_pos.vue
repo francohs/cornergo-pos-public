@@ -293,6 +293,7 @@ watch(
                 :storeId="clients.$id"
                 :modelValue="pos.client ? pos.client.name : null"
                 @update:modelValue="setClient"
+                actives
                 field="name"
                 icon="person"
                 class="q-mb-md"
