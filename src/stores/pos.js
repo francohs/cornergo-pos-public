@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { LocalStorage } from 'quasar'
 import { api } from 'boot/axios'
+import { Notify } from 'quasar'
 import notify from 'tools/notify'
 
 export const usePos = defineStore({
@@ -15,7 +16,8 @@ export const usePos = defineStore({
     deleting: false,
     savedItems: LocalStorage.getItem('savedItems') || [],
     pays: [],
-    printerStatus: false
+    printerStatus: false,
+    transbankStatus: false
   }),
 
   getters: {
@@ -157,8 +159,34 @@ export const usePos = defineStore({
       this.printerStatus = status
 
       status
-        ? notify.positive('Impresora Conectada')
-        : notify.negative('Impresora Desconectada')
+        ? Notify.create({
+            type: 'positive',
+            message: 'Impresora: Conectada',
+            icon: 'print'
+          })
+        : Notify.create({
+            type: 'negative',
+            message: 'Impresora: Desconectada',
+            icon: 'print_disabled'
+          })
+    },
+
+    setTransbankStatus(status) {
+      if (status == 'Transbank: Conectado') {
+        this.transbankStatus = true
+        Notify.create({
+          type: 'positive',
+          message: status,
+          icon: 'point_of_sale'
+        })
+      } else {
+        this.transbankStatus = false
+        Notify.create({
+          type: 'negative',
+          message: status,
+          icon: 'point_of_sale'
+        })
+      }
     }
   }
 })

@@ -18,9 +18,12 @@ const dialog = ref(false)
 
 const isMovile = quasar.screen.width < 480
 
-onMounted(() => {
-  if (window.main) window.main.send('printer-status')
-  if (window.main) window.main.send('transbank-init')
+onMounted(async () => {
+  if (window.main) {
+    window.main.send('printer-status')
+    // provisorio
+    if (!pos.transbankStatus) window.main.send('transbank-connect')
+  }
 })
 
 const checkUpdates = () => {
@@ -39,6 +42,10 @@ const checkUpdates = () => {
 if (window.main) {
   window.main.on('printer-status', status => {
     pos.setPrinterStatus(status)
+  })
+
+  window.main.on('transbank-status', status => {
+    pos.setTransbankStatus(status)
   })
 
   window.main.on('checking-for-update', () => {
@@ -113,6 +120,7 @@ const restartAndUpdate = () => {
         <ItemLink page="cashmoves" icon="sync_alt" label="ARQUEO" />
         <ItemLink page="emitteddtes" icon="receipt_long" label="VENTAS" />
         <ItemLink page="clients" icon="groups" label="CLIENTES" />
+        <ItemLink page="transbank" icon="point_of_sale" label="TRANSBANK" />
       </div>
 
       <div class="row items-center">
@@ -120,9 +128,21 @@ const restartAndUpdate = () => {
           :name="pos.printerStatus ? 'print' : 'print_disabled'"
           size="sm"
           :color="pos.printerStatus ? 'green-13' : 'red-13'"
+          class="q-mr-md"
         >
           <q-tooltip>{{
             pos.printerStatus ? 'Impresora Conectada' : 'Impresora Desconectada'
+          }}</q-tooltip>
+        </q-icon>
+        <q-icon
+          name="point_of_sale"
+          size="sm"
+          :color="pos.transbankStatus ? 'green-13' : 'red-13'"
+        >
+          <q-tooltip>{{
+            pos.transbankStatus
+              ? 'Transbank Conectado'
+              : 'Transbank Desconectado'
           }}</q-tooltip>
         </q-icon>
 

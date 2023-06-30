@@ -127,12 +127,46 @@ ipcMain.on('cashdraw', printer.cashdraw)
 ipcMain.on('print-cash-close', printer.printCashClose)
 ipcMain.on('print-payment', printer.printPayment)
 
-ipcMain.on('transbank-init', transbank.init)
-ipcMain.on('transbank-keys', transbank.loadKeys)
-ipcMain.on('transbank-sale', transbank.sale)
-ipcMain.on('transbank-refund', transbank.refund)
+ipcMain.on('transbank-connect', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.connect())
+  // mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+})
+
+ipcMain.on('transbank-status', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.status())
+})
+
+usb.on('attach', async device => {
+  if (transbank.isTransbank(device)) {
+    mainWindow.webContents.send('transbank-status', await transbank.connect())
+    mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+  }
+})
+usb.on('detach', device => {
+  if (transbank.isTransbank(device))
+    mainWindow.webContents.send('transbank-status', false)
+})
+
+ipcMain.on('transbank-keys', async () => {
+  mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+})
+ipcMain.on('transbank-sale', async (e, amount, ref) => {
+  mainWindow.webContents.send(
+    'transbank-sale',
+    await transbank.sale(amount, ref)
+  )
+})
+ipcMain.on('transbank-refund', async (e, operationNumber) => {
+  mainWindow.webContents.send(
+    'transbank-refund',
+    await transbank.refund(operationNumber)
+  )
+})
 ipcMain.on('transbank-close', transbank.closeDay)
-ipcMain.on('transbank-detail', transbank.salesDetail)
-ipcMain.on('transbank-last', transbank.getLastSale)
+ipcMain.on('transbank-detail', async () => {
+  mainWindow.webContents.send('transbank-detail', await transbank.salesDetail())
+})
+ipcMain.on('transbank-last', async () => {
+  mainWindow.webContents.send('transbank-last', await transbank.getLastSale())
+})
 ipcMain.on('transbank-normal', transbank.changeToNormalMode)
-ipcMain.on('transbank-status', transbank.status)

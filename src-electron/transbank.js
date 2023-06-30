@@ -1,160 +1,189 @@
 import TransbankSDK from 'transbank-pos-sdk'
 
-async function init() {
+const idProduct = 546
+const idVendor = 4554
+
+const Transbank = new TransbankSDK.POSIntegrado()
+
+async function connect() {
   try {
     const port = await Transbank.autoconnect()
 
     if (port === false) {
-      throw Error('No se encontró Transbank conectado')
+      return 'Transbank: No se encontro dispositivo Transbank conectado'
     }
 
-    await loadKeys()
-
-    return true
+    return 'Transbank: Conectado'
   } catch (error) {
-    if (error == 'Response of POS has not been received in 150 seconds')
-      throw error
-    throw Error('Error al conectar Transbank')
+    console.error(error)
+    return 'Transbank: Error al conectar'
   }
 }
 
 async function loadKeys() {
   try {
     const response = await Transbank.loadKeys()
+    console.log(response)
 
-    if (response.responseCode == 3) {
-      throw Error('Error al Cargar llaves, reintente - Conexión falló')
+    if (response.responseCode == 0) {
+      return 'Transbank: Carga de llaves OK'
+    } else if (response.responseCode == 3) {
+      return 'Transbank: Error en carga de llaves - conexión falló'
+    } else {
+      return 'Transbank: Error al cargar llaves'
     }
-
-    return response.responseCode == 0
   } catch (error) {
-    throw Error('Error al cargar llaves')
+    console.error(error)
+    return 'Transbank: Error al cargar llaves'
   }
 }
 
 async function sale(amount, ref) {
   try {
     const response = await Transbank.sale(amount, ref)
+    console.log(response)
 
-    if (!response) throw Error('No existe comunicación con POS Transbank')
+    if (!response) return 'Transbank: No existe comunicación con POS'
 
     if (response.responseCode == 3) {
-      throw Error(
-        'Error al realizar venta en POS Transbank, reintente - Conexión falló'
-      )
+      return 'Transbank: Error al realizar venta, reintente - Conexión falló'
     }
 
     if (
       [7, 22].includes(response.responseCode) &&
       response.responseMessage == 'TIMEOUT'
     ) {
-      throw Error('Tiempo de espera superado. Reintente Transacción')
+      return 'Transbank: Tiempo de espera superado. Reintente Transacción'
     }
 
     if (response.responseCode == 7) {
-      throw Error('Transacción cancelada desde POS Transbank')
+      return 'Transbank: Transacción cancelada desde el POS'
     }
 
     if ([1, 18].includes(response.responseCode)) {
-      throw Error('Error en selección de tipo tarjeta, reintentar')
+      return 'Transbank: Error en selección de tipo tarjeta, reintentar'
     }
 
-    return response.responseCode == 0
+    return response
   } catch (error) {
-    throw Error('Error al realizar venta en POS Transbank')
+    if (error == 'Response of POS has not been received in 150 seconds')
+      return 'Transbank: Error al conectar'
+    return 'Transbank: Error al realziar una venta'
   }
 }
 
 async function refund(operationNumber) {
   try {
     const response = await Transbank.refund(operationNumber)
+    console.log(response)
 
-    if (response.responseCode == 5) {
-      throw Error('No Existe Transacción para Anular')
+    if (response.responseCode == 0) {
+      return 'Transbank: Anulación OK'
+    } else if (response.responseCode == 5) {
+      return `Transbank: No existe transacción ${operationNumber} para anular`
+    } else if (response.responseCode == 6) {
+      return `Transbank: Transacción ${operationNumber} ya ha sido anulada`
+    } else if ([20, 8].includes(response.responseCode)) {
+      return 'Transbank: No puede anular transacción pagada con débito'
+    } else {
+      return 'Transbank: Error al realizar una devolución en POS'
     }
-    if ([20, 8].includes(response.responseCode)) {
-      throw Error('No puede anular transacción de débito')
-    }
-
-    return response.responseCode == 0
   } catch (error) {
-    throw Error('Error al realizar una devolución en POS Transbank')
+    return 'Transbank: Error al realizar una devolución en POS'
   }
 }
 
 async function closeDay() {
   try {
     const response = await Transbank.closeDay()
+    console.log(response)
 
-    if (response.responseCode == 3) {
-      throw Error(
-        'Error al hacer cierre de ventas en POS Transbank, reintente - Conexión falló'
-      )
+    if (response.responseCode == 0) {
+      return 'Transbank: Cierre de día OK'
+    } else if (response.responseCode == 3) {
+      return 'Transbank: Error al hacer cierre de ventas en POS, reintente - Conexión falló'
+    } else {
+      return 'Transbank: Error al hacer cierre de ventas en POS'
     }
-
-    return response.responseCode == 0
   } catch (error) {
-    throw Error('Error al hacer cierre de ventas en POS Transbank')
+    return 'Transbank: Error al hacer cierre de ventas en POS'
   }
 }
 
 async function salesDetail() {
   try {
     const response = await Transbank.salesDetail(true)
+    console.log(response)
 
-    if (response.responseCode == 11) {
-      throw Error('No Existen Ventas')
+    if (response == true) {
+      return 'Transbank: Detalle de ventas OK'
     }
-
-    return response.responseCode == 0
+    if (response.responseCode == 11) {
+      return 'Transbank: No Existen Ventas'
+    } else {
+      return 'Transbank: Error al obtener detalle de ventas en POS'
+    }
   } catch (error) {
-    throw Error('Error al obtener detalle de ventas en POS Transbank')
+    return 'Transbank: Error al obtener detalle de ventas en POS'
   }
 }
 
 async function getTotals() {
   try {
     const response = await Transbank.getTotals(true)
+    console.log(response)
 
     if (response.responseCode == 11) {
-      throw Error('No Existen Ventas')
+      console.error('No Existen Ventas')
     }
 
     return response.responseCode == 0
   } catch (error) {
-    throw Error('Error al obtener totales en POS Transbank')
+    console.error('Error al obtener totales en POS Transbank')
   }
 }
 
 async function getLastSale() {
   try {
     const response = await Transbank.getLastSale(true)
-    return response.responseCode == 0
+    console.log(response)
+
+    return response
   } catch (error) {
-    throw Error('Error al obtener totales en POS Transbank')
+    return 'Transbank: Error al obtener totales en POS'
   }
 }
 
 async function changeToNormalMode() {
   try {
     const response = await Transbank.changeToNormalMode(true)
+    console.log(response)
     return true
   } catch (error) {
-    throw Error('Error al cambiar modo normal en POS Transbank')
+    console.error('Error al cambiar modo normal en POS Transbank')
   }
 }
 
 async function status() {
   try {
     const response = await Transbank.poll(true)
-    return response.responseCode == 0
+    console.log(response)
+    return true
   } catch (error) {
-    throw Error('Error al obtener estado de POS Transbank')
+    console.error('Error al obtener estado de POS Transbank')
+    return false
   }
 }
 
+function isTransbank(usbDevice) {
+  return (
+    usbDevice.deviceDescriptor.idVendor == idVendor &&
+    usbDevice.deviceDescriptor.idProduct == idProduct
+  )
+}
+
 export default {
-  init,
+  connect,
   loadKeys,
   sale,
   refund,
@@ -163,5 +192,6 @@ export default {
   getTotals,
   getLastSale,
   changeToNormalMode,
-  status
+  status,
+  isTransbank
 }

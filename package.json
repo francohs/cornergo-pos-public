@@ -32,7 +32,8 @@
     "@vue/devtools": "^6.5.0",
     "autoprefixer": "^10.4.14",
     "electron": "^25.0.1",
-    "electron-builder": "^22.4.0"
+    "electron-builder": "^22.4.0",
+    "electron-rebuild": "^3.2.9"
   },
   "resolutions": {
     "escpos-usb/usb": "1.9.2"
