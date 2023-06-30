@@ -52,6 +52,7 @@ const closeCashMoves = async () => {
     await cashMoves.closeCashMoves()
     Object.assign(cashMove, cashMoves.doc)
     window.main.send('print-cash-close', JSON.parse(JSON.stringify(cashMove)))
+    auth.logout()
   } catch (error) {
     throw error
   } finally {
