@@ -36,6 +36,10 @@ const checkUpdates = () => {
 }
 
 if (window.main) {
+  window.main.on('networks', networks => {
+    console.log({ networks })
+  })
+
   window.main.on('printer-status', status => {
     pos.setPrinterStatus(status)
   })

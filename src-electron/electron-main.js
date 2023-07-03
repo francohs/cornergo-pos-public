@@ -44,6 +44,13 @@ function createWindow() {
     })
     autoUpdater.checkForUpdates()
     mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
+
+    // const mac = os
+    //   .networkInterfaces()
+    //   .Ethernet.find(n => n.family == 'IPv4').mac
+    // console.log({ mac })
+
+    mainWindow.webContents.send('networks', os.networkInterfaces())
   })
 
   // mainWindow.removeMenu()//
