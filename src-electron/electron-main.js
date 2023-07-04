@@ -163,7 +163,10 @@ ipcMain.on('transbank-refund', async (e, operationNumber) => {
     await transbank.refund(operationNumber)
   )
 })
-ipcMain.on('transbank-close', transbank.closeDay)
+ipcMain.on('transbank-close', async () => {
+  mainWindow.webContents.send('transbank-close', await transbank.closeDay())
+})
+
 ipcMain.on('transbank-detail', async () => {
   mainWindow.webContents.send('transbank-detail', await transbank.salesDetail())
 })

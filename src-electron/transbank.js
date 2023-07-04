@@ -164,7 +164,13 @@ async function getLastSale() {
     const response = await Transbank.getLastSale(true)
     console.log(response)
 
-    return response
+    if (response.responseCode == 0) {
+      return response
+    } else if (response.responseCode == 11) {
+      return 'Transbank: No Existen Ventas'
+    } else {
+      return 'Transbank: Error al obtener totales en POS'
+    }
   } catch (error) {
     console.error(error)
     return 'Transbank: Error al obtener totales en POS'
