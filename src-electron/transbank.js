@@ -20,6 +20,15 @@ async function connect() {
   }
 }
 
+async function disconnect() {
+  try {
+    const response = await Transbank.disconnect()
+    console.log(response)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function loadKeys() {
   try {
     const response = await Transbank.loadKeys()
@@ -66,6 +75,7 @@ async function sale(amount, ref) {
 
     return response
   } catch (error) {
+    console.error(error)
     if (error == 'Response of POS has not been received in 150 seconds')
       return 'Transbank: Error al conectar'
     return 'Transbank: Error al realziar una venta'
@@ -89,6 +99,7 @@ async function refund(operationNumber) {
       return 'Transbank: Error al realizar una devolución en POS'
     }
   } catch (error) {
+    console.error(error)
     return 'Transbank: Error al realizar una devolución en POS'
   }
 }
@@ -106,6 +117,7 @@ async function closeDay() {
       return 'Transbank: Error al hacer cierre de ventas en POS'
     }
   } catch (error) {
+    console.error(error)
     return 'Transbank: Error al hacer cierre de ventas en POS'
   }
 }
@@ -124,6 +136,7 @@ async function salesDetail() {
       return 'Transbank: Error al obtener detalle de ventas en POS'
     }
   } catch (error) {
+    console.error(error)
     return 'Transbank: Error al obtener detalle de ventas en POS'
   }
 }
@@ -133,13 +146,16 @@ async function getTotals() {
     const response = await Transbank.getTotals(true)
     console.log(response)
 
-    if (response.responseCode == 11) {
-      console.error('No Existen Ventas')
+    if (response.responseCode == 0) {
+      return 'Transbank: Totales OK'
+    } else if (response.responseCode == 11) {
+      return 'Transbank: No Existen Ventas'
+    } else {
+      return 'Transbank: Error al obtener totales en POS Transbank'
     }
-
-    return response.responseCode == 0
   } catch (error) {
-    console.error('Error al obtener totales en POS Transbank')
+    console.error(error)
+    return 'Transbank: Error al obtener totales en POS Transbank'
   }
 }
 
@@ -150,6 +166,7 @@ async function getLastSale() {
 
     return response
   } catch (error) {
+    console.error(error)
     return 'Transbank: Error al obtener totales en POS'
   }
 }
@@ -158,9 +175,10 @@ async function changeToNormalMode() {
   try {
     const response = await Transbank.changeToNormalMode(true)
     console.log(response)
-    return true
+    return 'Transbank: Modo Normal OK'
   } catch (error) {
-    console.error('Error al cambiar modo normal en POS Transbank')
+    console.error(error)
+    return 'Transbank: Error al cambiar modo normal en POS Transbank'
   }
 }
 
@@ -168,10 +186,9 @@ async function status() {
   try {
     const response = await Transbank.poll(true)
     console.log(response)
-    return true
+    return 'Transbank: Conectado'
   } catch (error) {
-    console.error('Error al obtener estado de POS Transbank')
-    return false
+    return 'Transbank: Error al obtener estado de POS Transbank'
   }
 }
 
@@ -184,6 +201,7 @@ function isTransbank(usbDevice) {
 
 export default {
   connect,
+  disconnect,
   loadKeys,
   sale,
   refund,

@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useAuth } from 'stores/auth'
 import { usePos } from 'stores/pos'
+import notify from 'tools/notify'
 
 const auth = useAuth()
 const pos = usePos()
@@ -23,10 +24,58 @@ onMounted(async () => {
     window.main.send('printer-status')
     // provisorio
     if (!pos.transbankStatus) window.main.send('transbank-connect')
+
+    window.main.on('printer-status', status => {
+      pos.setPrinterStatus(status)
+    })
+
+    window.main.on('transbank-status', response => {
+      if (response == 'Transbank: Conectado') {
+        pos.transbankStatus = true
+        notify.positive(response)
+      } else {
+        pos.transbankStatus = false
+        notify.negative(response)
+      }
+    })
+    window.main.on('transbank-keys', response => {
+      if (response == 'Transbank: Carga de llaves OK') {
+        notify.positive(response)
+      } else {
+        notify.negative(response)
+      }
+    })
+
+    window.main.on('checking-for-update', () => {
+      message.value = 'Buscando actualizacion...'
+    })
+    window.main.on('update-not-available', info => {
+      checking.value = false
+      message.value = 'Tienes la última versión'
+      setTimeout(() => (message.value = 'Buscar actualización'), 5000)
+    })
+    window.main.on('error', err => {
+      console.log('[error]', err)
+      message.value = 'Error al buscar'
+      setTimeout(() => (message.value = 'Buscar actualización'), 5000)
+    })
+    window.main.on('download-progress', info => {
+      progress.value = Math.round(info.percent / 100)
+      message.value = `Descargando ${Math.round(info.percent)}%`
+    })
+    window.main.on('update_available', info => {
+      version.value = info.version
+      message.value = `Nueva versión v${version.value}`
+    })
+    window.main.on('update_downloaded', () => {
+      checking.value = false
+      dialog.value = true
+      message.value = `Nueva versión v${version.value}`
+    })
   }
 })
 
-const checkUpdates = () => {
+function checkUpdates() {
   if (progress.value == 1) {
     restartAndUpdate()
     return
@@ -39,44 +88,7 @@ const checkUpdates = () => {
   }
 }
 
-if (window.main) {
-  window.main.on('printer-status', status => {
-    pos.setPrinterStatus(status)
-  })
-
-  window.main.on('transbank-status', status => {
-    pos.setTransbankStatus(status)
-  })
-
-  window.main.on('checking-for-update', () => {
-    message.value = 'Buscando actualizacion...'
-  })
-  window.main.on('update-not-available', info => {
-    checking.value = false
-    message.value = 'Tienes la última versión'
-    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
-  })
-  window.main.on('error', err => {
-    console.log('[error]', err)
-    message.value = 'Error al buscar'
-    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
-  })
-  window.main.on('download-progress', info => {
-    progress.value = Math.round(info.percent / 100)
-    message.value = `Descargando ${Math.round(info.percent)}%`
-  })
-  window.main.on('update_available', info => {
-    version.value = info.version
-    message.value = `Nueva versión v${version.value}`
-  })
-  window.main.on('update_downloaded', () => {
-    checking.value = false
-    dialog.value = true
-    message.value = `Nueva versión v${version.value}`
-  })
-}
-
-const restartAndUpdate = () => {
+function restartAndUpdate() {
   if (window.main) {
     window.main.send('restart-app')
   }

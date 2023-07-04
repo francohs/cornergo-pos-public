@@ -142,9 +142,10 @@ usb.on('attach', async device => {
     mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
   }
 })
-usb.on('detach', device => {
+usb.on('detach', async device => {
   if (transbank.isTransbank(device))
-    mainWindow.webContents.send('transbank-status', false)
+    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
+  await transbank.disconnect()
 })
 
 ipcMain.on('transbank-keys', async () => {
@@ -166,7 +167,19 @@ ipcMain.on('transbank-close', transbank.closeDay)
 ipcMain.on('transbank-detail', async () => {
   mainWindow.webContents.send('transbank-detail', await transbank.salesDetail())
 })
+ipcMain.on('transbank-totals', async () => {
+  mainWindow.webContents.send('transbank-totals', await transbank.getTotals())
+})
 ipcMain.on('transbank-last', async () => {
   mainWindow.webContents.send('transbank-last', await transbank.getLastSale())
 })
-ipcMain.on('transbank-normal', transbank.changeToNormalMode)
+ipcMain.on('transbank-normal', async () => {
+  const response = await transbank.changeToNormalMode()
+
+  mainWindow.webContents.send('transbank-normal', response)
+
+  if (response == 'Transbank: Modo Normal OK') {
+    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
+    await transbank.disconnect()
+  }
+})

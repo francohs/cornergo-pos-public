@@ -2,12 +2,18 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import formatter from 'tools/formatter'
 import notify from 'tools/notify'
+import { usePos } from 'stores/pos'
+const pos = usePos()
 
+const connectLoading = ref(false)
 const saleLoading = ref(false)
 const lastSaleLoading = ref(false)
 const refundLoading = ref(false)
 const loadKeysLoading = ref(false)
 const getDetailLoading = ref(false)
+const getTotalsLoading = ref(false)
+const statusLoading = ref(false)
+const changeNormalLoading = ref(false)
 
 const saleAmount = ref('')
 const operationNumber = ref('')
@@ -67,6 +73,33 @@ onMounted(() => {
     }
     getDetailLoading.value = false
   })
+  window.main.on('transbank-totals', response => {
+    if (response == 'Transbank: Totales OK') {
+      notify.positive(response)
+    } else {
+      notify.negative(response)
+    }
+    getTotalsLoading.value = false
+  })
+  window.main.on('transbank-status', response => {
+    if (response == 'Transbank: Conectado') {
+      pos.transbankStatus = true
+      notify.positive(response)
+    } else {
+      pos.transbankStatus = false
+      notify.negative(response)
+    }
+    statusLoading.value = false
+    connectLoading.value = false
+  })
+  window.main.on('transbank-normal', response => {
+    if (response == 'Transbank: Modo Normal OK') {
+      notify.positive(response)
+    } else {
+      notify.negative(response)
+    }
+    changeNormalLoading.value = false
+  })
 })
 
 const formatDate = computed(() => {
@@ -99,6 +132,11 @@ async function sendRefund() {
   window.main.send('transbank-refund', parseInt(operationNumber.value))
 }
 
+async function connect() {
+  connectLoading.value = true
+  window.main.send('transbank-connect')
+}
+
 async function loadKeys() {
   loadKeysLoading.value = true
   window.main.send('transbank-keys')
@@ -111,16 +149,25 @@ async function getDetail() {
   window.main.send('transbank-detail')
 }
 
-async function getTotals() {}
+async function getTotals() {
+  getTotalsLoading.value = true
+  window.main.send('transbank-totals')
+}
 
 async function getLastSale() {
   lastSaleLoading.value = true
   window.main.send('transbank-last')
 }
 
-async function changeNormalMode() {}
+async function changeNormalMode() {
+  changeNormalLoading.value = true
+  window.main.send('transbank-normal')
+}
 
-async function polling() {}
+async function getStatus() {
+  statusLoading.value = true
+  window.main.send('transbank-status')
+}
 </script>
 
 <template>
@@ -208,6 +255,15 @@ async function polling() {}
                 </div>
 
                 <q-btn
+                  label="CONNECTAR"
+                  icon="power_settings_new"
+                  color="positive"
+                  @click="connect"
+                  class="q-mb-md"
+                  :loading="connectLoading"
+                />
+
+                <q-btn
                   label="CARGA DE LLAVES"
                   icon="key"
                   color="positive"
@@ -217,11 +273,30 @@ async function polling() {}
                 />
 
                 <q-btn
-                  label="CERRAR DÍA"
-                  icon="cancel"
-                  color="negative"
-                  @click="closeDay"
+                  label="PROBAR CONEXIÓN"
+                  icon="sync_alt"
+                  color="positive"
+                  @click="getStatus"
                   class="q-mb-md"
+                  :loading="statusLoading"
+                />
+
+                <q-btn
+                  label="CAMBIAR A MODO NORMAL"
+                  icon="touch_app"
+                  color="grey-6"
+                  @click="changeNormalMode"
+                  class="q-mb-md"
+                  :loading="changeNormalLoading"
+                />
+
+                <q-btn
+                  label="ÚLTIMA VENTA"
+                  icon="article"
+                  color="primary"
+                  @click="getLastSale"
+                  class="q-mb-md"
+                  :loading="lastSaleLoading"
                 />
 
                 <q-btn
@@ -239,30 +314,14 @@ async function polling() {}
                   color="primary"
                   @click="getTotals"
                   class="q-mb-md"
+                  :loading="getTotalsLoading"
                 />
 
                 <q-btn
-                  label="ÚLTIMA VENTA"
-                  icon="article"
-                  color="primary"
-                  @click="getLastSale"
-                  class="q-mb-md"
-                  :loading="lastSaleLoading"
-                />
-
-                <q-btn
-                  label="POLLING"
-                  icon="sync_alt"
-                  color="positive"
-                  @click="polling"
-                  class="q-mb-md"
-                />
-
-                <q-btn
-                  label="CAMBIAR A MODO NORMAL"
-                  icon="touch_app"
-                  color="grey-6"
-                  @click="changeNormalMode"
+                  label="CERRAR DÍA"
+                  icon="cancel"
+                  color="negative"
+                  @click="closeDay"
                   class="q-mb-md"
                 />
               </div>

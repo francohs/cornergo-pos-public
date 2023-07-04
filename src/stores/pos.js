@@ -169,24 +169,8 @@ export const usePos = defineStore({
             message: 'Impresora: Desconectada',
             icon: 'print_disabled'
           })
-    },
-
-    setTransbankStatus(status) {
-      if (status == 'Transbank: Conectado') {
-        this.transbankStatus = true
-        Notify.create({
-          type: 'positive',
-          message: status,
-          icon: 'point_of_sale'
-        })
-      } else {
-        this.transbankStatus = false
-        Notify.create({
-          type: 'negative',
-          message: status,
-          icon: 'point_of_sale'
-        })
-      }
     }
+
+
   }
 })
