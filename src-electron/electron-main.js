@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import os from 'os'
@@ -7,6 +7,16 @@ import { usb } from 'usb'
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
+
+const mac = os.networkInterfaces().Ethernet.find(n => n.family == 'IPv4').mac
+
+if (!['60:a4:4c:62:34:15', 'a8:5e:45:ce:96:8b'].includes(mac)) {
+  dialog.showErrorBox(
+    'Equipo no autorizado',
+    'Este equipo no esta autorizado para ejecutar CorneGO-POS'
+  )
+  process.exit()
+}
 
 try {
   if (platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -44,30 +54,21 @@ function createWindow() {
     })
     autoUpdater.checkForUpdates()
     mainWindow.setTitle(`CornerGO POS v${app.getVersion()}`)
-
-    // const mac = os
-    //   .networkInterfaces()
-    //   .Ethernet.find(n => n.family == 'IPv4').mac
-    // console.log({ mac })
-
-    mainWindow.webContents.send('networks', os.networkInterfaces())
   })
-
-  // mainWindow.removeMenu()//
 
   mainWindow.loadURL(process.env.APP_URL)
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
     mainWindow.webContents.openDevTools()
+  } else {
+    // mainWindow.webContents.openDevTools()
+    // we're on production; no access to devtools pls
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools()
+    })
+    mainWindow.removeMenu()
   }
-  // else {
-  //   // mainWindow.webContents.openDevTools()
-  //   // we're on production; no access to devtools pls
-  //   mainWindow.webContents.on('devtools-opened', () => {
-  //     mainWindow.webContents.closeDevTools()
-  //   })
-  // }
 
   mainWindow.on('closed', () => {
     mainWindow = null
@@ -91,7 +92,6 @@ app.on('activate', () => {
 ipcMain.on('check-for-updates', () => {
   autoUpdater.checkForUpdates()
 })
-
 autoUpdater.on('checking-for-update', () => {
   mainWindow.webContents.send('checking-for-update')
 })
@@ -102,7 +102,7 @@ autoUpdater.on('update-not-available', info => {
   mainWindow.webContents.send('update-not-available', info)
 })
 autoUpdater.on('error', err => {
-  mainWindow.webContents.send('error', err)
+  mainWindow.webContents.send('updater-error', err)
 })
 autoUpdater.on('download-progress', info => {
   mainWindow.webContents.send('download-progress', info)
@@ -114,7 +114,6 @@ autoUpdater.on('update-downloaded', () => {
 ipcMain.on('printer-status', () => {
   mainWindow.webContents.send('printer-status', printer.findPrinter())
 })
-
 usb.on('attach', function (device) {
   if (printer.isPrinter(device))
     mainWindow.webContents.send('printer-status', true)

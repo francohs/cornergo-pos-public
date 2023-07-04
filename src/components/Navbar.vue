@@ -19,7 +19,40 @@ const dialog = ref(false)
 const isMovile = quasar.screen.width < 480
 
 onMounted(() => {
-  if (window.main) window.main.send('printer-status')
+  if (window.main) {
+    window.main.send('printer-status')
+    window.main.on('printer-status', status => {
+      pos.setPrinterStatus(status)
+    })
+
+    window.main.send('check-for-updates')
+    window.main.on('checking-for-update', () => {
+      message.value = 'Buscando actualizacion...'
+    })
+    window.main.on('update-not-available', info => {
+      checking.value = false
+      message.value = 'Tienes la última versión'
+      setTimeout(() => (message.value = 'Buscar actualización'), 5000)
+    })
+    window.main.on('updater-error', err => {
+      console.log('[updater error]', err)
+      message.value = 'Error al buscar'
+      setTimeout(() => (message.value = 'Buscar actualización'), 5000)
+    })
+    window.main.on('download-progress', info => {
+      progress.value = Math.round(info.percent / 100)
+      message.value = `Descargando ${Math.round(info.percent)}%`
+    })
+    window.main.on('update_available', info => {
+      version.value = info.version
+      message.value = `Nueva versión v${version.value}`
+    })
+    window.main.on('update_downloaded', () => {
+      checking.value = false
+      dialog.value = true
+      message.value = `Nueva versión v${version.value}`
+    })
+  }
 })
 
 const checkUpdates = () => {
@@ -31,45 +64,7 @@ const checkUpdates = () => {
   checking.value = true
 
   if (window.main) {
-    window.main.send('check-for-updates')
   }
-}
-
-if (window.main) {
-  window.main.on('networks', networks => {
-    console.log({ networks })
-  })
-
-  window.main.on('printer-status', status => {
-    pos.setPrinterStatus(status)
-  })
-
-  window.main.on('checking-for-update', () => {
-    message.value = 'Buscando actualizacion...'
-  })
-  window.main.on('update-not-available', info => {
-    checking.value = false
-    message.value = 'Tienes la última versión'
-    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
-  })
-  window.main.on('error', err => {
-    console.log('[error]', err)
-    message.value = 'Error al buscar'
-    setTimeout(() => (message.value = 'Buscar actualización'), 5000)
-  })
-  window.main.on('download-progress', info => {
-    progress.value = Math.round(info.percent / 100)
-    message.value = `Descargando ${Math.round(info.percent)}%`
-  })
-  window.main.on('update_available', info => {
-    version.value = info.version
-    message.value = `Nueva versión v${version.value}`
-  })
-  window.main.on('update_downloaded', () => {
-    checking.value = false
-    dialog.value = true
-    message.value = `Nueva versión v${version.value}`
-  })
 }
 
 const restartAndUpdate = () => {
