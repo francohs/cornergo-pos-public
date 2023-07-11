@@ -4,6 +4,7 @@ import { useAuth } from 'stores/auth'
 import { provide, onMounted, reactive, ref } from 'vue'
 import formatter from 'tools/formatter'
 import { useQuasar } from 'quasar'
+import notify from 'tools/notify'
 
 const cashMoves = useCashMoves()
 provide(cashMoves.$id, cashMoves)
@@ -44,6 +45,12 @@ const loadingClose = ref(false)
 onMounted(async () => {
   await cashMoves.getLast()
   Object.assign(cashMove, cashMoves.doc)
+
+  window.main.on('transbank-close', response => {
+    if (response != 'Transbank: Cierre de día OK') {
+      notify.negative(response)
+    }
+  })
 })
 
 const closeCashMoves = async () => {
@@ -51,6 +58,7 @@ const closeCashMoves = async () => {
     loadingClose.value = true
     await cashMoves.closeCashMoves()
     Object.assign(cashMove, cashMoves.doc)
+    window.main.send('transbank-close')
     window.main.send('print-cash-close', JSON.parse(JSON.stringify(cashMove)))
   } catch (error) {
     throw error

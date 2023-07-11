@@ -68,7 +68,7 @@ export const baseActions = () => {
         const { data } = await api.post(this.$id, { doc })
         this.doc = data.doc
         this.docs.push(data.doc)
-        notify.positive(message)
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -89,7 +89,7 @@ export const baseActions = () => {
           this.docs[index] = data.doc
         }
 
-        notify.positive(message)
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -110,7 +110,7 @@ export const baseActions = () => {
           this.docs[index] = data.doc
         }
 
-        notify.positive(message)
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -130,7 +130,7 @@ export const baseActions = () => {
         this.doc = data.doc
         this.insertDoc(this.doc)
 
-        notify.positive(message)
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -151,7 +151,7 @@ export const baseActions = () => {
         console.log(this.doc)
         this.removeDoc(this.doc._id)
 
-        notify.positive(message)
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {
@@ -159,13 +159,13 @@ export const baseActions = () => {
       }
     },
 
-    async delete(id) {
+    async delete(id, message = 'Datos eliminados con éxito') {
       try {
         this.deleting = true
         await api.delete(`${this.$id}/${id}`)
         this.doc = {}
         this.docs = this.docs.filter(doc => doc._id != id)
-        notify.positive('Datos eliminados con éxito')
+        if (message) notify.positive(message)
       } catch (error) {
         throw error
       } finally {

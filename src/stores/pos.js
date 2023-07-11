@@ -121,14 +121,14 @@ export const usePos = defineStore({
       LocalStorage.set('currentItems', this.items)
     },
 
-    addPay(payType, amount) {
+    addPay(payType, amount, voucherId = null) {
       const index = this.pays.findIndex(p => p.payType == payType)
       amount = parseInt(amount)
 
       if (index > -1) {
         this.pays[index].amount += amount
       } else {
-        this.pays = [...this.pays, { payType, amount }]
+        this.pays = [...this.pays, { payType, amount, voucher: voucherId }]
       }
 
       this.payAmount = ''
@@ -170,7 +170,5 @@ export const usePos = defineStore({
             icon: 'print_disabled'
           })
     }
-
-
   }
 })

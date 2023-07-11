@@ -82,14 +82,9 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('restart-app', () => {
-  autoUpdater.quitAndInstall()
-})
-
 ipcMain.on('check-for-updates', () => {
   autoUpdater.checkForUpdates()
 })
-
 autoUpdater.on('checking-for-update', () => {
   mainWindow.webContents.send('checking-for-update')
 })
@@ -100,7 +95,7 @@ autoUpdater.on('update-not-available', info => {
   mainWindow.webContents.send('update-not-available', info)
 })
 autoUpdater.on('error', err => {
-  mainWindow.webContents.send('error', err)
+  mainWindow.webContents.send('updater-error', err)
 })
 autoUpdater.on('download-progress', info => {
   mainWindow.webContents.send('download-progress', info)
@@ -112,7 +107,6 @@ autoUpdater.on('update-downloaded', () => {
 ipcMain.on('printer-status', () => {
   mainWindow.webContents.send('printer-status', printer.findPrinter())
 })
-
 usb.on('attach', function (device) {
   if (printer.isPrinter(device))
     mainWindow.webContents.send('printer-status', true)
@@ -127,15 +121,6 @@ ipcMain.on('cashdraw', printer.cashdraw)
 ipcMain.on('print-cash-close', printer.printCashClose)
 ipcMain.on('print-payment', printer.printPayment)
 
-ipcMain.on('transbank-connect', async () => {
-  mainWindow.webContents.send('transbank-status', await transbank.connect())
-  // mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
-})
-
-ipcMain.on('transbank-status', async () => {
-  mainWindow.webContents.send('transbank-status', await transbank.status())
-})
-
 usb.on('attach', async device => {
   if (transbank.isTransbank(device)) {
     mainWindow.webContents.send('transbank-status', await transbank.connect())
@@ -147,7 +132,13 @@ usb.on('detach', async device => {
     mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
   await transbank.disconnect()
 })
-
+ipcMain.on('transbank-connect', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.connect())
+  // mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+})
+ipcMain.on('transbank-status', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.status())
+})
 ipcMain.on('transbank-keys', async () => {
   mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
 })
@@ -185,4 +176,8 @@ ipcMain.on('transbank-normal', async () => {
     mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
     await transbank.disconnect()
   }
+})
+
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall()
 })
