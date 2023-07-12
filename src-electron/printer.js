@@ -204,7 +204,7 @@ function printPayment(event, client, payment) {
   })
 }
 
-function printDte(event, dte) {
+function printDte(event, dte, voucher) {
   connectPrinter()
   const emissionDate = moment(dte.emissionDate)
 
@@ -319,9 +319,46 @@ function printDte(event, dte) {
         printer.text('Timbre Electrónico S.I.I')
         printer.text('Res. 80 del 22-08-2014')
         printer.text('Verifique Documento: www.sii.cl')
-        printer.feed(1).cut().close()
+        // printer.feed(1).cut().close()
       })
     })
+
+    if (voucher) {
+      printer.feed(1)
+      printer.text('------------------------------------------')
+      printer.text(`Venta ${pay.payType}:`)
+      printer.text(voucher.alias)
+      printer.text(voucher.address)
+      printer.text(voucher.commune)
+      printer.text(`${voucher.commerceCode} - ${voucher.terminalId}`)
+      let voucherDate = `${voucher.realDate.slice(
+        0,
+        2
+      )}/${voucher.realDate.slice(2, 4)}/${voucher.realDate.slice(4, 8)}`
+      let voucherTime = `${voucher.realTime.slice(
+        0,
+        2
+      )}:${voucher.realTime.slice(2, 4)}:${voucher.realTime.slice(4, 6)}`
+      printer.text(
+        `${voucherDate}    ${voucherTime}    ${voucher.cardType}/${voucher.cardBrand} ****${voucher.last4Digits}`
+      )
+      let voucherAmount = formatter.currency(voucher.amount) + ' '
+      printer.text(
+        'TOTAL:' + getSpaces(42, voucherAmount.length) + voucherAmount
+      )
+      printer.text(
+        'Número Operación:' +
+          getSpaces(42, voucherAmount.length) +
+          voucherAmount
+      )
+      printer.text(
+        'Número Autorización:' +
+          getSpaces(42, voucherAmount.length) +
+          voucherAmount
+      )
+    }
+
+    printer.feed(1).cut().close()
   })
 }
 

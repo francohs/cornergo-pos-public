@@ -40,6 +40,28 @@ const selectPayType = ref(null)
 const scrollRef = ref(null)
 const cardRef = ref(null)
 
+onMounted(async () => {
+  window.main.on('transbank-sale', async voucher => {
+    console.log(voucher)
+    if (typeof voucher == 'string') {
+      notify.negative(voucher)
+    } else {
+      await vouchers.create(voucher, '')
+      pos.addPay(
+        voucher.cardType == 'CR' ? 'Tarjeta de Credito' : 'Tarjeta de Debito',
+        pos.payAmount,
+        vouchers.doc._id
+      )
+      if (pos.isTotalReach) {
+        if (pos.printerStatus) {
+          printDte({ ...voucher, ...company })
+        } else dialog.value = true
+      }
+    }
+    transbankLoading.value = false
+  })
+})
+
 const focus = async compRef => {
   await nextTick()
   if (compRef.value) {
@@ -139,7 +161,7 @@ async function generateDte() {
   return await emittedDtes.generate(data)
 }
 
-async function printDte() {
+async function printDte(voucher) {
   try {
     if (pos.pays.find(p => p.payType == 'Efectivo')) {
       window.main.send('cashdraw')
@@ -153,7 +175,7 @@ async function printDte() {
       dte.pdf417 = generateBarcode(dte.ted, 1, 0.5)
       dte.roundedTotal = pos.roundedTotal
       console.log(dte)
-      window.main.send('print-dte', dte)
+      window.main.send('print-dte', dte, voucher)
     }
 
     await emittedDtes.create(dte)
@@ -177,27 +199,6 @@ async function noPrintDTE() {
   }
   emittedDtes.saving = false
 }
-
-onMounted(() => {
-  window.main.on('transbank-sale', async voucher => {
-    console.log(voucher)
-    if (typeof voucher == 'string') {
-      notify.negative(voucher)
-    } else {
-      await vouchers.create(voucher, '')
-      pos.addPay(
-        voucher.cardType == 'CR' ? 'Tarjeta de Credito' : 'Tarjeta de Debito',
-        pos.payAmount,
-        vouchers.doc._id
-      )
-      if (pos.isTotalReach) {
-        if (pos.printerStatus) printDte()
-        else dialog.value = true
-      }
-    }
-    transbankLoading.value = false
-  })
-})
 
 watchEffect(() => {
   if (pos.roundedTotal == 0) focus(selectSearchProduct)
