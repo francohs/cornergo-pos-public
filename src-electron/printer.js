@@ -54,11 +54,11 @@ function printCashClose(event, cashMove) {
     printer.style('b').text('Minimarket CornerGO').style('')
     printer.style('b').text('Cierre de Caja').style('')
     printer.text(`Cajero: ${cashMove.user.name} ${cashMove.user.lastName}`)
-    printer.text('------------------------------------------')
+    printer.text(separator())
     printer.feed(1)
 
     printer.style('b').text(`Resumen de ventas`).style('')
-    printer.text('------------------------------------------')
+    printer.text(separator())
     printer.text(
       `Total Ventas (${cashMove.totalSales.count}): ${formatter.currency(
         cashMove.totalSales.amount
@@ -97,7 +97,7 @@ function printCashClose(event, cashMove) {
     printer.feed(1)
 
     printer.style('b').text(`Otros Ingresos`).style('')
-    printer.text('------------------------------------------')
+    printer.text(separator())
     cashMove.moves.forEach(move => {
       if (move.moveType == 'Otro Ingreso') {
         printer.text(
@@ -110,7 +110,7 @@ function printCashClose(event, cashMove) {
     printer.feed(1)
 
     printer.style('b').text(`Otros Egresos`).style('')
-    printer.text('------------------------------------------')
+    printer.text(separator())
     cashMove.moves.forEach(move => {
       if (
         move.moveType == 'Otro Egreso' ||
@@ -126,7 +126,7 @@ function printCashClose(event, cashMove) {
     printer.feed(1)
 
     printer.style('b').text(`Calculo cierre de caja`).style('')
-    printer.text('------------------------------------------')
+    printer.text(separator())
     printer
       .style('b')
       .text(
@@ -154,7 +154,7 @@ function printCashClose(event, cashMove) {
       .style('')
     printer.feed(1)
 
-    printer.text('------------------------------------------')
+    printer.text(separator())
     printer
       .text(
         `Fecha: ${formatter.localDate(
@@ -177,7 +177,7 @@ function printPayment(event, client, payment) {
     printer.align('lt').size(0.01, 0.01).control('cr')
     printer.style('b').text('Minimarket CornerGO').style('')
     printer.style('b').text('Abono Cliente').style('')
-    printer.text('------------------------------------------').feed(1)
+    printer.text(separator()).feed(1)
 
     printer.text(`Cliente: ${client.name}`)
     printer.text(`Abono: ${formatter.currency(parseInt(payment.amount))}`)
@@ -191,7 +191,7 @@ function printPayment(event, client, payment) {
       )}`
     )
 
-    printer.feed(1).text('------------------------------------------')
+    printer.feed(1).text(separator())
     printer
       .text(
         `Fecha: ${formatter.localDate(today)}      Hora: ${formatter.time(
@@ -212,104 +212,63 @@ function printDte(event, dte, voucher) {
     if (error) console.error(error)
 
     printer.size(0.01, 0.01).control('cr').align('lt')
-    printer.style('b').text('MINIMARKET CORNERGO').style('')
+    printer.style('b')
 
-    printer
-      .text('Servicios de Ingeniería BigVision SpA')
-      .text('RUT: 76.260.131-1')
-      .text('Casa Matriz: Freire 1698, Concepción')
-      .text('Giro: Minimarket')
-      .feed(1)
+    printer.text('MINIMARKET CORNERGO').style('')
+    printer.text('Servicios de Ingeniería BigVision SpA')
+    printer.text('RUT: 76.260.131-1')
+    printer.text('Casa Matriz: Freire 1698, Concepción')
+    printer.text('Giro: Minimarket').feed(1)
 
     printer.text(`${dte.dteTypeName}: ${dte.number}`)
-    printer
-      .text(
-        `Fecha: ${formatter.localDate(
-          emissionDate
-        )}      Hora: ${formatter.time(emissionDate)}`
+    printer.text(
+      spaceBetween(
+        `Fecha: ${formatter.localDate(emissionDate)}`,
+        `Hora: ${formatter.time(emissionDate)}`
       )
-      .text(`Vendedor: ${dte.sellerName}`)
-      .feed(1)
+    )
+    printer.text(`Vendedor: ${dte.sellerName}`).feed(1)
 
-    printer.text('Producto   Cantidad X Precio     Sub-Total')
-    printer.text('------------------------------------------') // spaceLimit espacios
+    printer.text(spaceBetween('Producto   Cantidad X Precio', 'Sub-Total'))
+    printer.text(separator())
 
     for (item of dte.items) {
-      const truncName =
-        item.name.length > spaceLimit
-          ? item.name.slice(0, spaceLimit)
-          : item.name
-      printer.align('lt').text(truncName)
+      printer.text(truncate(item.name))
 
-      const textQtyPrice = `${item.quantity} x ${formatter.currency(
-        item.price
-      )}`
-      const textSubtotal = formatter.currency(item.subtotal)
-      const spaces = getSpaces(
-        spaceLimit,
-        textQtyPrice.length + textSubtotal.length
+      printer.text(
+        spaceBetween(
+          `${item.quantity} x ${formatter.currency(item.price)}`,
+          formatter.currency(item.subtotal)
+        )
       )
-      printer.text(textQtyPrice + spaces + textSubtotal)
     }
-    printer.text('------------------------------------------')
+    printer.text(separator()).align('rt')
 
     const roundedAmount = Math.abs(dte.totalAmount - dte.roundedTotal)
-    const textRoundedAmount = formatter.currency(roundedAmount) + ' '
-    const roundedTotal = formatter.currency(dte.roundedTotal) + ' '
-    const netAmount = formatter.currency(dte.netAmount) + ' '
-    const taxAmount = formatter.currency(dte.taxAmount) + ' '
-    const textExemptAmount = formatter.currency(dte.exemptAmount) + ' '
-    const textTotalPay = formatter.currency(dte.totalPay) + ' '
-    const textChangeAmount = formatter.currency(dte.changeAmount) + ' '
-
-    printer.align('rt')
-
     const anyCashPay = dte.pays.findIndex(p => p.payType == 'Efectivo')
-
     if (anyCashPay > -1 && roundedAmount > 0) {
-      printer.text(
-        'Ley N° 20.956:' +
-          getSpaces(11, textRoundedAmount.length) +
-          textRoundedAmount
-      )
+      printer.text(totalText('Ley N° 20.956:', roundedAmount))
     }
 
-    printer.text('TOTAL:' + getSpaces(11, roundedTotal.length) + roundedTotal)
-    printer.text('NETO:' + getSpaces(11, netAmount.length) + netAmount)
+    printer.text(totalText('TOTAL:', dte.roundedTotal))
+    printer.text(totalText('NETO:', dte.netAmount))
 
-    if (dte.exemptAmount) {
-      printer.text(
-        'EXENTO:' + getSpaces(11, textExemptAmount.length) + textExemptAmount
-      )
-    }
+    if (dte.exemptAmount) printer.text(totalText('EXENTO:', dte.exemptAmount))
 
-    if (dte.taxAmount)
-      printer.text('IVA:' + getSpaces(11, taxAmount.length) + taxAmount)
+    if (dte.taxAmount) printer.text(totalText('IVA:', dte.taxAmount))
 
     for (pay of dte.pays) {
-      const payAmount = formatter.currency(pay.amount) + ' '
-      printer.text(
-        `Pago ${pay.payType}:` + getSpaces(11, payAmount.length) + payAmount
-      )
-      if (pay.payType == 'Credito Cliente') {
-        const clientBalance = formatter.currency(dte.client.balance) + ' '
-        printer.text(
-          `Saldo ${dte.client.name}:` +
-            getSpaces(11, clientBalance.length) +
-            clientBalance
-        )
-      }
-    }
-    if (dte.pays.length > 1) {
-      printer.text(
-        'Total Pagado:' + getSpaces(11, textTotalPay.length) + textTotalPay
-      )
+      printer.text(totalText(`Pago ${pay.payType}:`, pay.amount))
+
+      if (pay.payType == 'Credito Cliente')
+        printer.text(totalText(`Saldo ${dte.client.name}:`, dte.client.balance))
     }
 
-    if (dte.changeAmount)
-      printer.text(
-        'Vuelto:' + getSpaces(11, textChangeAmount.length) + textChangeAmount
-      )
+    if (dte.pays.length > 1)
+      printer.text(totalText('Total Pagado:', dte.totalPay))
+
+    if (dte.changeAmount) printer.text(totalText('Vuelto:', dte.changeAmount))
+
     printer.align('ct')
     printer.feed(1)
 
@@ -319,56 +278,77 @@ function printDte(event, dte, voucher) {
         printer.text('Timbre Electrónico S.I.I')
         printer.text('Res. 80 del 22-08-2014')
         printer.text('Verifique Documento: www.sii.cl')
-        // printer.feed(1).cut().close()
+
+        if (voucher) {
+          printer.feed(1)
+          printer.text(separator())
+          printer.text(`Venta Tarjeta de Debito`)
+          printer.text('Minimarket CornerGO')
+          printer.text('Freire 1698, Concepción')
+          printer.text(`${voucher.commerceCode} - ${voucher.terminalId}`)
+
+          printer.text(
+            spaceBetween(
+              `${voucherDate(voucher)}    ${voucherTime(voucher)}`,
+              `${voucher.cardType}/${voucher.cardBrand} ****${voucher.last4Digits}`
+            )
+          )
+          printer.text(totalText('TOTAL:', voucher.amount))
+          printer.text(totalText('Número Operación:', voucher.operationNumber))
+          printer.text(
+            totalText('Número Autorización:', voucher.authorizationCode)
+          )
+        }
+
+        printer.feed(1).cut().close()
       })
     })
-
-    if (voucher) {
-      printer.feed(1)
-      printer.text('------------------------------------------')
-      printer.text(`Venta ${pay.payType}:`)
-      printer.text(voucher.alias)
-      printer.text(voucher.address)
-      printer.text(voucher.commune)
-      printer.text(`${voucher.commerceCode} - ${voucher.terminalId}`)
-      let voucherDate = `${voucher.realDate.slice(
-        0,
-        2
-      )}/${voucher.realDate.slice(2, 4)}/${voucher.realDate.slice(4, 8)}`
-      let voucherTime = `${voucher.realTime.slice(
-        0,
-        2
-      )}:${voucher.realTime.slice(2, 4)}:${voucher.realTime.slice(4, 6)}`
-      printer.text(
-        `${voucherDate}    ${voucherTime}    ${voucher.cardType}/${voucher.cardBrand} ****${voucher.last4Digits}`
-      )
-      let voucherAmount = formatter.currency(voucher.amount) + ' '
-      printer.text(
-        'TOTAL:' + getSpaces(42, voucherAmount.length) + voucherAmount
-      )
-      printer.text(
-        'Número Operación:' +
-          getSpaces(42, voucherAmount.length) +
-          voucherAmount
-      )
-      printer.text(
-        'Número Autorización:' +
-          getSpaces(42, voucherAmount.length) +
-          voucherAmount
-      )
-    }
-
-    printer.feed(1).cut().close()
   })
 }
 
-const getSpaces = (total, characters) => {
+function voucherDate(voucher) {
+  const day = voucher.realDate.slice(0, 2)
+  const month = voucher.realDate.slice(2, 4)
+  const year = voucher.realDate.slice(4, 8)
+  return `${day}/${month}/${year}`
+}
+
+function voucherTime(voucher) {
+  const hour = voucher.realTime.slice(0, 2)
+  const minute = voucher.realTime.slice(2, 4)
+  const second = voucher.realTime.slice(4, 6)
+  return `${hour}:${minute}:${second}`
+}
+
+function totalText(str1, str2) {
+  const rigthOffset = 12
+  const nSpaces = rigthOffset - str2
   let spaces = ''
-  const nSpaces = total - characters
   for (space = 0; space < nSpaces; space++) {
     spaces = spaces + ' '
   }
+  return str1 + spaces + formatter.currency(str2)
+}
+
+function spaceBetween(str1, str2) {
+  let spaces = ''
+  const nSpaces = spaceLimit - str1.toString().length - str2.toString().length
+  for (let space = 0; space < nSpaces; space++) {
+    spaces = spaces + ' '
+  }
+  return str1 + spaces + str2
+}
+
+function separator() {
+  let spaces = ''
+  for (let space = 0; space < spaceLimit; space++) {
+    spaces = spaces + '-'
+  }
   return spaces
+}
+
+function truncate(str) {
+  return str.length > spaceLimit ? str.slice(0, spaceLimit) : str
 }
 
 export default {
