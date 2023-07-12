@@ -54,7 +54,7 @@ onMounted(async () => {
       )
       if (pos.isTotalReach) {
         if (pos.printerStatus) {
-          printDte({ ...voucher, ...company })
+          printDte(voucher)
         } else dialog.value = true
       }
     }

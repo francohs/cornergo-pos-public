@@ -134,7 +134,7 @@ usb.on('detach', async device => {
 })
 ipcMain.on('transbank-connect', async () => {
   mainWindow.webContents.send('transbank-status', await transbank.connect())
-  // mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+  mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
 })
 ipcMain.on('transbank-status', async () => {
   mainWindow.webContents.send('transbank-status', await transbank.status())

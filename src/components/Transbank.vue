@@ -27,6 +27,7 @@ const transbank = {
 onMounted(() => {
   if (window.main) {
     if (!pos.transbankStatus) window.main.send('transbank-connect')
+
     window.main.on('transbank-status', response => {
       if (response == 'Transbank: Conectado') {
         pos.transbankStatus = true

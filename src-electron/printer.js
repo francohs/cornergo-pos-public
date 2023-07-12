@@ -212,9 +212,8 @@ function printDte(event, dte, voucher) {
     if (error) console.error(error)
 
     printer.size(0.01, 0.01).control('cr').align('lt')
-    printer.style('b')
 
-    printer.text('MINIMARKET CORNERGO').style('')
+    printer.style('b').text('MINIMARKET CORNERGO').style('')
     printer.text('Servicios de Ingeniería BigVision SpA')
     printer.text('RUT: 76.260.131-1')
     printer.text('Casa Matriz: Freire 1698, Concepción')
@@ -222,10 +221,9 @@ function printDte(event, dte, voucher) {
 
     printer.text(`${dte.dteTypeName}: ${dte.number}`)
     printer.text(
-      spaceBetween(
-        `Fecha: ${formatter.localDate(emissionDate)}`,
-        `Hora: ${formatter.time(emissionDate)}`
-      )
+      `Fecha: ${formatter.localDate(emissionDate)}   Hora: ${formatter.time(
+        emissionDate
+      )}`
     )
     printer.text(`Vendedor: ${dte.sellerName}`).feed(1)
 
@@ -250,7 +248,7 @@ function printDte(event, dte, voucher) {
       printer.text(totalText('Ley N° 20.956:', roundedAmount))
     }
 
-    printer.text(totalText('TOTAL:', dte.roundedTotal))
+    printer.style('b').text(totalText('TOTAL:', dte.roundedTotal)).style('')
     printer.text(totalText('NETO:', dte.netAmount))
 
     if (dte.exemptAmount) printer.text(totalText('EXENTO:', dte.exemptAmount))
@@ -282,7 +280,11 @@ function printDte(event, dte, voucher) {
         if (voucher) {
           printer.feed(1)
           printer.text(separator())
-          printer.text(`Venta Tarjeta de Debito`)
+          const cardType = voucher.cardType == 'CR' ? 'Credito' : 'Debito'
+          printer
+            .style('b')
+            .text(`Venta Tarjeta de ${cardType}`.toUpperCase())
+            .style('')
           printer.text('Minimarket CornerGO')
           printer.text('Freire 1698, Concepción')
           printer.text(`${voucher.commerceCode} - ${voucher.terminalId}`)
@@ -293,10 +295,24 @@ function printDte(event, dte, voucher) {
               `${voucher.cardType}/${voucher.cardBrand} ****${voucher.last4Digits}`
             )
           )
-          printer.text(totalText('TOTAL:', voucher.amount))
-          printer.text(totalText('Número Operación:', voucher.operationNumber))
           printer.text(
-            totalText('Número Autorización:', voucher.authorizationCode)
+            spaceBetween('TOTAL:', formatter.currency(voucher.amount))
+          )
+          if (voucher.sharesAmount) {
+            printer.text(spaceBetween('Cuotas:', voucher.sharesNumber))
+            printer.text(
+              spaceBetween(
+                'Monto Cuota:',
+                formatter.currency(voucher.sharesAmount)
+              )
+            )
+          }
+
+          printer.text(
+            spaceBetween('Número Operación:', voucher.operationNumber)
+          )
+          printer.text(
+            spaceBetween('Número Autorización:', voucher.authorizationCode)
           )
         }
 
@@ -322,12 +338,13 @@ function voucherTime(voucher) {
 
 function totalText(str1, str2) {
   const rigthOffset = 12
-  const nSpaces = rigthOffset - str2
+  str2 = formatter.currency(str2)
+  const nSpaces = rigthOffset - str2.length
   let spaces = ''
   for (space = 0; space < nSpaces; space++) {
     spaces = spaces + ' '
   }
-  return str1 + spaces + formatter.currency(str2)
+  return str1 + spaces + str2
 }
 
 function spaceBetween(str1, str2) {
