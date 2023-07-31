@@ -1,6 +1,6 @@
 {
   "name": "cornergo-pos",
-  "version": "0.2.4",
+  "version": "1.2.2",
   "productName": "CornerGO POS",
   "description": "CornerGO: Punto de Venta",
   "author": "Franco <franco@gmail.com>",
@@ -22,6 +22,7 @@
     "pdf417": "^0.1.5",
     "pinia": "^2.1.3",
     "quasar": "^2.12.0",
+    "transbank-pos-sdk": "^3.0.1",
     "usb": "^2.9.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"
@@ -31,7 +32,8 @@
     "@vue/devtools": "^6.5.0",
     "autoprefixer": "^10.4.14",
     "electron": "^25.0.1",
-    "electron-builder": "^22.4.0"
+    "electron-builder": "^22.4.0",
+    "electron-rebuild": "^3.2.9"
   },
   "resolutions": {
     "escpos-usb/usb": "1.9.2"

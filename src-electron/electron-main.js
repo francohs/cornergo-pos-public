@@ -3,6 +3,7 @@ import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import os from 'os'
 import printer from './printer.js'
+import transbank from './transbank.js'
 import { usb } from 'usb'
 
 // needed in case process is undefined under Linux
@@ -127,6 +128,63 @@ ipcMain.on('print-dte', printer.printDte)
 ipcMain.on('cashdraw', printer.cashdraw)
 ipcMain.on('print-cash-close', printer.printCashClose)
 ipcMain.on('print-payment', printer.printPayment)
+
+usb.on('attach', async device => {
+  if (transbank.isTransbank(device)) {
+    mainWindow.webContents.send('transbank-status', await transbank.connect())
+    mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+  }
+})
+usb.on('detach', async device => {
+  if (transbank.isTransbank(device))
+    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
+  await transbank.disconnect()
+})
+ipcMain.on('transbank-connect', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.connect())
+  mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+})
+ipcMain.on('transbank-status', async () => {
+  mainWindow.webContents.send('transbank-status', await transbank.status())
+})
+ipcMain.on('transbank-keys', async () => {
+  mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+})
+ipcMain.on('transbank-sale', async (e, amount, ref) => {
+  mainWindow.webContents.send(
+    'transbank-sale',
+    await transbank.sale(amount, ref)
+  )
+})
+ipcMain.on('transbank-refund', async (e, operationNumber) => {
+  mainWindow.webContents.send(
+    'transbank-refund',
+    await transbank.refund(operationNumber)
+  )
+})
+ipcMain.on('transbank-close', async () => {
+  mainWindow.webContents.send('transbank-close', await transbank.closeDay())
+})
+
+ipcMain.on('transbank-detail', async () => {
+  mainWindow.webContents.send('transbank-detail', await transbank.salesDetail())
+})
+ipcMain.on('transbank-totals', async () => {
+  mainWindow.webContents.send('transbank-totals', await transbank.getTotals())
+})
+ipcMain.on('transbank-last', async () => {
+  mainWindow.webContents.send('transbank-last', await transbank.getLastSale())
+})
+ipcMain.on('transbank-normal', async () => {
+  const response = await transbank.changeToNormalMode()
+
+  mainWindow.webContents.send('transbank-normal', response)
+
+  if (response == 'Transbank: Modo Normal OK') {
+    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
+    await transbank.disconnect()
+  }
+})
 
 ipcMain.on('restart-app', () => {
   autoUpdater.quitAndInstall()

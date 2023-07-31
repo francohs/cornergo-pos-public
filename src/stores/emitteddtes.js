@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { baseState, baseGetters, baseActions } from './base'
 import { api } from 'boot/axios'
-import moment from 'moment'
+import notify from 'tools/notify'
 
 export const useEmittedDtes = defineStore({
   id: 'emittedDtes',
@@ -28,6 +28,7 @@ export const useEmittedDtes = defineStore({
     async create(doc) {
       try {
         const { data } = await api.post(this.$id, { doc })
+        notify.positive('Se generó Boleta Electrónica ' + data.doc.number)
         return data.doc
       } catch (error) {
         throw error

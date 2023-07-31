@@ -3,10 +3,11 @@ import { useAuth } from 'stores/auth'
 import { usePos } from 'stores/pos'
 import { useClients } from 'stores/clients'
 import { useEmittedDtes } from 'stores/emitteddtes'
-import { ref, nextTick, provide, watchEffect, watch } from 'vue'
+import { useCafs } from 'stores/cafs'
+import { useVouchers } from 'stores/vouchers'
+import { ref, nextTick, provide, watchEffect, watch, onMounted } from 'vue'
 import formatter from 'tools/formatter'
 import notify from 'tools/notify'
-import { useQuasar } from 'quasar'
 import generateBarcode from 'pdf417'
 
 const pos = usePos()
@@ -15,18 +16,21 @@ const clients = useClients()
 provide(clients.$id, clients)
 const emittedDtes = useEmittedDtes()
 const auth = useAuth()
-const quasar = useQuasar()
+const cafs = useCafs()
+const vouchers = useVouchers()
 
 const dteTypes = ref(['Boleta Electronica'])
 const payTypes = ref([
   'Efectivo',
-  'Tarjeta de Debito',
-  'Tarjeta de Credito',
+  'POS Integrado',
+  'POS Movil Debito',
+  'POS Movil Credito',
   'Transferencia',
   'Credito Cliente'
 ])
-const loading = ref(false)
 const dialog = ref(false)
+const loading = ref(false)
+const transbankLoading = ref(false)
 
 const inputPay = ref(null)
 const btnPrint = ref(null)
@@ -35,6 +39,28 @@ const selectClient = ref(null)
 const selectPayType = ref(null)
 const scrollRef = ref(null)
 const cardRef = ref(null)
+
+onMounted(async () => {
+  window.main.on('transbank-sale', async voucher => {
+    console.log(voucher)
+    if (typeof voucher == 'string') {
+      notify.negative(voucher)
+    } else {
+      await vouchers.create(voucher, '')
+      pos.addPay(
+        voucher.cardType == 'CR' ? 'Tarjeta de Credito' : 'Tarjeta de Debito',
+        pos.payAmount,
+        vouchers.doc._id
+      )
+      if (pos.isTotalReach) {
+        if (pos.printerStatus) {
+          printDte(voucher)
+        } else dialog.value = true
+      }
+    }
+    transbankLoading.value = false
+  })
+})
 
 const focus = async compRef => {
   await nextTick()
@@ -60,7 +86,7 @@ const focusInputPay = () => {
   focus(inputPay)
 }
 
-const enterInputPay = event => {
+const enterInputPay = async event => {
   if (pos.payAmount == '') {
     pos.payAmount = pos.roundedTotal - pos.totalPay
   } else if (parseInt(pos.payAmount) <= 20) {
@@ -71,7 +97,23 @@ const enterInputPay = event => {
     return
   }
 
-  pos.addPay(pos.payType, pos.payAmount)
+  if (pos.payType == 'POS Integrado') {
+    await cafs.getCurrentNumber()
+
+    transbankLoading.value = true
+    console.log('transbank-sale', parseInt(pos.payAmount), cafs.currentNumber)
+    window.main.send(
+      'transbank-sale',
+      parseInt(pos.payAmount),
+      cafs.currentNumber
+    )
+  } else if (pos.payType == 'POS Movil Debito') {
+    pos.addPay('Tarjeta de Debito', pos.payAmount)
+  } else if (pos.payType == 'POS Movil Credito') {
+    pos.addPay('Tarjeta de Credito', pos.payAmount)
+  } else {
+    pos.addPay(pos.payType, pos.payAmount)
+  }
 
   if (pos.isTotalReach) focus(btnPrint)
 }
@@ -119,7 +161,7 @@ async function generateDte() {
   return await emittedDtes.generate(data)
 }
 
-async function printDte() {
+async function printDte(voucher) {
   try {
     if (pos.pays.find(p => p.payType == 'Efectivo')) {
       window.main.send('cashdraw')
@@ -133,16 +175,16 @@ async function printDte() {
       dte.pdf417 = generateBarcode(dte.ted, 1, 0.5)
       dte.roundedTotal = pos.roundedTotal
       console.log(dte)
-      window.main.send('print-dte', dte)
+      window.main.send('print-dte', dte, voucher)
     }
 
     await emittedDtes.create(dte)
     pos.clearAll()
     focus(selectSearchProduct)
   } catch (error) {
-    emittedDtes.saving = false
     throw error
   }
+  emittedDtes.saving = false
 }
 
 async function noPrintDTE() {
@@ -153,9 +195,9 @@ async function noPrintDTE() {
     pos.clearAll()
     focus(selectSearchProduct)
   } catch (error) {
-    emittedDtes.saving = false
     throw error
   }
+  emittedDtes.saving = false
 }
 
 watchEffect(() => {
@@ -280,11 +322,20 @@ watch(
                 class="full-width"
                 v-show="!pos.isTotalReach && pos.payType != 'Credito Cliente'"
                 tabindex="3"
+                :disable="transbankLoading"
               >
                 <template v-slot:append>
                   <q-btn round dense flat icon="add" @click="enterInputPay" />
                 </template>
               </Input>
+
+              <div
+                v-if="pos.payType == 'POS Integrado' && transbankLoading"
+                class="text-grey-7 text-bold q-ml-sm"
+              >
+                Esperando POS Integrado
+                <q-spinner-dots class="q-ml-md" color="primary" size="2em" />
+              </div>
 
               <SelectInputFetch
                 label="Cliente"
