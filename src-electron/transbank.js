@@ -78,7 +78,7 @@ async function sale(amount, ref) {
     console.error(error)
     if (error == 'Response of POS has not been received in 150 seconds')
       return 'Transbank: Error al conectar'
-    return 'Transbank: Error al realziar una venta'
+    return error
   }
 }
 
