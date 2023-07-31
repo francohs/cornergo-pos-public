@@ -59,17 +59,17 @@ function createWindow() {
 
   mainWindow.loadURL(process.env.APP_URL)
 
-  if (process.env.DEBUGGING) {
-    // if on DEV or Production with debug enabled
-    mainWindow.webContents.openDevTools()
-  } else {
-    // mainWindow.webContents.openDevTools()
-    // we're on production; no access to devtools pls
-    mainWindow.webContents.on('devtools-opened', () => {
-      mainWindow.webContents.closeDevTools()
-    })
-    // mainWindow.removeMenu()
-  }
+  // if (process.env.DEBUGGING) {
+  //   // if on DEV or Production with debug enabled
+  //   mainWindow.webContents.openDevTools()
+  // } else {
+  //   // mainWindow.webContents.openDevTools()
+  //   // we're on production; no access to devtools pls
+  //   mainWindow.webContents.on('devtools-opened', () => {
+  //     mainWindow.webContents.closeDevTools()
+  //   })
+  //   mainWindow.removeMenu()
+  // }
 
   mainWindow.on('closed', () => {
     mainWindow = null
