@@ -5,52 +5,31 @@ import notify from 'tools/notify'
 
 const pos = usePos()
 const loading = ref(false)
-
-const transbank = {
-  keys: {
-    success: 'Transbank: Carga de llaves OK'
-  },
-  detail: {
-    success: 'Transbank: Detalle de ventas OK'
-  },
-  totals: {
-    success: 'Transbank: Totales OK'
-  },
-  close: {
-    success: 'Transbank: Cierre de día OK'
-  },
-  normal: {
-    success: 'Transbank: Modo Normal OK'
-  }
-}
+const transbankActions = ['keys', 'last', 'detail', 'totals', 'close', 'normal']
 
 onMounted(() => {
   if (window.main) {
     if (!pos.transbankStatus) window.main.send('transbank-connect')
 
     window.main.on('transbank-status', response => {
-      if (response == 'Transbank: Conectado') {
+      console.log(response)
+      if (response.success) {
         pos.transbankStatus = true
-        notify.positive(response)
+        notify.positive(response.message)
       } else {
         pos.transbankStatus = false
-        notify.negative(response)
-      }
-      loading.value = false
-    })
-    window.main.on('transbank-last', response => {
-      if (typeof response == 'string') {
-        notify.negative(response)
+        notify.negative(response.message)
       }
       loading.value = false
     })
 
-    for (let action of Object.keys(transbank)) {
+    for (let action of transbankActions) {
       window.main.on('transbank-' + action, response => {
-        if (response == transbank[action].success) {
-          notify.positive(response)
+        console.log(response)
+        if (response.success) {
+          notify.positive(response.message)
         } else {
-          notify.negative(response)
+          notify.negative(response.message)
         }
         loading.value = false
       })

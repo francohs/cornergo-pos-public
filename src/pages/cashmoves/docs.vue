@@ -45,12 +45,6 @@ const loadingClose = ref(false)
 onMounted(async () => {
   await cashMoves.getLast()
   Object.assign(cashMove, cashMoves.doc)
-
-  window.main.on('transbank-close', response => {
-    if (response != 'Transbank: Cierre de día OK') {
-      notify.negative(response)
-    }
-  })
 })
 
 const closeCashMoves = async () => {

@@ -115,14 +115,6 @@ autoUpdater.on('update-downloaded', () => {
 ipcMain.on('printer-status', () => {
   mainWindow.webContents.send('printer-status', printer.findPrinter())
 })
-usb.on('attach', function (device) {
-  if (printer.isPrinter(device))
-    mainWindow.webContents.send('printer-status', true)
-})
-usb.on('detach', function (device) {
-  if (printer.isPrinter(device))
-    mainWindow.webContents.send('printer-status', false)
-})
 
 ipcMain.on('print-dte', printer.printDte)
 ipcMain.on('cashdraw', printer.cashdraw)
@@ -130,19 +122,32 @@ ipcMain.on('print-cash-close', printer.printCashClose)
 ipcMain.on('print-payment', printer.printPayment)
 
 usb.on('attach', async device => {
-  if (transbank.isTransbank(device)) {
-    mainWindow.webContents.send('transbank-status', await transbank.connect())
-    mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+  mainWindow.webContents.send('usb-attach', device)
+  if (printer.isPrinter(device))
+    mainWindow.webContents.send('printer-status', true)
+  else if (transbank.isTransbank(device)) {
+    const response = await transbank.connect()
+    mainWindow.webContents.send('transbank-status', response)
+    if (response.success)
+      mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
   }
 })
 usb.on('detach', async device => {
-  if (transbank.isTransbank(device))
-    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
-  await transbank.disconnect()
+  mainWindow.webContents.send('usb-detach', device)
+  if (printer.isPrinter(device))
+    mainWindow.webContents.send('printer-status', false)
+  else if (transbank.isTransbank(device)) {
+    mainWindow.webContents.send(
+      'transbank-status',
+      await transbank.disconnect()
+    )
+  }
 })
 ipcMain.on('transbank-connect', async () => {
-  mainWindow.webContents.send('transbank-status', await transbank.connect())
-  mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
+  const response = await transbank.connect()
+  mainWindow.webContents.send('transbank-status', response)
+  if (response.success)
+    mainWindow.webContents.send('transbank-keys', await transbank.loadKeys())
 })
 ipcMain.on('transbank-status', async () => {
   mainWindow.webContents.send('transbank-status', await transbank.status())
@@ -180,9 +185,11 @@ ipcMain.on('transbank-normal', async () => {
 
   mainWindow.webContents.send('transbank-normal', response)
 
-  if (response == 'Transbank: Modo Normal OK') {
-    mainWindow.webContents.send('transbank-status', 'Transbank: Desconectado')
-    await transbank.disconnect()
+  if (response.success) {
+    mainWindow.webContents.send(
+      'transbank-status',
+      await transbank.disconnect()
+    )
   }
 })
 

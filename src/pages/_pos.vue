@@ -41,11 +41,10 @@ const scrollRef = ref(null)
 const cardRef = ref(null)
 
 onMounted(async () => {
-  window.main.on('transbank-sale', async voucher => {
-    console.log(voucher)
-    if (typeof voucher == 'string') {
-      notify.negative(voucher)
-    } else {
+  window.main.on('transbank-sale', async response => {
+    console.log(response)
+    if (response.success) {
+      const voucher = response.response
       await vouchers.create(voucher, '')
       pos.addPay(
         voucher.cardType == 'CR' ? 'Tarjeta de Credito' : 'Tarjeta de Debito',
@@ -57,6 +56,8 @@ onMounted(async () => {
           printDte(voucher)
         } else dialog.value = true
       }
+    } else {
+      notify.negative(response.message)
     }
     transbankLoading.value = false
   })

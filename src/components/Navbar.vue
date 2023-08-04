@@ -13,8 +13,17 @@ const isMovile = quasar.screen.width < 480
 onMounted(() => {
   if (window.main) {
     window.main.send('printer-status')
+
     window.main.on('printer-status', status => {
       pos.setPrinterStatus(status)
+    })
+
+    window.main.on('usb-attach', device => {
+      console.log({device})
+    })
+
+    window.main.on('usb-detach', device => {
+      console.log({device})
     })
   }
 })
