@@ -214,9 +214,9 @@ function printDte(event, dte, voucher) {
     printer.size(0.01, 0.01).control('cr').align('lt')
 
     printer.style('b').text('MINIMARKET CORNERGO').style('')
-    printer.text('Servicios de Ingeniería BigVision SpA')
-    printer.text('RUT: 76.260.131-1')
-    printer.text('Casa Matriz: Freire 1698, Concepción')
+    printer.text('Markethome VHS SpA.')
+    printer.text('RUT: 78.122.663-7')
+    printer.text('Casa Matriz: Freire 1694, Concepción')
     printer.text('Giro: Minimarket').feed(1)
 
     printer.text(`${dte.dteTypeName}: ${dte.number}`)
@@ -274,7 +274,7 @@ function printDte(event, dte, voucher) {
       printer.image(image).then(() => {
         printer.feed(1)
         printer.text('Timbre Electrónico S.I.I')
-        printer.text('Res. 80 del 22-08-2014')
+        printer.text('Res. 80 del 14-05-2025')
         printer.text('Verifique Documento: www.sii.cl')
 
         if (voucher) {
